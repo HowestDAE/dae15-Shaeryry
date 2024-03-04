@@ -13,7 +13,7 @@
 #pragma comment(lib, "SDL2.lib")
 #pragma comment(lib, "SDL2main.lib")
  
-// OpenGL libs
+// OpenGL libs 
 #pragma comment (lib,"opengl32.lib")
 #pragma comment (lib,"Glu32.lib")
 
