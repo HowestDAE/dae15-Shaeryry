@@ -1,5 +1,8 @@
 #pragma once
 #include "BaseGame.h"
+#include "EntityManager.h"
+#include "Entity.h"
+
 class Game : public BaseGame
 {
 public:
@@ -10,7 +13,7 @@ public:
 	Game& operator=(Game&& other) = delete;
 	// http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-override
 	~Game();
-
+	
 	void Update( float elapsedSec ) override;
 	void Draw( ) const override;
 
@@ -22,7 +25,7 @@ public:
 	void ProcessMouseUpEvent( const SDL_MouseButtonEvent& e ) override;
 
 private:
-
+	EntityManager* m_EntityManager;
 	// FUNCTIONS
 	void Initialize();
 	void Cleanup( );

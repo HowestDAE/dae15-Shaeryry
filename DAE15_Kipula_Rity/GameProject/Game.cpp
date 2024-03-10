@@ -14,11 +14,12 @@ Game::~Game( )
 
 void Game::Initialize( )
 {
-	
+	m_EntityManager = new EntityManager();
 }
 
 void Game::Cleanup( )
 {
+	delete m_EntityManager;
 }
 
 void Game::Update( float elapsedSec )
