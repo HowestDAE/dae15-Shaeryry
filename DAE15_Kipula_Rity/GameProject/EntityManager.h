@@ -6,9 +6,10 @@ class Entity;
 class EntityManager
 {
 public:
-	EntityManager(EntityManager* manager);
+	EntityManager();
 	~EntityManager();
 	void AddEntity(Entity* entity);
+	std::vector<Entity*> GetEntities() const { return m_Entities; };
 private:
 	std::vector<Entity*> m_Entities;
 };

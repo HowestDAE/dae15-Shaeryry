@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "iostream"
 #include "Game.h"
 
 Game::Game( const Window& window ) 
@@ -15,6 +16,7 @@ Game::~Game( )
 void Game::Initialize( )
 {
 	m_EntityManager = new EntityManager();
+	m_Player = new Player(m_EntityManager,Vector2f{0,0},0);
 }
 
 void Game::Cleanup( )
@@ -24,16 +26,10 @@ void Game::Cleanup( )
 
 void Game::Update( float elapsedSec )
 {
-	// Check keyboard state
-	//const Uint8 *pStates = SDL_GetKeyboardState( nullptr );
-	//if ( pStates[SDL_SCANCODE_RIGHT] )
-	//{
-	//	std::cout << "Right arrow key is down\n";
-	//}
-	//if ( pStates[SDL_SCANCODE_LEFT] && pStates[SDL_SCANCODE_UP])
-	//{
-	//	std::cout << "Left and up arrow keys are down\n";
-	//}
+	for (Entity* entity : m_EntityManager->GetEntities()) {
+		entity->Update(elapsedSec);
+	};
+	//std::cout << m_EntityManager->GetEntities().size() << std::endl;
 }
 
 void Game::Draw( ) const

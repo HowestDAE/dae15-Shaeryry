@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseGame.h"
 #include "EntityManager.h"
-#include "Entity.h"
+#include "Player.h"
 
 class Game : public BaseGame
 {
@@ -26,6 +26,7 @@ public:
 
 private:
 	EntityManager* m_EntityManager;
+	Player* m_Player;
 	// FUNCTIONS
 	void Initialize();
 	void Cleanup( );
