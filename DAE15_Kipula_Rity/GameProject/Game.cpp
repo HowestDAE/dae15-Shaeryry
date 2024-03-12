@@ -16,12 +16,12 @@ Game::~Game( )
 void Game::Initialize( )
 {
 	m_EntityManager = new EntityManager();
-	m_Player = new Player(m_EntityManager,Vector2f{0,0},0);
+	m_Player = new Player(m_EntityManager,Vector2f{0,0},"Kirby");
 }
 
 void Game::Cleanup( )
 {
-	delete m_EntityManager;
+	delete m_EntityManager; 
 }
 
 void Game::Update( float elapsedSec )

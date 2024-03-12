@@ -1,15 +1,16 @@
 #include "pch.h"
+#include <iostream>
 #include "Entity.h"
 #include "EntityManager.h"
 #include "AnimationController.h"
 
-Entity::Entity(EntityManager* manager, const Vector2f& origin, const int entityId) :
+Entity::Entity(EntityManager* manager, const Vector2f& origin, const std::string& entityName) :
 	m_pManager{ manager },
-	m_pAnimator{ new AnimationController() },
+	m_pAnimator{ new AnimationController(this) },
 	m_Position{ origin },
-	m_EntityId{ static_cast<EntityId>(entityId) },
 	m_Health{ 1 }
 {
+	SetName(entityName);
 	manager->AddEntity(this);
 }
 
