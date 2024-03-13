@@ -14,7 +14,21 @@ EntityManager::~EntityManager()
 		delete m_Entities[idx];
 		m_Entities[idx] = nullptr;
 	};
-} 
+}
+void EntityManager::DrawEntities() const
+{
+	for (Entity* entity : GetEntities()) {
+		entity->Draw(); 
+	};
+}
+
+
+void EntityManager::UpdateEntities(float elapsedSec)
+{
+	for (Entity* entity : GetEntities()) {
+		entity->Update(elapsedSec);
+	};
+}
 
 void EntityManager::AddEntity(Entity* entity)
 {

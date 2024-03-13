@@ -17,7 +17,7 @@ void Game::Initialize( )
 {
 	m_EntityManager = new EntityManager();
 	m_Player = new Player(m_EntityManager,Vector2f{0,0},"Kirby");
-}
+} 
 
 void Game::Cleanup( )
 {
@@ -26,15 +26,14 @@ void Game::Cleanup( )
 
 void Game::Update( float elapsedSec )
 {
-	for (Entity* entity : m_EntityManager->GetEntities()) {
-		entity->Update(elapsedSec);
-	};
+	m_EntityManager->UpdateEntities(elapsedSec);
 	//std::cout << m_EntityManager->GetEntities().size() << std::endl;
 }
 
 void Game::Draw( ) const
 {
 	ClearBackground( );
+	m_EntityManager->DrawEntities();
 }
 
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )

@@ -3,6 +3,13 @@
 #include "Component.h"
 #include <iostream>
 
+enum class EntityState {
+	None,
+	Idle,
+	Run,
+	Jump,
+};
+
 class EntityManager;
 class AnimationController;
 class Entity : public Component
@@ -13,18 +20,21 @@ public:
 		const Vector2f& origin = Vector2f{ 0,0 },
 		const std::string& entityName = "Kirby"
 	);
-	~Entity();
+	virtual ~Entity();
+	virtual void Draw() const;
 	virtual void Update(float elapsedSec);
 	// GET METHODS
 	AnimationController* GetAnimator() const { return m_pAnimator; };
-	std::string GetEntityName() const { return m_Name; };
 	Rectf GetEntityBounds() const { return m_BoundingBox; }
 protected:
 	AnimationController* m_pAnimator;
 	EntityManager* m_pManager;
 	Vector2f m_Position;
 	Rectf m_BoundingBox;
-	int m_Health;
+	EntityState m_State;
+
+	// STATES
+	bool m_GravityAffected;
 };
 
 
