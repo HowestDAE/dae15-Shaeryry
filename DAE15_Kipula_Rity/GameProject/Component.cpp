@@ -4,6 +4,7 @@
 
 Component::Component() :
 	m_pParent{ nullptr },
+	m_pTextureManager{ nullptr },
 	m_pTransform{ new Transform() }
 {
 }

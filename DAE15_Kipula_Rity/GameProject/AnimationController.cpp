@@ -17,12 +17,15 @@ AnimationController::~AnimationController()
 	}
 }
 
+
 void AnimationController::DrawAnimations() const
 {
-	Animation* playingAnimation{ m_pAnimations[0] };
-	if (playingAnimation!=nullptr) {
-		if (!playingAnimation->IsEnded()) {
-			playingAnimation->Draw();
+	if (GetTextureManager() != nullptr) {
+		Animation* playingAnimation{ m_pAnimations[0] };
+		if (playingAnimation != nullptr) {
+			if (!playingAnimation->IsEnded()) {
+				playingAnimation->Draw();
+			}
 		}
 	}
 }

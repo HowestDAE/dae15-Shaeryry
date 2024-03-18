@@ -2,39 +2,50 @@
 #include <utils.h>
 #include "Component.h"
 #include <iostream>
+#include <map>
+#include <vector>
+#include "Animation.h"
+
 
 enum class EntityState {
 	None,
-	Idle,
-	Run,
-	Jump,
+	Idle = 1,
+	Run = 2,
+	Jump = 3,
 };
 
 class EntityManager;
 class AnimationController;
+class Animation;
 class Entity : public Component
 {
 public:
 	Entity(
-		EntityManager* manager,
+		EntityManager* entityManager,
 		const Vector2f& origin = Vector2f{ 0,0 },
 		const std::string& entityName = "Kirby"
 	);
 	virtual ~Entity();
 	virtual void Draw() const;
 	virtual void Update(float elapsedSec);
+	virtual void OnStateChanged();
+
+	void SetState(EntityState newState);
+	void SetAnimationData(const std::map<int, AnimationData>& entityAnimations) { m_AnimationsData = entityAnimations; };
 	// GET METHODS
 	AnimationController* GetAnimator() const { return m_pAnimator; };
-	Rectf GetEntityBounds() const { return m_BoundingBox; }
+	Rectf GetEntityBounds() const { return m_BoundingBox; };
+	
 protected:
-	AnimationController* m_pAnimator;
 	EntityManager* m_pManager;
-	Vector2f m_Position;
+
+	Animation* m_pCoreAnimation;
+	AnimationController* m_pAnimator;
+
 	Rectf m_BoundingBox;
 	EntityState m_State;
-
-	// STATES
-	bool m_GravityAffected;
+	EntityState m_OldState;
+	std::map<int, AnimationData> m_AnimationsData;
 };
 
 

@@ -3,6 +3,9 @@
 #include "AnimationController.h"
 #include "Entity.h"
 #include "Transform.h"
+#include "TextureManager.h"
+
+const float Animation::DEFAULT_ANIMATION_UPDATE{.125};
 
 Animation::Animation(AnimationController* animationController, const std::string& animationName, const int frames, const int animationPriorityIndex) :
 	m_pAnimationController{ animationController },
@@ -13,12 +16,13 @@ Animation::Animation(AnimationController* animationController, const std::string
 	m_AnimationClock{ 0 },
 	m_FrameCount{ frames },
 	m_CurrentFrame{ 0 },
-	m_TimePerFrame{ .125 },
+	m_TimePerFrame{ DEFAULT_ANIMATION_UPDATE },
 	m_IsPaused{ false },
 	m_IsLooped{ false },
 	m_HasEnded{ false }
 {
-	m_pTexture = new Texture(GetAnimationPath());
+	std::string animationKey{ m_EntityName + GetAnimationPath() };
+	m_pTexture = m_pAnimationController->GetTextureManager()->GetTexture(animationKey,GetAnimationPath()); //new Texture(GetAnimationPath()); // USE TEXTURE MANAGER TO OPTIMIZE THIS LATER !!!
 	SetParent(m_pAnimationController);
 	//m_pAnimationController->AddAnimation(this);
 }
@@ -78,7 +82,7 @@ void Animation::DeleteAnimation()
 	if (!IsEnded()) {
 		m_HasEnded = true;
 		// Delete Texture !
-		delete m_pTexture;
+		//delete m_pTexture; // remove once texture manager
 	}
 	
 }

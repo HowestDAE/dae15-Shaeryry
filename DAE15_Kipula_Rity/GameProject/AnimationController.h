@@ -3,13 +3,14 @@
 #include "Component.h"
 #include "vector"
 
-class Animation;
+class TextureManager;
 class Entity;
+class Animation;
 class AnimationController : public Component
 {
 public:
 	AnimationController(Component* parent);
-	~AnimationController();
+	~AnimationController();;
 	void DrawAnimations() const;
 	void UpdateAnimations(float elapsedSec);
 	void AddAnimation(Animation* animation);

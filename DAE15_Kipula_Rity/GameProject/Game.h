@@ -1,7 +1,10 @@
 #pragma once
 #include "BaseGame.h"
 #include "EntityManager.h"
+#include "TextureManager.h"
+#include "Camera.h"
 #include "Player.h"
+#include "World.h"
 
 class Game : public BaseGame
 {
@@ -25,7 +28,10 @@ public:
 	void ProcessMouseUpEvent( const SDL_MouseButtonEvent& e ) override;
 
 private:
-	EntityManager* m_EntityManager;
+	Camera* m_pCamera;
+	World* m_pWorld;
+	EntityManager* m_pEntityManager;
+	TextureManager* m_pTextureManager;
 	Player* m_Player;
 	// FUNCTIONS
 	void Initialize();

@@ -17,7 +17,7 @@ EntityManager::~EntityManager()
 }
 void EntityManager::DrawEntities() const
 {
-	for (Entity* entity : GetEntities()) {
+	for (Entity* entity : m_Entities) { // change these to for i
 		entity->Draw(); 
 	};
 }
@@ -25,7 +25,7 @@ void EntityManager::DrawEntities() const
 
 void EntityManager::UpdateEntities(float elapsedSec)
 {
-	for (Entity* entity : GetEntities()) {
+	for (Entity* entity : m_Entities) {
 		entity->Update(elapsedSec);
 	};
 }

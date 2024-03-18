@@ -1,7 +1,7 @@
 #pragma once
-#include "utils.h";
+#include "utils.h"
 
-class Transform
+class Transform // convert to struct later????
 {
 public:
 	Transform();

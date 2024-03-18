@@ -11,7 +11,7 @@ Transform::Transform():
 void Transform::Update(float elapsedSec)
 {
 	Vector2f currentPosition{ this->GetPosition() };
-	Vector2f newPosition{ (currentPosition - Vector2f{0,(9.81f*elapsedSec)}) };
+	Vector2f newPosition{ (currentPosition - Vector2f{0,9.81f}) };
 
 	//temporary check for ground !
 	if (newPosition.y < 0) {

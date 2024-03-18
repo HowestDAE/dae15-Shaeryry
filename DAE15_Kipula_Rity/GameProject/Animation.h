@@ -9,6 +9,14 @@ enum class AnimationPriority {
 	Movement = 1,
 	Action = 2
 };
+
+struct AnimationData {
+	std::string name; 
+	int frames;
+	float updateTime;
+	bool loop;
+};
+
 class AnimationController;
 class Animation : public Component
 {
@@ -19,7 +27,7 @@ public:
 	void Update(float elapsedSec);
 
 	void Loop(bool loopState) { m_IsLooped = loopState; };
-	void SetUpdateTime(float updateTime = .125) { m_TimePerFrame = updateTime; }
+	void SetUpdateTime(float updateTime) { m_TimePerFrame = updateTime; }
 
 	void DeleteAnimation();
 	// GET METHODS
@@ -30,7 +38,8 @@ public:
 	// STATE METHODS
 	bool IsPaused() const { return m_IsPaused; };
 	bool IsLooped() const { return m_IsLooped; };
-	bool IsEnded() const { return m_HasEnded; }
+	bool IsEnded() const { return m_HasEnded; };
+	static const float DEFAULT_ANIMATION_UPDATE;
 private:
 	bool m_HasEnded;
 	bool m_IsPaused;
