@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="1016"
+   height="168"
+   viewBox="0 0 1016 168"
+   sodipodi:docname="VegetableValley.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="2.4096781"
+     inkscape:cx="252.93834"
+     inkscape:cy="100.63585"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer2" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Image 1">
+    <path
+       style="fill:#000000"
+       d="m -0.52772492,128.38108 h 54.06781692 94.222888 58.19366 73.88149 0.3838 v -14.7763 -0.9595 h 31.4716 v 15.5439 h 22.64419 47.44727 58.52949 45.96005 49.94196 v -15.78489 h 9.26131 34.87042 29.32286 22.22329 v 15.61904 h 25.12916 24.83197 14.59539 v -15.61904 h 17.86449 19.94483 22.02516 21.52985 14.43028 V 48.574238 h 31.43621 v 13.241516 18.557935 h 15.68509 v 19.218359 12.977342 h 43.09271 16.77479 28.59639 33.35145 24.5678 30.47856 v 55.3369 H 917.13691 0.6142913 -0.12228726 v -39.41295 z"
+       id="path1" />
+  </g>
+</svg>

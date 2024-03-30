@@ -2,6 +2,7 @@
 #include "BaseGame.h"
 #include "EntityManager.h"
 #include "TextureManager.h"
+#include "CollisionHandler.h"
 #include "Camera.h"
 #include "Player.h"
 #include "World.h"
@@ -28,10 +29,13 @@ public:
 	void ProcessMouseUpEvent( const SDL_MouseButtonEvent& e ) override;
 
 private:
+	
 	Camera* m_pCamera;
 	World* m_pWorld;
+	CollisionHandler* m_pCollisionHandler;
 	EntityManager* m_pEntityManager;
 	TextureManager* m_pTextureManager;
+
 	Player* m_Player;
 	// FUNCTIONS
 	void Initialize();

@@ -9,9 +9,12 @@
 
 enum class EntityState {
 	None,
-	Idle = 1,
-	Run = 2,
-	Jump = 3,
+	Idle,
+	Run,
+	Jump,
+	FallingDown,
+	Freefall,
+	Landed,
 };
 
 class EntityManager;
@@ -28,23 +31,29 @@ public:
 	virtual ~Entity();
 	virtual void Draw() const;
 	virtual void Update(float elapsedSec);
+
+	void MoveTo(float elapsedSec, const Vector2f& direction, float speed);
 	virtual void OnStateChanged();
 
 	void SetState(EntityState newState);
 	void SetAnimationData(const std::map<int, AnimationData>& entityAnimations) { m_AnimationsData = entityAnimations; };
+
 	// GET METHODS
 	AnimationController* GetAnimator() const { return m_pAnimator; };
-	Rectf GetEntityBounds() const { return m_BoundingBox; };
 	
 protected:
+	// manager
 	EntityManager* m_pManager;
 
-	Animation* m_pCoreAnimation;
-	AnimationController* m_pAnimator;
-
-	Rectf m_BoundingBox;
+	// states
+	
+	bool m_InAir;
 	EntityState m_State;
 	EntityState m_OldState;
+
+	// animations
+	Animation* m_pCoreAnimation;
+	AnimationController* m_pAnimator;
 	std::map<int, AnimationData> m_AnimationsData;
 };
 

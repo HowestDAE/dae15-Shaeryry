@@ -5,6 +5,7 @@
 #include "Component.h"
 
 AnimationController::AnimationController(Component* parent)
+	: m_pAnimations{}
 { 
 	SetParent(parent);
 }
@@ -21,10 +22,13 @@ AnimationController::~AnimationController()
 void AnimationController::DrawAnimations() const
 {
 	if (GetTextureManager() != nullptr) {
-		Animation* playingAnimation{ m_pAnimations[0] };
-		if (playingAnimation != nullptr) {
-			if (!playingAnimation->IsEnded()) {
-				playingAnimation->Draw();
+
+		if (m_pAnimations.size() > 0) {
+			Animation* playingAnimation{ m_pAnimations[0] };
+			if (playingAnimation != nullptr) {
+				if (!playingAnimation->IsEnded()) {
+					playingAnimation->Draw();
+				}
 			}
 		}
 	}
@@ -32,13 +36,13 @@ void AnimationController::DrawAnimations() const
 
 void AnimationController::UpdateAnimations(float elapsedSec)
 {
-	for (Animation* animation : m_pAnimations) {
+	//std::cout << m_pAnimations.size() << std::endl;
+	for (size_t animationAtIndex{ 0 }; animationAtIndex < m_pAnimations.size(); animationAtIndex++) {
+		Animation* animation{ m_pAnimations.at(animationAtIndex) };
 		if (!animation->IsEnded()) {
 			animation->Update(elapsedSec);
 		}
-	};
-
-	// FIND A WAY TO CLEAN THE ANIMATIONS THAT ARE NOT IN USE ANYMORE :))))
+	}
 }
 
 void AnimationController::AddAnimation(Animation* animation)
@@ -52,6 +56,7 @@ void AnimationController::AddAnimation(Animation* animation)
 			if (priority >= priorityAtIndex) {
 				std::vector<Animation*>::iterator it = std::find(m_pAnimations.begin(), m_pAnimations.end(), animationAtIndex);
 				m_pAnimations.insert(it, animation);
+				//std::cout << "Added animation ! : " << animation->GetAnimationPath() << std::endl;
 				break;
 			}
 		}
@@ -65,11 +70,11 @@ void AnimationController::RemoveAnimation(Animation* animation)
 	for (size_t animationAtIndex{ 0 }; animationAtIndex < m_pAnimations.size(); ++animationAtIndex) {
 		if (m_pAnimations[animationAtIndex] == animation) {
 			Animation* animationToDelete{ m_pAnimations[animationAtIndex] };
+			//std::cout << "Removed animation ! : " << animationToDelete->GetAnimationPath() << std::endl;
 			delete animationToDelete;
 			//m_pAnimations[animationAtIndex] = nullptr;
 			std::vector<Animation*>::iterator it = std::find(m_pAnimations.begin(), m_pAnimations.end(), animationToDelete);
 			m_pAnimations.erase(it);
-			std::cout << "Removed animation !" << std::endl;
 		}
 	};
 }

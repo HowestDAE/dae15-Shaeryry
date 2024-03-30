@@ -35,21 +35,32 @@ Animation::~Animation()
 void Animation::Draw() const
 {
 	if (m_pTexture != nullptr) {
-		float frameWidth{ static_cast<float>(m_pTexture->GetWidth() / m_FrameCount) };
+
+		const float frameWidth{ static_cast<float>(m_pTexture->GetWidth() / m_FrameCount) };
+		const Vector2f position{ m_pAnimationController->GetParent()->GetTransform()->GetPosition() };
+		const float width{ m_pAnimationController->GetParent()->GetTransform()->GetWidth() };
+		const float height{ m_pAnimationController->GetParent()->GetTransform()->GetHeight() };
+		const float lookDirection{ m_pAnimationController->GetParent()->GetTransform()->GetLookDirection() };
+
+		glPushMatrix();
+		glTranslatef(position.x - std::min(0.f,width*lookDirection), position.y, 0);
+		glScalef(lookDirection, 1, 1);
 		Rectf dstRect{
-			m_pAnimationController->GetParent()->GetTransform()->GetPosition().x,
-			m_pAnimationController->GetParent()->GetTransform()->GetPosition().y,
-			40.f,
-			40.f
-		}; //INTRODUCE WITH TRANSFORM CLASS !!!
+			0,//m_pAnimationController->GetParent()->GetTransform()->GetPosition().x,
+			0,//m_pAnimationController->GetParent()->GetTransform()->GetPosition().y,
+			width,
+			height
+		}; 
 
 		Rectf srcRect{
-			frameWidth * m_CurrentFrame,
-			0,
-			frameWidth,
+			(frameWidth * m_CurrentFrame), // Current Animation frame
+			0, // 0 cuz animations are straight lines
+			frameWidth, // Frame width of the animation
 			m_pTexture->GetHeight(),
 		};
 		m_pTexture->Draw(dstRect,srcRect);
+
+		glPopMatrix();
 		//std::cout << m_AnimationName << " : " << m_CurrentFrame << " : " << m_AnimationClock << std::endl;
 	}
 

@@ -3,6 +3,7 @@
 
 class Transform;
 class TextureManager;
+class CollisionBody;
 class Component
 {
 public:
@@ -19,11 +20,15 @@ public:
 	TextureManager* GetTextureManager() const { return m_pTextureManager; };
 
 	Transform* GetTransform() const { return m_pTransform; };
+
+	CollisionBody* GetCollisionBody() const { return m_pCollisionBody; };
+	void SetCollisionBody(CollisionBody* body) { m_pCollisionBody = body; };
 protected:
 	std::string m_Name;
 	Component* m_pParent; 
 private:
 	TextureManager* m_pTextureManager;
 	Transform* m_pTransform;
+	CollisionBody* m_pCollisionBody;
 };
 

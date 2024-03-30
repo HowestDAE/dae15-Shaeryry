@@ -15,6 +15,7 @@ struct AnimationData {
 	int frames;
 	float updateTime;
 	bool loop;
+	int priority = 0;
 };
 
 class AnimationController;

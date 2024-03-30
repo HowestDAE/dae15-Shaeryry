@@ -17,16 +17,17 @@ EntityManager::~EntityManager()
 }
 void EntityManager::DrawEntities() const
 {
-	for (Entity* entity : m_Entities) { // change these to for i
-		entity->Draw(); 
+	for (size_t entityIndex{0}; entityIndex < m_Entities.size();entityIndex++){
+		//std::cout << m_Entities[entityIndex]->GetName() << " #" << entityIndex << std::endl;
+		m_Entities[entityIndex]->Draw();
 	};
 }
 
 
 void EntityManager::UpdateEntities(float elapsedSec)
 {
-	for (Entity* entity : m_Entities) {
-		entity->Update(elapsedSec);
+	for (size_t entityIndex{0}; entityIndex < m_Entities.size(); entityIndex++) { // change these to for i
+		m_Entities[entityIndex]->Update(elapsedSec);
 	};
 }
 

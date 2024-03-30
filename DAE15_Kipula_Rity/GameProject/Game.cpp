@@ -21,18 +21,22 @@ void Game::Initialize( )
 	m_pCamera = new Camera(GetViewPort());
 	m_pEntityManager = new EntityManager();
 	m_pTextureManager = new TextureManager();
+	m_pCollisionHandler = new CollisionHandler();
 
-	m_pWorld = new World("VegetableValley", m_pTextureManager);
+	m_pWorld = new World(WorldData{"VegetableValley",3.f,1}, m_pTextureManager);
 	m_pWorld->SetWorldScale(3);
+	m_pCollisionHandler->AddBody( new CollisionBody(m_pWorld) );
 
-	m_Player = new Player(m_pEntityManager,Vector2f{0,110.f},"Kirby");
+	m_Player = new Player(m_pEntityManager, Vector2f{0,250.f}, "Kirby");
 	m_Player->GetAnimator()->SetTextureManager(m_pTextureManager);
+	m_pCollisionHandler->AddBody( new CollisionBody(m_Player) );
 } 
 
 void Game::Cleanup( )
 {
 	delete m_pEntityManager; 
 	delete m_pTextureManager;
+	delete m_pCollisionHandler;
 	delete m_pWorld;
 	delete m_pCamera;
 }
@@ -40,6 +44,7 @@ void Game::Cleanup( )
 void Game::Update( float elapsedSec )
 {
 	m_pEntityManager->UpdateEntities(elapsedSec);
+	m_pWorld->Update(elapsedSec);
 	//std::cout << m_EntityManager->GetEntities().size() << std::endl;
 }
 
@@ -48,17 +53,14 @@ void Game::Draw( ) const
 	ClearBackground( );
 	//m_pWorld->Draw();
 
-
 	m_pCamera->DrawCamera(m_pWorld, m_Player->GetTransform()->GetPosition());
 	m_pWorld->Draw();
 	m_pEntityManager->DrawEntities();
 	m_pCamera->Reset(); // reset camera matrix! 
-	//m_pEntityManager->DrawEntities();
 }
 
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 {
-	//std::cout << "KEYDOWN event: " << e.keysym.sym << std::endl;
 }
 
 void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
