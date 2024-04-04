@@ -10,7 +10,9 @@
 Player::Player(EntityManager* manager, const Vector2f& origin, const std::string& entityName)
 	: 
 		Entity(manager, origin, entityName),
-		m_JumpClock{ 0 }
+		m_JumpClock{ 0 },
+		m_Jumping{false},
+		m_PressedSpace{false}
 { 
 	this->GetTransform()->SetWidth(40);
 	this->GetTransform()->SetHeight(40);
@@ -27,10 +29,43 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	this->SetAnimationData(playerTracks);
 }
 
+void Player::OnKeyDownEvent(const SDL_KeyboardEvent& e)
+{
+
+	switch (e.keysym.sym)
+	{
+		case SDLK_SPACE:
+			if (!m_PressedSpace) {
+				m_PressedSpace = true;
+				Jump();
+			}
+			break;
+		default:
+			break;
+	}
+}
+
+void Player::OnKeyUpEvent(const SDL_KeyboardEvent& e)
+{
+	switch (e.keysym.sym)
+	{
+		case SDLK_SPACE:
+			if (m_PressedSpace) {
+				JumpEnd();
+				m_PressedSpace = false;
+			}
+			break;
+		default:
+			break;
+	}
+
+}
+
 void Player::Update(float elapsedSec) 
 { 
 	Transform* playerTransform{ this->GetTransform() };
 	const float currentLookDirection{ playerTransform->GetLookDirection() };
+	const Vector2f alphaCurrentVelocity{ playerTransform->GetCurrentVelocity() };
 
 	// Default Update
 
@@ -50,8 +85,30 @@ void Player::Update(float elapsedSec)
 	EntityState currentState{ m_State };
 	EntityState nextState{ m_State };
 
+	// Jump
+	if (m_Jumping) {
+		m_JumpClock += elapsedSec;
+
+		float jumpDampening{ 1 };
+		if (m_JumpClock >= (JUMP_HOLD_TIME * .12f)) {
+			jumpDampening = .08f;
+		}
+		//std::cout << "Jump Dampening : " << jumpDampening << std::endl;
+
+		if (m_JumpClock < (JUMP_HOLD_TIME * .5f)) {
+			playerTransform->AddVelocity(Vector2f{ 0,((JUMP_POWER * jumpDampening) * elapsedSec) });
+		}
+
+		if (m_JumpClock >= JUMP_HOLD_TIME) {
+			// THIS IS THE END OF A JUMP
+			JumpEnd();
+			m_JumpClock = JUMP_HOLD_TIME;
+		}
+	}
+
 	if (GetCollisionBody()->IsGrounded()) // Small Grounded logic
 	{
+		// Run & Idle
 		if (abs(currentVelocity.x) > 0) { // Run
 			nextState = EntityState::Run;
 		} else {
@@ -69,11 +126,11 @@ void Player::Update(float elapsedSec)
 		if (currentVelocity.y < 0) { // Checks if Y motion is negative, which means you're falling !
 			nextState = EntityState::Freefall;
 		}
-		
 		// Jumping
-		if (currentState == EntityState::Jump) {
-			nextState = EntityState::FallingDown;
-		};
+		if (m_Jumping) {
+			nextState = EntityState::Jump;
+		}
+		
 	}
 
 	SetState(nextState);
@@ -85,11 +142,13 @@ void Player::Update(float elapsedSec)
 	// Landing Event
 	if (currentState == EntityState::Landed) {
 		m_JumpClock = 0;
+		m_Jumping = false;
 	};
 	
 	// Side Slip on run thing Event
 
 	if (currentState == EntityState::Run) {
+
 		const bool switchedDirection{ currentLookDirection != playerTransform->GetLookDirection() };
 		const bool fullyRunning{ playerTransform->GetAcceleration() >= 80 };
 		if (fullyRunning && switchedDirection) {
@@ -97,12 +156,15 @@ void Player::Update(float elapsedSec)
 			m_pAnimator->PlayAnimation("Tilt", 1, 1)->SetUpdateTime(FLIP_SIDE_TIME);
 		}
 	}
-}
 
-void Player::OnStateChanged()
-{
-	Entity::OnStateChanged();
-	//std::cout << "Current state -> " << int(m_State) << std::endl;
+	// Wall stop !
+	if (playerTransform->GetCurrentVelocity().x <= 0 && abs(alphaCurrentVelocity.x) > 0 && GetCollisionBody()->IsWallbound()) {
+		if (playerTransform->GetAcceleration() >= 50) {
+			//std::cout << "Wall oomf chan" << std::endl;
+			playerTransform->SetAcceleration(0);
+			m_pAnimator->PlayAnimation("Squish", 1, 1)->SetUpdateTime(SQUISH_TIME);
+		}
+	}
 }
 
 bool Player::InAir()
@@ -113,14 +175,30 @@ bool Player::InAir()
 		or m_State == EntityState::Freefall;
 }
 
-void Player::Jump(bool holding,float elapsedSec)
+void Player::Jump()
 {	
-	bool IsJumping{ holding && (m_JumpClock <= JUMP_HOLD_TIME) };
-	if (IsJumping) {
+	if (!m_Jumping && !InAir()) {
+		m_JumpClock = 0;
+		m_Jumping = true;
+		GetTransform()->SetVelocity(Vector2f{ GetTransform()->GetVelocity().x ,0 });
+	}
+	std::cout << "Pressed key !" << std::endl;
+	/*bool IsJumping{holding && (m_JumpClock <= JUMP_HOLD_TIME)};
+	if (IsJumping && m_CanJump) {
+		m_CanJump = false;
 		SetState(EntityState::Jump);
 		GetTransform()->AddVelocity(Vector2f{ 0,JUMP_POWER });
 		m_JumpClock += elapsedSec;
+	}*/
+}
+
+void Player::JumpEnd()
+{
+	if (m_Jumping) {
+		m_pAnimator->PlayAnimation("FallingDown", 5, 1)->SetUpdateTime((Animation::DEFAULT_ANIMATION_UPDATE * .75f));
+		m_Jumping = false;
 	}
+
 }
 
 void Player::UpdateKeyboard(float elapsedSec)
@@ -148,8 +226,7 @@ void Player::UpdateKeyboard(float elapsedSec)
 		//playerTransform->SetAcceleration(100);
 		inputPressed = true;
 	};
-	Jump(pStates[SDL_SCANCODE_SPACE],elapsedSec);
-
+	 
 	this->MoveTo(elapsedSec, direction.Normalized(), MOVEMENT_SPEED * currentAccelerationRatio);
 }
 

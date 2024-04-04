@@ -21,6 +21,7 @@ public:
 	std::vector<Point2f> GetVertices() const { return m_Vertices; };
 
 	bool IsGrounded() const { return m_IsGrounded; };
+	bool IsWallbound() const { return m_IsWallbound; };
 	bool IsActive() const { return m_Active; };
 private:
 	CollisionHandler* m_pCollisionHandler;
@@ -28,5 +29,6 @@ private:
 	std::vector<Point2f> m_Vertices;
 	bool m_Active;
 	bool m_IsGrounded;
+	bool m_IsWallbound;
 };
 

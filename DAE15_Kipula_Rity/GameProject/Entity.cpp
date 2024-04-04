@@ -10,7 +10,6 @@
 
 Entity::Entity(EntityManager* manager, const Vector2f& origin, const std::string& entityName) :
 	m_pManager{ manager },
-	m_pAnimator{ new AnimationController(this) },
 	m_pCoreAnimation{ nullptr },
 	m_State{ EntityState::Idle },
 	m_OldState{ EntityState::None },
@@ -19,6 +18,7 @@ Entity::Entity(EntityManager* manager, const Vector2f& origin, const std::string
 	this->SetName(entityName);
 	this->GetTransform()->SetPosition(origin);
 	manager->AddEntity(this);
+	m_pAnimator = new AnimationController(this);
 }
 
 Entity::~Entity() {
@@ -51,7 +51,7 @@ void Entity::MoveTo(float elapsedSec, const Vector2f& direction , float speed)
 	movement.x = xPos;
 	movement.y = yPos;
 
-	Vector2f newPosition{ (entityPosition + movement) };
+	Vector2f newPosition{ (entityPosition + movement) }; 
 	float xDifference{ (newPosition - entityPosition).x };
 
 	if (xDifference != 0) {

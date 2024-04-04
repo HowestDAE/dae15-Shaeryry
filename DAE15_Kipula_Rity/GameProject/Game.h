@@ -1,10 +1,7 @@
 #pragma once
 #include "BaseGame.h"
-#include "EntityManager.h"
-#include "TextureManager.h"
-#include "CollisionHandler.h"
-#include "Camera.h"
-#include "Player.h"
+#include "SceneManager.h"
+#include "Scene.h"
 #include "World.h"
 
 class Game : public BaseGame
@@ -28,15 +25,12 @@ public:
 	void ProcessMouseDownEvent( const SDL_MouseButtonEvent& e ) override;
 	void ProcessMouseUpEvent( const SDL_MouseButtonEvent& e ) override;
 
+	// Custom Methods
+	std::map<std::string, WorldData> GetScenes() const { return m_Scenes; };
 private:
-	
-	Camera* m_pCamera;
-	World* m_pWorld;
-	CollisionHandler* m_pCollisionHandler;
-	EntityManager* m_pEntityManager;
-	TextureManager* m_pTextureManager;
+	SceneManager* m_SceneManager;
+	std::map<std::string, WorldData> m_Scenes;
 
-	Player* m_Player;
 	// FUNCTIONS
 	void Initialize();
 	void Cleanup( );

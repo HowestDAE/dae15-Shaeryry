@@ -3,6 +3,7 @@
 #include <Texture.h>
 #include <vector>
 #include "Component.h"
+#include <map>
 
 struct WorldData {
 	std::string name;
@@ -18,6 +19,8 @@ public:
 	~World();
 	void Draw() const;
 	void Update(float elapsedSec);
+
+	// Getters
 	void SetWorldScale(float scale) { m_WorldScale = scale; }
 	Rectf GetWorldRect() { return m_WorldRect; };
 	float GetWorldScale() { return m_WorldScale; }

@@ -86,10 +86,17 @@ bool CollisionBody::FrontCollision(const Vector2f& pos)
 	const float lookDirection{ abs(currentVelocity.x) / currentVelocity.x };
 	const float xRayLength{ (bodyWidth / 2)  };
 
-	const Vector2f lookVector{ origin + Vector2f{ xRayLength * lookDirection , 0 } };
+	const Vector2f lookVector{ origin + Vector2f{ (xRayLength * lookDirection) , currentVelocity.y * xRayLength } };
 	utils::HitInfo lookCollision{ CheckCollision(origin, lookVector) };
 
-	return (IsActive() && (lookCollision.lambda != -1));
+	bool isColliding{ (IsActive() && (lookCollision.lambda != -1)) };
+	if (isColliding) {
+		m_IsWallbound = true;
+	}
+	else {
+		m_IsWallbound = false;
+	}
+	return isColliding;
 }
 
 utils::HitInfo CollisionBody::CheckCollision(const Vector2f& from, const Vector2f& target)

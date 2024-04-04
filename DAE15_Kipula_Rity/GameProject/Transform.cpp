@@ -2,7 +2,7 @@
 #include "Transform.h"
 #include <iostream>
 
-const float Transform::GRAVITY{ 1250 };
+const float Transform::GRAVITY{ 1500 };
 
 Transform::Transform() :
 	m_Position(0, 0),

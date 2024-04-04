@@ -8,6 +8,9 @@ AnimationController::AnimationController(Component* parent)
 	: m_pAnimations{}
 { 
 	SetParent(parent);
+	if (parent != nullptr) {
+		SetTextureManager(parent->GetTextureManager());
+	}
 }
 
 AnimationController::~AnimationController()

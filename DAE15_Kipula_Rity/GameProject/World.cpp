@@ -9,6 +9,7 @@
 World::World(const WorldData& worldData,TextureManager* textureManager) :
 	m_WorldScale{worldData.scale}
 {
+
 	SetName(worldData.name);
 	SetTextureManager(textureManager);
 	m_pWorldTexture = GetTextureManager()->GetTexture(worldData.name, GetWorldTexturePath());

@@ -1,9 +1,11 @@
 #include "pch.h"
 #include "EntityManager.h"
 #include "Entity.h"
+#include "AnimationController.h"
 
-EntityManager::EntityManager() :
-	m_Entities{}
+EntityManager::EntityManager(TextureManager* textureManager) :
+	m_Entities{},
+	m_pTextureManager{textureManager}
 {
 
 }
@@ -33,5 +35,6 @@ void EntityManager::UpdateEntities(float elapsedSec)
 
 void EntityManager::AddEntity(Entity* entity)
 {
+	entity->SetTextureManager(m_pTextureManager);
 	m_Entities.push_back(entity);
 }
