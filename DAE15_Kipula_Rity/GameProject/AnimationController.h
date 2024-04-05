@@ -18,5 +18,6 @@ public:
 	Animation* PlayAnimation(const std::string& animationName, const int frames, const int animationPriorityIndex);
 private:
 	std::vector<Animation*> m_pAnimations;
+	TextureManager* m_pTextureManager;
 };
 

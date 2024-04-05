@@ -29,7 +29,9 @@ void CollisionHandler::RemoveBody(Component* Instance)
 {
 	for (size_t indexBody{}; indexBody < m_Objects.size(); ++indexBody) {
 		if (m_Objects[indexBody]->GetComponent() == Instance) {
+			m_Objects[indexBody]->GetComponent()->SetCollisionBody(nullptr);
 			delete m_Objects[indexBody];
+		//	m_Objects[indexBody] = nullptr;
 			m_Objects.erase(m_Objects.begin() + indexBody);
 			break;
 		}

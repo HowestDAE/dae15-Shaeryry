@@ -6,10 +6,17 @@
 
 CollisionBody::CollisionBody(Component* Instance) :
 	m_Active{ true },
+	m_IsGrounded{false},
+	m_IsWallbound{false},
+	m_Tag{"Default"},
 	m_Instance{ Instance },
 	m_pCollisionHandler{nullptr}
 {
 
+}
+
+CollisionBody::~CollisionBody()
+{
 }
 
 void CollisionBody::DrawCollider() const
@@ -52,7 +59,7 @@ void CollisionBody::ApplyDefaultCollisions()
 
 		const Vector2f upVector{ origin + Vector2f{ 0 , yRayLength * upDirection }}; 
 
-		utils::HitInfo upCollision{ CheckCollision(origin, upVector) };
+		utils::HitInfo upCollision{ CheckCollision(origin, upVector,{"Collidable"}) };
 		Vector2f positionPostCollision{ position };
 		Vector2f velocityPostCollision{ bodyTransform->GetVelocity() };
 
@@ -87,7 +94,7 @@ bool CollisionBody::FrontCollision(const Vector2f& pos)
 	const float xRayLength{ (bodyWidth / 2)  };
 
 	const Vector2f lookVector{ origin + Vector2f{ (xRayLength * lookDirection) , currentVelocity.y * xRayLength } };
-	utils::HitInfo lookCollision{ CheckCollision(origin, lookVector) };
+	utils::HitInfo lookCollision{ CheckCollision(origin, lookVector,{"Collidable"})};
 
 	bool isColliding{ (IsActive() && (lookCollision.lambda != -1)) };
 	if (isColliding) {
@@ -99,7 +106,7 @@ bool CollisionBody::FrontCollision(const Vector2f& pos)
 	return isColliding;
 }
 
-utils::HitInfo CollisionBody::CheckCollision(const Vector2f& from, const Vector2f& target)
+utils::HitInfo CollisionBody::CheckCollision(const Vector2f& from, const Vector2f& target,const std::vector<std::string>& tags)
 {
 	std::vector<CollisionBody*> m_Bodies{ m_pCollisionHandler->GetBodies() };
 	utils::HitInfo hitResult;
@@ -107,9 +114,10 @@ utils::HitInfo CollisionBody::CheckCollision(const Vector2f& from, const Vector2
 
 	for (size_t collisionBodyIndex{}; collisionBodyIndex < m_Bodies.size(); collisionBodyIndex++) {
 		const CollisionBody* currentBody{ m_Bodies[collisionBodyIndex] };
+		const bool hasTag{ std::find(tags.begin(), tags.end(), currentBody->GetTag() ) != tags.end() };
 		utils::HitInfo ray;
 
-		if (currentBody != this) {
+		if (currentBody != this && hasTag) {
 			bool rayHit{ utils::Raycast(currentBody->GetVertices(), from.ToPoint2f(), target.ToPoint2f(), ray) };
 			if (rayHit) {
 				hitResult = ray;

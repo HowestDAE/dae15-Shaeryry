@@ -24,6 +24,8 @@ Animation::Animation(AnimationController* animationController, const std::string
 	std::string animationKey{ m_EntityName + GetAnimationPath() };
 	m_pTexture = m_pAnimationController->GetTextureManager()->GetTexture(animationKey,GetAnimationPath()); //new Texture(GetAnimationPath()); // USE TEXTURE MANAGER TO OPTIMIZE THIS LATER !!!
 	SetParent(m_pAnimationController);
+	SetName(animationName);
+	//std::cout << "Created animation > " << animationName << std::endl;
 	//m_pAnimationController->AddAnimation(this);
 }
 

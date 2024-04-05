@@ -21,6 +21,7 @@ World::World(const WorldData& worldData,TextureManager* textureManager) :
 	};
 	
 	// COLLISION DATA SETUP
+
 	const std::string collisionPath{ "Worlds/" + worldData.name + ".svg" };
 	Matrix2x3 transform_matrix{
 		Matrix2x3::CreateTranslationMatrix(0,0) *
@@ -33,6 +34,7 @@ World::World(const WorldData& worldData,TextureManager* textureManager) :
 	for (size_t index{}; index < m_CollisionData.size(); index++) {
 		m_CollisionData[index] = transform_matrix.Transform(m_CollisionData[index]);
 	};
+
 	//
 
 }

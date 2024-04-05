@@ -15,14 +15,17 @@ Entity::Entity(EntityManager* manager, const Vector2f& origin, const std::string
 	m_OldState{ EntityState::None },
 	m_InAir{ false }
 {
+	m_pAnimator = new AnimationController(this);
+
 	this->SetName(entityName);
 	this->GetTransform()->SetPosition(origin);
-	manager->AddEntity(this);
-	m_pAnimator = new AnimationController(this);
-}
+
+	m_pManager->AddEntity(this);
+} 
 
 Entity::~Entity() {
 	// Remove entity from the manager !
+	m_pManager->RemoveEntity(this);
 	delete m_pAnimator;
 }
 
@@ -83,6 +86,7 @@ void Entity::OnStateChanged()
 	}
 	
 }
+
 
 void Entity::SetState(EntityState newState)
 {

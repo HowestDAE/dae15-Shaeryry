@@ -3,14 +3,14 @@
 #include "Animation.h"
 #include "AnimationController.h"
 #include "Component.h"
+#include "TextureManager.h"
 
 AnimationController::AnimationController(Component* parent)
 	: m_pAnimations{}
 { 
+	m_pTextureManager = new TextureManager();
 	SetParent(parent);
-	if (parent != nullptr) {
-		SetTextureManager(parent->GetTextureManager());
-	}
+	SetTextureManager(m_pTextureManager);
 }
 
 AnimationController::~AnimationController()
@@ -19,6 +19,7 @@ AnimationController::~AnimationController()
 		delete m_pAnimations[animationAtIndex];
 		m_pAnimations[animationAtIndex] = nullptr;
 	}
+	delete m_pTextureManager;
 }
 
 

@@ -25,10 +25,10 @@ class Entity : public Component
 public:
 	Entity(
 		EntityManager* entityManager,
-		const Vector2f& origin = Vector2f{ 0,0 },
-		const std::string& entityName = "Kirby"
+		const Vector2f& origin,
+		const std::string& entityName
 	);
-	virtual ~Entity();
+	~Entity();
 	virtual void Draw() const;
 	virtual void Update(float elapsedSec);
 
@@ -37,13 +37,12 @@ public:
 
 	void SetState(EntityState newState);
 	void SetAnimationData(const std::map<int, AnimationData>& entityAnimations) { m_AnimationsData = entityAnimations; };
-
 	// GET METHODS
 	AnimationController* GetAnimator() const { return m_pAnimator; };
 	
 protected:
 	// manager
-	EntityManager* m_pManager;
+	EntityManager* m_pManager; 
 
 	// states
 	

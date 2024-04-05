@@ -6,6 +6,7 @@ class Camera;
 class World;
 class EntityManager;
 class TextureManager;
+class EnemySpawnerHandler;
 class CollisionHandler;
 class Game;
 class Player;
@@ -18,8 +19,12 @@ public:
 	void Update(float elapsedSec);
 	void Draw() const;
 	void SetPause(bool paused) { m_Paused = paused; };
-	float GetSceneTimer() const { return m_SceneTime; }
-	Player* GetPlayer() const { return m_pPlayer; }
+
+	float GetSceneTimer() const { return m_SceneTime; };
+	Player* GetPlayer() const { return m_pPlayer; };
+	Camera* GetCamera() const { return m_pCamera; };
+	EntityManager* GetEntityManager() const { return m_pEntityManager; };
+	CollisionHandler* GetCollisionHandler() const { return m_pCollisionHandler; };
 private:
 	float m_SceneTime;
 	bool m_Initialized;
@@ -31,5 +36,6 @@ private:
 	EntityManager* m_pEntityManager;
 	TextureManager* m_pTextureManager;
 	CollisionHandler* m_pCollisionHandler;
+	EnemySpawnerHandler* m_pSpawnerManager;
 };
 

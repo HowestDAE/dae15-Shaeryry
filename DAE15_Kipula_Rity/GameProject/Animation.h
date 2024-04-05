@@ -19,7 +19,7 @@ struct AnimationData {
 };
 
 class AnimationController;
-class Animation : public Component
+class Animation final : public Component
 {
 public:
 	Animation(AnimationController* animationController,const std::string& animationName, const int frames,const int animationPriorityIndex);

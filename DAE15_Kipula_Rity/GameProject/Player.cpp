@@ -15,7 +15,7 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 		m_PressedSpace{false}
 { 
 	this->GetTransform()->SetWidth(40);
-	this->GetTransform()->SetHeight(40);
+	this->GetTransform()->SetHeight(40); 
 
 	std::map<int, AnimationData> playerTracks{};
 	playerTracks[0] = AnimationData{ "None",1,2,true };
