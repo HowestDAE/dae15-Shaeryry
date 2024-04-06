@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 #include <vector>
 #include "Component.h"
 #include "Enemy.h"
@@ -14,9 +15,12 @@ public:
 	void RemoveEnemy(Enemy* enemy);
 	bool CanSpawn(const Camera* camera);
 
+	bool IsVisible() { return m_Visible; };
+	void SetVisible(bool newState) { m_Visible = newState; }
 	EnemyType GetSpawnerType() const { return m_SpawnerType; };
-
+	std::vector<Enemy*> GetEnemies() const { return m_SpawnedEnemies; };
 private:
+	bool m_Visible;
 	int m_MaxEnemies;
 	std::vector<Enemy*> m_SpawnedEnemies;
 	EnemyType m_SpawnerType;

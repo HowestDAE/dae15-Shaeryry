@@ -5,6 +5,7 @@
 #include "Camera.h"
 
 EnemySpawner::EnemySpawner(const EnemyType typeSpawner, const Vector2f& position, const int amountEnemies = 1) :
+	m_Visible{ false },
 	m_SpawnerType{ typeSpawner },
 	m_MaxEnemies{ amountEnemies }
 {
@@ -15,11 +16,18 @@ void EnemySpawner::Update(float elapsedSec,const Camera* camera)
 {
 	for (size_t enemyIndex{}; enemyIndex < m_SpawnedEnemies.size(); enemyIndex++) {
 		Enemy* currentEnemy{ m_SpawnedEnemies[enemyIndex] };
+		Transform* currentEnemyTransform{ currentEnemy->GetTransform() };
+		const float lookDirection{ currentEnemyTransform->GetLookDirection() };
+		const Vector2f currentEnemyPosition{ currentEnemyTransform->GetPosition() };
+		const Vector2f offset{ currentEnemyTransform->GetWidth() * -lookDirection,0 };
+		const Vector2f offsetedPosition{ currentEnemyPosition + offset };
+		
 		// Check for dead enemies !
-		// Check if enemy isn't visible anymore !
-		if (!camera->IsPointOnScreen(currentEnemy->GetTransform()->GetPosition().ToPoint2f())) { // if not on screen
+		if (!camera->IsPointOnScreen(offsetedPosition.ToPoint2f()) && currentEnemy->IsEnemyVisible()) { // Check if enemy isn't visible anymore !
 			this->RemoveEnemy(currentEnemy);
-		}
+		};
+
+		currentEnemy->SetEnemyVisibleState(camera->IsPointOnScreen(offsetedPosition.ToPoint2f()));
 	};
 }
 
@@ -34,7 +42,6 @@ void EnemySpawner::RemoveEnemy(Enemy* enemy)
 	if (HasSpawned) {
 		for (size_t enemyIndex{}; enemyIndex < m_SpawnedEnemies.size(); enemyIndex++) {
 			if (m_SpawnedEnemies[enemyIndex] == enemy) {
-				std::cout << "Out of sight, out of mind !" << std::endl;
 				//m_SpawnedEnemies[enemyIndex] = nullptr;
 				delete m_SpawnedEnemies[enemyIndex];
 				//m_SpawnedEnemies[enemyIndex] = nullptr;

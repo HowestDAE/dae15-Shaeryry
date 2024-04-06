@@ -2,6 +2,7 @@
 #include "iostream"
 #include "Game.h"
 #include "Player.h"
+#include "Enemy.h"
 #include "Transform.h"
 #include "AnimationController.h"
 
@@ -19,7 +20,14 @@ Game::~Game( )
 void Game::Initialize( )
 {
 	// Load scenes hashmap so it's easy to load between the "worlds" !
-	m_Scenes["Vegetable Valley 1"] = WorldData{ "VegetableValley",3.f,1 };
+	m_Scenes["Vegetable Valley 1"] = WorldData{ 
+		"VegetableValley",
+		3.f,
+		1,
+		{
+			SpawnerData{ Vector2f(870,165),EnemyType::WaddleDoo,1}
+		}
+	};
 	m_SceneManager = new SceneManager();
 
 	Scene* newScene{ new Scene(this) };

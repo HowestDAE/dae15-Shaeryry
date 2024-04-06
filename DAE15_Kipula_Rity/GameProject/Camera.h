@@ -1,6 +1,8 @@
 #pragma once
+#include "pch.h"
 #include <utils.h>
 #include "Component.h"
+
 
 class World;
 class Camera : public Component

@@ -3,16 +3,14 @@
 #include "Transform.h"
 
 Enemy::Enemy(EntityManager* entityManager, const Vector2f& origin, const std::string& entityName)
-	: Entity(entityManager,origin,entityName)
+	: 
+	Entity(entityManager,origin,entityName),
+	m_IsVisible{false}
 {
-	this->GetTransform()->SetWidth(40);
-	this->GetTransform()->SetHeight(40);
+	this->GetTransform()->SetWidth(DEFAULT_ENTITY_WIDTH);
+	this->GetTransform()->SetHeight(DEFAULT_ENTITY_HEIGHT);
 
-	std::map<int, AnimationData> enemyTracks{};
-	enemyTracks[2] = AnimationData{ "Run",2,Animation::DEFAULT_ANIMATION_UPDATE,true };
-	this->SetAnimationData(enemyTracks);
-
-	SetState(EntityState::Run);
+	//SetState(EntityState::Run);
 }
 
 void Enemy::Update(float elapsedSec)
@@ -21,12 +19,19 @@ void Enemy::Update(float elapsedSec)
 	this->GetTransform()->ApplyPhysics(elapsedSec);
 }
 
-void Enemy::GoToTarget(float elapsedSec,Entity* target)
+void Enemy::GoToTarget(float elapsedSec, Entity* target)
 {
-	this->MoveTo(elapsedSec,target->GetTransform()->GetPosition(),0);
 }
 
 void Enemy::AttackTarget(Entity* target)
 {
+}
+
+Vector2f Enemy::GetDirectionVector(Entity* entity1, Entity* entity2)
+{
+	const Vector2f positionEntity_1{ entity1->GetTransform()->GetPosition() };
+	const Vector2f positionEntity_2{ entity2->GetTransform()->GetPosition() };
+
+	return Vector2f(positionEntity_2-positionEntity_1);
 }
 

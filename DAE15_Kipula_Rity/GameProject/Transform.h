@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 #include "utils.h"
 
 class Transform // convert to struct later????
@@ -24,9 +25,12 @@ public:
 	void SetHeight(float height) { m_Height = height; };
 	float GetLookDirection() const { return m_LookDirection; };
 
-	//Acceleration
+
+	//Acceleration & Deceleration
+
 	void AddAcceleration(float accel);
-	void SetAcceleration(float accel) { m_Acceleration = accel; }
+	void SetAcceleration(float accel) { m_Acceleration = accel; };
+	void SetDeceleration(float decel) { m_Deceleration = decel; }
 	float GetAcceleration() const { return m_Acceleration; };
 
 	//Rotation & Orientation
@@ -36,8 +40,6 @@ public:
 	Vector2f GetCurrentVelocity() const { return m_CurrentVelocity; };
 	float GetWidth() const { return m_Width; };
 	float GetHeight() const { return m_Height; };
-
-	static const float GRAVITY;
 private:
 	void SetCurrentVelocity(const Vector2f& newVelocity) { m_CurrentVelocity = newVelocity; };
 	Vector2f m_CurrentVelocity;
@@ -47,6 +49,7 @@ private:
 	float m_Width;
 	float m_Height;
 	float m_Acceleration;
+	float m_Deceleration;
 	float m_LookDirection;
 	//float m_Rotation;
 };

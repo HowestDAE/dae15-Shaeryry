@@ -54,7 +54,10 @@ void Scene::Initialize(const std::string& worldName)
 		// Change spawn point dependant on world data later??? Maybe throw in an extra parameter so I can choose where you land!!
 
 		// Temporary waddle doo spawner, but in reality loop over a list of positions&types gotten through the world data
-		m_pSpawnerManager->CreateSpawner( new EnemySpawner(EnemyType::WaddleDoo,Vector2f{400,250},1) );
+		for (size_t spawnerIndex{}; spawnerIndex < worldData.spawners.size(); spawnerIndex++) {
+			SpawnerData spawnerData{ worldData.spawners[spawnerIndex] };
+			m_pSpawnerManager->CreateSpawner(new EnemySpawner(spawnerData.typeSpawner, spawnerData.position, spawnerData.amountEnemies));
+		}
 
 
 		m_Initialized = true;
@@ -81,6 +84,6 @@ void Scene::Draw() const
 		m_pEntityManager->DrawEntities();
 		m_pCamera->Reset(); // reset camera matrix! 
 	}
-
+	//std::cout << m_pPlayer->GetTransform()->GetPosition().x << ":" << m_pPlayer->GetTransform()->GetPosition().y << std::endl; // Output position for spawners !
 }
 

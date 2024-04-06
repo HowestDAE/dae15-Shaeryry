@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 #include <iostream>
 #include "Component.h"
 #include <Texture.h>
@@ -40,7 +41,6 @@ public:
 	bool IsPaused() const { return m_IsPaused; };
 	bool IsLooped() const { return m_IsLooped; };
 	bool IsEnded() const { return m_HasEnded; };
-	static const float DEFAULT_ANIMATION_UPDATE;
 private:
 	bool m_HasEnded;
 	bool m_IsPaused;

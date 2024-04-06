@@ -14,17 +14,17 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 		m_Jumping{false},
 		m_PressedSpace{false}
 { 
-	this->GetTransform()->SetWidth(40);
-	this->GetTransform()->SetHeight(40); 
+	this->GetTransform()->SetWidth(DEFAULT_ENTITY_WIDTH);
+	this->GetTransform()->SetHeight(DEFAULT_ENTITY_HEIGHT); 
 
 	std::map<int, AnimationData> playerTracks{};
 	playerTracks[0] = AnimationData{ "None",1,2,true };
 	playerTracks[1] = AnimationData{"Idle",1,2,true};
-	playerTracks[2] = AnimationData{ "Run",4,Animation::DEFAULT_ANIMATION_UPDATE,true };
-	playerTracks[3] = AnimationData{ "Jump",1,Animation::DEFAULT_ANIMATION_UPDATE,true };
-	playerTracks[4] = AnimationData{ "FallingDown",5,(Animation::DEFAULT_ANIMATION_UPDATE * .75f),false,2 };
-	playerTracks[5] = AnimationData{ "Freefall",1,Animation::DEFAULT_ANIMATION_UPDATE,true };
-	playerTracks[6] = AnimationData{ "Landed",1,Animation::DEFAULT_ANIMATION_UPDATE,false,2 };
+	playerTracks[2] = AnimationData{ "Run",4,DEFAULT_ANIMATION_UPDATE,true };
+	playerTracks[3] = AnimationData{ "Jump",1,DEFAULT_ANIMATION_UPDATE,true };
+	playerTracks[4] = AnimationData{ "FallingDown",5,(DEFAULT_ANIMATION_UPDATE * .75f),false,2 };
+	playerTracks[5] = AnimationData{ "Freefall",1,DEFAULT_ANIMATION_UPDATE,true };
+	playerTracks[6] = AnimationData{ "Landed",1,DEFAULT_ANIMATION_UPDATE,false,2 };
 
 	this->SetAnimationData(playerTracks);
 }
@@ -90,19 +90,19 @@ void Player::Update(float elapsedSec)
 		m_JumpClock += elapsedSec;
 
 		float jumpDampening{ 1 };
-		if (m_JumpClock >= (JUMP_HOLD_TIME * .12f)) {
+		if (m_JumpClock >= (KIRBY_JUMP_MAX_TIME * .12f)) {
 			jumpDampening = .08f;
 		}
 		//std::cout << "Jump Dampening : " << jumpDampening << std::endl;
 
-		if (m_JumpClock < (JUMP_HOLD_TIME * .5f)) {
-			playerTransform->AddVelocity(Vector2f{ 0,((JUMP_POWER * jumpDampening) * elapsedSec) });
+		if (m_JumpClock < (KIRBY_JUMP_MAX_TIME * .5f)) {
+			playerTransform->AddVelocity(Vector2f{ 0,((KIRBY_JUMP_POWER * jumpDampening) * elapsedSec) });
 		}
 
-		if (m_JumpClock >= JUMP_HOLD_TIME) {
+		if (m_JumpClock >= KIRBY_JUMP_MAX_TIME) {
 			// THIS IS THE END OF A JUMP
 			JumpEnd();
-			m_JumpClock = JUMP_HOLD_TIME;
+			m_JumpClock = KIRBY_JUMP_MAX_TIME;
 		}
 	}
 
@@ -153,7 +153,7 @@ void Player::Update(float elapsedSec)
 		const bool fullyRunning{ playerTransform->GetAcceleration() >= 80 };
 		if (fullyRunning && switchedDirection) {
 			playerTransform->SetAcceleration(0);
-			m_pAnimator->PlayAnimation("Tilt", 1, 1)->SetUpdateTime(FLIP_SIDE_TIME);
+			m_pAnimator->PlayAnimation("Tilt", 1, 1)->SetUpdateTime(KIRBY_FLIP_SIDE_TIME);
 		}
 	}
 
@@ -162,7 +162,7 @@ void Player::Update(float elapsedSec)
 		if (playerTransform->GetAcceleration() >= 50) {
 			//std::cout << "Wall oomf chan" << std::endl;
 			playerTransform->SetAcceleration(0);
-			m_pAnimator->PlayAnimation("Squish", 1, 1)->SetUpdateTime(SQUISH_TIME);
+			m_pAnimator->PlayAnimation("Squish", 1, 1)->SetUpdateTime(KIRBY_SQUISH_TIME);
 		}
 	}
 }
@@ -182,20 +182,12 @@ void Player::Jump()
 		m_Jumping = true;
 		GetTransform()->SetVelocity(Vector2f{ GetTransform()->GetVelocity().x ,0 });
 	}
-	std::cout << "Pressed key !" << std::endl;
-	/*bool IsJumping{holding && (m_JumpClock <= JUMP_HOLD_TIME)};
-	if (IsJumping && m_CanJump) {
-		m_CanJump = false;
-		SetState(EntityState::Jump);
-		GetTransform()->AddVelocity(Vector2f{ 0,JUMP_POWER });
-		m_JumpClock += elapsedSec;
-	}*/
 }
 
 void Player::JumpEnd()
 {
 	if (m_Jumping) {
-		m_pAnimator->PlayAnimation("FallingDown", 5, 1)->SetUpdateTime((Animation::DEFAULT_ANIMATION_UPDATE * .75f));
+		m_pAnimator->PlayAnimation("FallingDown", 5, 1)->SetUpdateTime((DEFAULT_ANIMATION_UPDATE * .75f));
 		m_Jumping = false;
 	}
 
@@ -204,7 +196,7 @@ void Player::JumpEnd()
 void Player::UpdateKeyboard(float elapsedSec)
 {
 	Transform* playerTransform{ this->GetTransform() };
-	const float accelSpeed{ ACCELERATION_SPEED * elapsedSec };
+	const float accelSpeed{ KIRBY_ACCELERATION_SPEED * elapsedSec };
 	const float currentAccelerationRatio{ (playerTransform->GetAcceleration() / 100) };
 	const Vector2f currentPosition{ this->GetTransform()->GetPosition() };
 	bool inputPressed{ false };
@@ -227,6 +219,6 @@ void Player::UpdateKeyboard(float elapsedSec)
 		inputPressed = true;
 	};
 	 
-	this->MoveTo(elapsedSec, direction.Normalized(), MOVEMENT_SPEED * currentAccelerationRatio);
+	this->MoveTo(elapsedSec, direction.Normalized(), KIRBY_MOVEMENT_SPEED * currentAccelerationRatio);
 }
 

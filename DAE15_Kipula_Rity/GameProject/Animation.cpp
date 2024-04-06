@@ -5,8 +5,6 @@
 #include "Transform.h"
 #include "TextureManager.h"
 
-const float Animation::DEFAULT_ANIMATION_UPDATE{.125};
-
 Animation::Animation(AnimationController* animationController, const std::string& animationName, const int frames, const int animationPriorityIndex) :
 	m_pAnimationController{ animationController },
 	m_AnimationName{ animationName },

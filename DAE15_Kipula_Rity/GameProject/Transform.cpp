@@ -2,8 +2,6 @@
 #include "Transform.h"
 #include <iostream>
 
-const float Transform::GRAVITY{ 1500 };
-
 Transform::Transform() :
 	m_Position(0, 0),
 	m_PreviousPosition(0, 0),
@@ -12,19 +10,20 @@ Transform::Transform() :
 	m_Width{ 0 },
 	m_Height{ 0 },
 	m_Acceleration{0},
+	m_Deceleration{ DEFAULT_ENTITY_DECELERATION },
 	m_LookDirection{1}
 {
 }
 
 void Transform::Update(float elapsedSec)
 {
-	const float AccelerationSlowdown{ 250 * elapsedSec };
+	const float Deceleration{ m_Deceleration * elapsedSec };
 
 	m_Position += (m_Velocity * elapsedSec);
 
-	// Acceleration
+	// Deceleration
 
-	AddAcceleration(-AccelerationSlowdown);
+	AddAcceleration(-Deceleration);
 
 	// Velocity
 
