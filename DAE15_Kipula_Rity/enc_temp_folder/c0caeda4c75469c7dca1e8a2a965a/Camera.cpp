@@ -31,7 +31,7 @@ void Camera::UpdateCamera(float elapsedSec, World* world, const Vector2f& center
 
 	float minCameraX{ std::min(xPos + (m_Viewport.width / 2),minEdge) };
 	float maxCameraX{ std::max(-maxEdge ,xPos) };
-	cameraPosition.x = std::max(minCameraX, maxCameraX); 
+	cameraPosition.x = std::max(minCameraX, maxCameraX);
 
 	if (cameraPosition.x < 0) {
 		m_CameraViewport.left = cameraPosition.x;
