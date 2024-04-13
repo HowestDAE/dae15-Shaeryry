@@ -4,7 +4,7 @@
 <br />
 <div align="center">
 
-  <h2 align="center">NAME OF CHOSEN GAME</h2>
+  <h2 align="center">Kirby's Adventure</h2>
 
   <p align="center">
     Short description of the game.
