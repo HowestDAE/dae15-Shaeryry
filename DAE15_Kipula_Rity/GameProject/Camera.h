@@ -3,13 +3,15 @@
 #include <utils.h>
 #include "Component.h"
 
-
 class World;
-class Camera : public Component
+class Camera final : public Component
 {
 public:
-	Camera(const Rectf& viewport);
+	explicit Camera(const Rectf& viewport);
+	Camera& operator=(const Camera& rhs) = delete;
+	Camera(const Camera& other) = delete;
 	~Camera();
+
 	void Reset();
 	void UpdateCamera(float elapsedSec, World* world, const Vector2f& center);
 	void DrawCamera() const;

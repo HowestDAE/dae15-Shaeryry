@@ -20,17 +20,15 @@ Game::~Game( )
 void Game::Initialize( )
 {
 	// Load scenes hashmap so it's easy to load between the "worlds" !
-	m_Scenes["Vegetable Valley 1"] = WorldData{ 
-		"VegetableValley",
-		3.f,
-		1,
+	m_Scenes["Vegetable Valley 1"] = WorldData{ "VegetableValley",3.f,1,
 		{
 			SpawnerData{ Vector2f(870,165),EnemyType::WaddleDoo,1}
 		}
 	};
+
 	m_SceneManager = new SceneManager();
 
-	Scene* newScene{ new Scene(this) };
+	Scene* newScene{ new Scene(this) }; // Temporary way of loading scenes ! Once I focus on the scene manager, I'll have it do :P
 	newScene->Initialize("Vegetable Valley 1");
 	m_SceneManager->AddScene(newScene);
 

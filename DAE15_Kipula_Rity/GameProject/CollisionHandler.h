@@ -7,17 +7,11 @@
 class Transform;
 class Component;
 
-/*struct CollisionBody {
-	std::vector<Point2f> vertices;
-	Transform* transform;
-	Component* instance;
-	bool active;
-};*/
-
-class CollisionHandler
-{
+class CollisionHandler final {
 public:
-	CollisionHandler();
+	explicit CollisionHandler();
+	CollisionHandler& operator=(const CollisionHandler& rhs) = delete;
+	CollisionHandler(const CollisionHandler& other) = delete;
 	~CollisionHandler();
 
 	//void Update(float elapsedSec);

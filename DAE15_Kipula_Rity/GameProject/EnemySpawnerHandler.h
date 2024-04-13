@@ -5,11 +5,13 @@
 class Scene;
 class Enemy;
 class EnemySpawner;
-class EnemySpawnerHandler
-{
+class EnemySpawnerHandler final {
 public:
-	EnemySpawnerHandler(Scene* scene);
+	explicit EnemySpawnerHandler(Scene* scene);
+	EnemySpawnerHandler& operator=(const EnemySpawnerHandler& rhs) = delete;
+	EnemySpawnerHandler(const EnemySpawnerHandler& other) = delete;
 	~EnemySpawnerHandler();
+
 	void Update(float elapsedSec);
 	void CreateSpawner(EnemySpawner* newSpawner);
 private:

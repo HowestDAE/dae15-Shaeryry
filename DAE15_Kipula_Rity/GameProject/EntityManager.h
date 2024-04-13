@@ -7,11 +7,13 @@ class Scene;
 class Entity;
 class TextureManager;
 class CollisionHandler;
-class EntityManager
-{
+class EntityManager final {
 public:
-	EntityManager(Scene* scene);
+	explicit EntityManager(Scene* scene);
+	EntityManager& operator=(const Entity& rhs) = delete;
+	EntityManager(const Entity& other) = delete;
 	~EntityManager();
+
 	void DrawEntities() const;
 	void UpdateEntities(float elapsedSec);
 	void AddEntity(Entity* entity);

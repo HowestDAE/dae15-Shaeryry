@@ -5,10 +5,11 @@
 class Transform;
 class TextureManager;
 class CollisionBody;
-class Component
-{
+class Component {
 public:
-	Component(); 
+	explicit Component();
+	Component& operator=(const Component& rhs) = delete;
+	Component(const Component& other) = delete;
 	~Component();
 
 	void SetName(const std::string& name) { m_Name = name; };

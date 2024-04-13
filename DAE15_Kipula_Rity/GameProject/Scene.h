@@ -11,10 +11,11 @@ class EnemySpawnerHandler;
 class CollisionHandler;
 class Game;
 class Player;
-class Scene
-{
+class Scene final {
 public:
-	Scene(Game* game);
+	explicit Scene(Game* game);
+	Scene& operator=(const Scene& rhs) = delete;
+	Scene(const Scene& other) = delete;
 	~Scene();
 	void Initialize(const std::string& worldName);
 	void Update(float elapsedSec);

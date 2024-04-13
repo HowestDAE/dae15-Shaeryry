@@ -3,10 +3,11 @@
 #include <vector>
 
 class Scene;
-class SceneManager
-{
+class SceneManager final {
 public:
-	SceneManager();
+	explicit SceneManager();
+	SceneManager& operator=(const Scene& rhs) = delete;
+	SceneManager(const Scene& other) = delete;
 	~SceneManager();
 	void Update(float elapsedSec);
 	void DrawScenes(const Rectf& viewport) const;

@@ -10,8 +10,11 @@ class Animation;
 class AnimationController : public Component
 {
 public:
-	AnimationController(Component* parent);
-	~AnimationController();;
+	explicit AnimationController(Component* parent);
+	AnimationController& operator=(const AnimationController& rhs) = delete;
+	AnimationController(const AnimationController& other) = delete;
+	~AnimationController();
+
 	void DrawAnimations() const;
 	void UpdateAnimations(float elapsedSec);
 	void AddAnimation(Animation* animation);

@@ -9,7 +9,7 @@ enum class EnemyType {
 class Enemy : public Entity
 {
 public:
-	Enemy(
+	explicit Enemy(
 		EntityManager* entityManager,
 		const Vector2f& origin,
 		const std::string& entityName

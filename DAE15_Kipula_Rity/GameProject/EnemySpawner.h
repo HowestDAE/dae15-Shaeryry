@@ -6,10 +6,9 @@
 
 class Camera;
 class EntityManager;
-class EnemySpawner : public Component
-{
+class EnemySpawner final : public Component {
 public:
-	EnemySpawner(const EnemyType typeSpawner,const Vector2f& position,const int amountEnemies);
+	explicit EnemySpawner(const EnemyType typeSpawner,const Vector2f& position,const int amountEnemies);
 	void Update(float elapsedSec,const Camera* camera);
 	void AddEnemy(Enemy* enemy);
 	void RemoveEnemy(Enemy* enemy);

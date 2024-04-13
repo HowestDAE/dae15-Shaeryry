@@ -20,11 +20,13 @@ struct AnimationData {
 };
 
 class AnimationController;
-class Animation final : public Component
-{
+class Animation final : public Component {
 public:
-	Animation(AnimationController* animationController,const std::string& animationName, const int frames,const int animationPriorityIndex);
+	explicit Animation(AnimationController* animationController,const std::string& animationName, const int frames,const int animationPriorityIndex);
+	Animation& operator=(const Animation& rhs) = delete;
+	Animation(const Animation& other) = delete;
 	~Animation();
+
 	void Draw() const; // draw animation
 	void Update(float elapsedSec);
 

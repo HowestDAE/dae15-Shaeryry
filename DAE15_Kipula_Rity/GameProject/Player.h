@@ -2,11 +2,10 @@
 #include "pch.h"
 #include "Entity.h"
 
-class Player final
-	: public Entity
+class Player final : public Entity
 {
 public:
-	Player(EntityManager* manager, const Vector2f& origin, const std::string& entityName);
+	explicit Player(EntityManager* manager, const Vector2f& origin, const std::string& entityName);
 	void OnKeyDownEvent(const SDL_KeyboardEvent& e);
 	void OnKeyUpEvent(const SDL_KeyboardEvent& e);
 	virtual void Update(float elapsedSec) override;

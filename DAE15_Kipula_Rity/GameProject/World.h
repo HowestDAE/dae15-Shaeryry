@@ -21,16 +21,20 @@ struct WorldData {
 };
 
 class Camera;
-class World : public Component
+class World final : public Component
 {
 public:
-	World(const WorldData& worldData,TextureManager* textureManager);
-	~World();
+	explicit World(const WorldData& worldData,TextureManager* textureManager);
+	World& operator=(const World& rhs) = delete;
+	World(const World& other) = delete ;
+
+	~World();	
 	void Draw() const;
-	void Update(float elapsedSec);
+	void Update(float elapsedSec); 
+
+	void SetWorldScale(float scale) { m_WorldScale = scale; }
 
 	// Getters
-	void SetWorldScale(float scale) { m_WorldScale = scale; }
 	Rectf GetWorldRect() { return m_WorldRect; };
 	float GetWorldScale() { return m_WorldScale; }
 	std::vector<std::vector<Point2f>> GetWorldVertices() const { return m_CollisionData; };

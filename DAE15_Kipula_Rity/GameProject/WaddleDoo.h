@@ -2,10 +2,10 @@
 #include "pch.h"
 #include "Enemy.h"
 
-class WaddleDoo : public Enemy
+class WaddleDoo final : public Enemy
 {
 public:
-	WaddleDoo(
+	explicit WaddleDoo(
 		EntityManager* entityManager,
 		const Vector2f& origin
 	);

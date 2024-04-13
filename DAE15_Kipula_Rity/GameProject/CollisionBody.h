@@ -6,11 +6,14 @@
 class Transform;
 class Component;
 class CollisionHandler;
-class CollisionBody
-{
+
+class CollisionBody final {
 public: 
-	CollisionBody(Component* Instance);
+	explicit CollisionBody(Component* Instance);
+	CollisionBody& operator=(const CollisionBody& rhs) = delete;
+	CollisionBody(const CollisionBody& other) = delete;
 	~CollisionBody();
+
 	void DrawCollider() const;
 	void UpdateCollider(float elapsedSec);
 	void ApplyDefaultCollisions();

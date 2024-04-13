@@ -3,11 +3,13 @@
 #include <Texture.h>
 #include <map>
 
-class TextureManager
-{
+class TextureManager final {
 public:
-	TextureManager();
+	explicit TextureManager();
+	TextureManager& operator=(const TextureManager& rhs) = delete;
+	TextureManager(const TextureManager& other) = delete;
 	~TextureManager();
+
 	Texture* GetTexture(const std::string& key,const std::string& texturePath);
 	void DeleteTexture(Texture* textureToDelete);
 	void ClearTextures();

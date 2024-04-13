@@ -21,14 +21,15 @@ enum class EntityState {
 class EntityManager;
 class AnimationController;
 class Animation;
-class Entity : public Component
-{
+class Entity : public Component {
 public:
-	Entity(
+	explicit Entity(
 		EntityManager* entityManager,
 		const Vector2f& origin,
 		const std::string& entityName
 	);
+	Entity& operator=(const Entity& rhs) = delete;
+	Entity(const Entity& other) = delete;
 	~Entity();
 	virtual void Draw() const;
 	virtual void Update(float elapsedSec);

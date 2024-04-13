@@ -2,10 +2,9 @@
 #include "pch.h"
 #include "utils.h"
 
-class Transform // convert to struct later????
-{
+class Transform final {
 public:
-	Transform();
+	explicit Transform();
 	//~Transform();
 
 	void Update(float elapsedSec);

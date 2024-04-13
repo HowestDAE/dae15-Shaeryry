@@ -27,6 +27,7 @@ Texture* TextureManager::GetTexture(const std::string& key,const std::string& te
 
 		return newTexture;
 	};
+
 	return nullptr;
 }
 
