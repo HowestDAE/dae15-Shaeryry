@@ -50,8 +50,8 @@ TODO: add screenshot
 
 Here's why:
 TODO: describe why you chose this game 
-* I love Kirby :D
-* It seemed like the game would be challenging to make.
+    * I love Kirby :D
+    * It seemed like the game would be challenging to make.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -119,19 +119,19 @@ If you applied object composition (optional); explain where and how.
 Explain where you applied inheritance (mandatory).
 
 - Component Class : A lot of classes enherit from this class. This class serves as a quick way to create objects with "Transform" objects and "CollisionBody" objects. Examples are...
-* Animation
-* AnimationController
-* Camera
-* EnemySpawner
-* Entity
-* World
+    * Animation
+    * AnimationController
+    * Camera
+    * EnemySpawner
+    * Entity
+    * World
 
 - Entity Class : This class encapsulates anything that is supposed to be considered alive in the game (Kirby, enemies...) Therefore it makes sense for the following classes to enherit from it.
-* Player
-* Enemy
+    * Player
+    * Enemy
 
 - Enemy Class : This class groups up all enemies in the game. This serves as a base for every enemy and allows some enemies to share some stuff. Currently the enemies in the game are..
-* Waddle Doo
+    * Waddle Doo
 
 ### ..
 
