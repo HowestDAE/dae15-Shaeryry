@@ -7,12 +7,12 @@
   <h2 align="center">Kirby's Adventure</h2>
 
   <p align="center">
-    Short description of the game.
+    Kirby's Adventure is a platformer where you control Kirby as he navigates through different worlds, inhaling enemies to gain their abilities. Your objective is to defeat King Dedede and restore peace to Dream Land..
     <br />
     <strong>Original game : </strong>
-    <a href="https://www.google.be/"><strong>General info »</strong></a>
+    <a href="https://en.wikipedia.org/wiki/Kirby%27s_Adventure"><strong>General info »</strong></a>
     ·
-    <a href="https://www.google.be/"><strong>Youtube video »<strong></a>
+    <a href="https://www.youtube.com/watch?v=3jt__MP4IzE"><strong>Youtube video »<strong></a>
     <br />
     <br />
   </p>
@@ -50,8 +50,8 @@ TODO: add screenshot
 
 Here's why:
 TODO: describe why you chose this game 
-* reason 1
-* reason .. 
+* I love Kirby :D
+* It seemed like the game would be challenging to make.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -61,8 +61,7 @@ TODO: describe why you chose this game
 This section gives a clear and detailed overview of which parts of the original game I planned to make.
 
 ### The minimum I will most certainly develop:
-* .. 
-* .. 
+* Most of, if not everything in, the first part of "Vegetable Valley"
 
 ### What I will probably make as well:
 * .. 
@@ -98,13 +97,13 @@ Explain which project (version) must be run.
 
 Use this space to show useful examples of how a game can be played. 
 Additional screenshots and demos work well in this space. 
+(WIP)
 
 ### Controls
-* keys, .. 
-* .. 
+* Arrow Keys - Movement
+* Space - Jumping
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- CLASS STRUCTURE -->
@@ -113,8 +112,26 @@ Additional screenshots and demos work well in this space.
 ### Object composition 
 If you applied object composition (optional); explain where and how.
 
+- AnimationController :
+*It <b>HAS</b> and owns a bunch of Animation objects.
+
 ### Inheritance 
 Explain where you applied inheritance (mandatory).
+
+- Component Class : A lot of classes enherit from this class. This class serves as a quick way to create objects with "Transform" objects and "CollisionBody" objects. Examples are...
+* Animation
+* AnimationController
+* Camera
+* EnemySpawner
+* Entity
+* World
+
+- Entity Class : This class encapsulates anything that is supposed to be considered alive in the game (Kirby, enemies...) Therefore it makes sense for the following classes to enherit from it.
+* Player
+* Enemy
+
+- Enemy Class : This class groups up all enemies in the game. This serves as a base for every enemy and allows some enemies to share some stuff. Currently the enemies in the game are..
+* Waddle Doo
 
 ### ..
 
@@ -125,15 +142,15 @@ Explain where you applied inheritance (mandatory).
 ## Checklist
 
 - [x] Accept / set up github project
-- [ ] week 01 topics applied
-    - [ ] const keyword applied proactively (variables, functions,..)
-    - [ ] static keyword applied proactively (class variables, static functions,..)
-    - [ ] object composition (optional)
-- [ ] week 02 topics applied
-- [ ] week 03 topics applied
-- [ ] week 04 topics applied
-- [ ] week 05 topics applied
-- [ ] week 06 topics applied
+- [x] week 01 topics applied
+    - [x] const keyword applied proactively (variables, functions,..)
+    - [x] static keyword applied proactively (class variables, static functions,..)
+    - [x] object composition (optional)
+- [x] week 02 topics applied
+- [x] week 03 topics applied
+- [x] week 04 topics applied
+- [x] week 05 topics applied
+- [x] week 06 topics applied
 - [ ] week 07 topics applied
 - [ ] week 08 topics applied
 - [ ] week 09 topics applied (optional)
@@ -144,9 +161,9 @@ Explain where you applied inheritance (mandatory).
 <!-- CONTACT -->
 ## Contact
 
-Your Name - email@student.howest.be
+Your Name - rity.simba-wina.kipula.tati@student.howest.be
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: [https://github.com/HowestDAE/dae15-Shaeryry](https://github.com/HowestDAE/dae15-Shaeryry)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
