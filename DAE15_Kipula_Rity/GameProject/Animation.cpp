@@ -15,11 +15,13 @@ Animation::Animation(AnimationController* animationController, const std::string
 	m_FrameCount{ frames },
 	m_CurrentFrame{ 0 },
 	m_TimePerFrame{ DEFAULT_ANIMATION_UPDATE },
-	m_IsPaused{ false },
-	m_IsLooped{ false },
+	m_Flipped{ false },
+	m_Paused{ false },
+	m_Looped{ false },
 	m_HasEnded{ false }
 {
 	std::string animationKey{ m_EntityName + GetAnimationPath() };
+	//std::cout << animationKey << std::endl;
 	m_pTexture = m_pAnimationController->GetTextureManager()->GetTexture(animationKey,GetAnimationPath()); //new Texture(GetAnimationPath()); // USE TEXTURE MANAGER TO OPTIMIZE THIS LATER !!!
 	SetParent(m_pAnimationController);
 	SetName(animationName);
@@ -40,7 +42,11 @@ void Animation::Draw() const
 		const Vector2f position{ m_pAnimationController->GetParent()->GetTransform()->GetPosition() };
 		const float width{ m_pAnimationController->GetParent()->GetTransform()->GetWidth() };
 		const float height{ m_pAnimationController->GetParent()->GetTransform()->GetHeight() };
-		const float lookDirection{ m_pAnimationController->GetParent()->GetTransform()->GetLookDirection() };
+		float lookDirection{ m_pAnimationController->GetParent()->GetTransform()->GetLookDirection() };
+		
+		if (m_Flipped) {
+			lookDirection *= -1;
+		};
 
 		glPushMatrix();
 		glTranslatef(position.x - std::min(0.f,width*lookDirection), position.y, 0);
@@ -81,7 +87,6 @@ void Animation::Update(float elapsedSec)
 		if (!IsLooped()) {
 			if (frame >= m_FrameCount) {
 				DeleteAnimation();
-				m_pAnimationController->RemoveAnimation(this);
 			};
 		}
 		
@@ -92,8 +97,6 @@ void Animation::DeleteAnimation()
 {
 	if (!IsEnded()) {
 		m_HasEnded = true;
-		// Delete Texture !
-		//delete m_pTexture; // remove once texture manager
 	}
 	
 }

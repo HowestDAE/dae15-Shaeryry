@@ -17,6 +17,7 @@ public:
 	// Velocity 
 
 	void AddVelocity(const Vector2f& Velocity) { m_Velocity += Velocity; };
+	void ApplyImpulse(const Vector2f& Velocity) { m_Impulse += Velocity; };
 	void SetVelocity(const Vector2f& newVelocity) { m_Velocity = newVelocity; };
 
 	//Width & Height
@@ -43,6 +44,7 @@ private:
 	void SetCurrentVelocity(const Vector2f& newVelocity) { m_CurrentVelocity = newVelocity; };
 	Vector2f m_CurrentVelocity;
 	Vector2f m_Position;
+	Vector2f m_Impulse;
 	Vector2f m_Velocity;
 	Vector2f m_PreviousPosition; 
 	float m_Width;

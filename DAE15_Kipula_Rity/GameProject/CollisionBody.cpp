@@ -130,7 +130,16 @@ utils::HitInfo CollisionBody::CheckCollision(const Vector2f& from, const Vector2
 	return hitResult;
 }
 
-
+Rectf CollisionBody::GetRect() const
+{
+	const Vector2f Position{ m_Instance->GetTransform()->GetPosition() };
+	return Rectf(
+		Position.x,
+		Position.y,
+		m_Instance->GetTransform()->GetWidth(),
+		m_Instance->GetTransform()->GetHeight()
+	);
+}
 
 
 void CollisionBody::SetVertices(const std::vector<Point2f>& newVertices)

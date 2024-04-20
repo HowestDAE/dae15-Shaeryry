@@ -53,7 +53,6 @@ void Scene::Initialize(const std::string& worldName)
 		m_pPlayer = new Player(m_pEntityManager, Vector2f{ 0,500.f }, "Kirby");
 		// Change spawn point dependant on world data later??? Maybe throw in an extra parameter so I can choose where you land!!
 
-		// Temporary waddle doo spawner, but in reality loop over a list of positions&types gotten through the world data
 		for (size_t spawnerIndex{}; spawnerIndex < worldData.spawners.size(); spawnerIndex++) {
 			SpawnerData spawnerData{ worldData.spawners[spawnerIndex] };
 			m_pSpawnerManager->CreateSpawner(new EnemySpawner(spawnerData.typeSpawner, spawnerData.position, spawnerData.amountEnemies));
@@ -84,6 +83,5 @@ void Scene::Draw() const
 		m_pEntityManager->DrawEntities();
 		m_pCamera->Reset(); // reset camera matrix! 
 	}
-	//std::cout << m_pPlayer->GetTransform()->GetPosition().x << ":" << m_pPlayer->GetTransform()->GetPosition().y << std::endl; // Output position for spawners !
 }
 

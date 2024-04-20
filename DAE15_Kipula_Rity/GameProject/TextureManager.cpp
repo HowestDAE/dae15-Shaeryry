@@ -16,14 +16,15 @@ TextureManager::~TextureManager()
 Texture* TextureManager::GetTexture(const std::string& key,const std::string& texturePath)
 {
 	Texture* foundTexture{ m_Textures[key] };
-
+	
 	if (foundTexture != nullptr) {
+		//std::cout << "found " + key << std::endl;
 		return foundTexture;
-	}
-	else {
+	} else {
 		// Create texture and add it to the map to retrieve later !
 		Texture* newTexture{ new Texture(texturePath) };
 		m_Textures[key] = newTexture;
+		//std::cout << "created " + key << std::endl;
 
 		return newTexture;
 	};

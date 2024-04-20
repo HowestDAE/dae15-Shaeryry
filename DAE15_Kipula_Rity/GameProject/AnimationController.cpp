@@ -29,6 +29,7 @@ void AnimationController::DrawAnimations() const
 
 		if (m_pAnimations.size() > 0) {
 			Animation* playingAnimation{ m_pAnimations[0] };
+		//	std::cout << playingAnimation->GetName() << std::endl;
 			if (playingAnimation != nullptr) {
 				if (!playingAnimation->IsEnded()) {
 					playingAnimation->Draw();
@@ -40,11 +41,15 @@ void AnimationController::DrawAnimations() const
 
 void AnimationController::UpdateAnimations(float elapsedSec)
 {
-	//std::cout << m_pAnimations.size() << std::endl;
 	for (size_t animationAtIndex{ 0 }; animationAtIndex < m_pAnimations.size(); animationAtIndex++) {
 		Animation* animation{ m_pAnimations.at(animationAtIndex) };
 		if (!animation->IsEnded()) {
 			animation->Update(elapsedSec);
+		};
+		// Post update
+		if (animation->IsEnded()) {
+			RemoveAnimation(animation);
+			std::cout << "#Animations ->" << m_pAnimations.size() << std::endl;
 		}
 	}
 }
@@ -52,6 +57,7 @@ void AnimationController::UpdateAnimations(float elapsedSec)
 void AnimationController::AddAnimation(Animation* animation)
 {
 	int priority{ static_cast<int>(animation->GetAnimationPriority()) };
+	std::cout << "Animation added ! " << animation->GetName() << std::endl;
 
 	if (m_pAnimations.size() > 0) {
 		for (Animation* animationAtIndex : m_pAnimations) {
@@ -74,7 +80,7 @@ void AnimationController::RemoveAnimation(Animation* animation)
 	for (size_t animationAtIndex{ 0 }; animationAtIndex < m_pAnimations.size(); ++animationAtIndex) {
 		if (m_pAnimations[animationAtIndex] == animation) {
 			Animation* animationToDelete{ m_pAnimations[animationAtIndex] };
-			//std::cout << "Removed animation ! : " << animationToDelete->GetAnimationPath() << std::endl;
+			std::cout << "Removed animation ! : " << animationToDelete->GetAnimationPath() << std::endl;
 			delete animationToDelete;
 			//m_pAnimations[animationAtIndex] = nullptr;
 			std::vector<Animation*>::iterator it = std::find(m_pAnimations.begin(), m_pAnimations.end(), animationToDelete);

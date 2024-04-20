@@ -14,18 +14,20 @@ EntityManager::EntityManager(Scene* scene) :
 
 EntityManager::~EntityManager()
 {
-	for (size_t idx{ 0 }; idx < m_Entities.size(); idx++) {
-		//RemoveEntity(m_Entities[idx]);
-		delete m_Entities[idx];
-		//m_Entities[idx] = nullptr;
-	};
+	while (m_Entities.size() > 0) {
+		delete m_Entities[0];
+	}
 }
 void EntityManager::DrawEntities() const
 {
-	for (size_t entityIndex{0}; entityIndex < m_Entities.size();entityIndex++){
+	for (size_t entityIndex{ m_Entities.size() }; entityIndex > 0; entityIndex--) {
 		//std::cout << m_Entities[entityIndex]->GetName() << " #" << entityIndex << std::endl;
-		if (m_Entities[entityIndex] != nullptr) {
-			m_Entities[entityIndex]->Draw();
+		const size_t index{ (entityIndex - 1) };
+		const Entity* entity{ m_Entities[index] };
+		const bool canDraw{ entity != nullptr && entity->IsAlive() };
+		//std::cout << entity->GetName() << " : " << canDraw << std::endl;
+		if (canDraw) {
+			entity->Draw();
 		};
 	};
 }
@@ -34,9 +36,15 @@ void EntityManager::DrawEntities() const
 void EntityManager::UpdateEntities(float elapsedSec)
 {
 	for (size_t entityIndex{0}; entityIndex < m_Entities.size(); entityIndex++) { // change these to for i
-		if (m_Entities[entityIndex] != nullptr) {
-			m_Entities[entityIndex]->Update(elapsedSec);
-		}
+		Entity* entity{ m_Entities[entityIndex] };
+		if (entity != nullptr && entity->IsAlive()) {
+			entity->Update(elapsedSec);
+
+			if (!entity->IsAlive()) {
+				delete entity;
+				entityIndex -=1;
+			}
+		};
 	};
 }
 
@@ -51,11 +59,8 @@ void EntityManager::RemoveEntity(Entity* entity)
 {
 	for (size_t entityIndex{}; entityIndex < m_Entities.size();entityIndex++){
 		if (m_Entities[entityIndex] == entity) {
-			//std::cout << "Removed " << entity->GetName() << std::endl;
-			//delete m_Entities[entityIndex];
 			m_pScene->GetCollisionHandler()->RemoveBody(entity);
-			m_Entities[entityIndex] = nullptr;
-			//m_Entities.erase(m_Entities.begin() + entityIndex);
+			m_Entities.erase(m_Entities.begin() + entityIndex);
 			break;
 		}
 	}

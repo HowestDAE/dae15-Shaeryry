@@ -13,7 +13,10 @@ Entity::Entity(EntityManager* manager, const Vector2f& origin, const std::string
 	m_pCoreAnimation{ nullptr },
 	m_State{ EntityState::Idle },
 	m_OldState{ EntityState::None },
-	m_InAir{ false }
+	m_InAir{ false },
+	m_Invincible{false},
+	m_TimeElapsedLastHit{ 0 },
+	m_Health{1}
 {
 	m_pAnimator = new AnimationController(this);
 
@@ -34,6 +37,24 @@ void Entity::Draw() const
 	m_pAnimator->DrawAnimations();
 }
 
+std::vector<Entity*> Entity::CastHitbox(const Rectf& hurtbox)
+{
+	std::vector<Entity*> EntityList{ m_pManager->GetEntities() };
+	std::vector<Entity*> EntitiesInBox{};
+	for (size_t entityIndex{}; entityIndex < EntityList.size(); entityIndex++) {
+		Entity* EntityAtIndex{EntityList[entityIndex]};
+		const CollisionBody* EntityBody{ EntityAtIndex->GetCollisionBody() };
+
+		if (EntityBody->IsActive() && EntityAtIndex != this) {
+			if (utils::IsOverlapping(hurtbox, EntityBody->GetRect())) {
+				EntitiesInBox.push_back(EntityAtIndex);
+			}
+		}
+	}
+
+	return EntitiesInBox;
+}
+
 void Entity::Update(float elapsedSec)
 {
 	m_pAnimator->UpdateAnimations(elapsedSec);
@@ -42,6 +63,7 @@ void Entity::Update(float elapsedSec)
 		this->GetCollisionBody()->UpdateCollider(elapsedSec);
 		GetCollisionBody()->ApplyDefaultCollisions();
 	}
+	m_TimeElapsedLastHit += elapsedSec;
 }
 
 void Entity::MoveTo(float elapsedSec, const Vector2f& direction , float speed)
@@ -70,31 +92,77 @@ void Entity::MoveTo(float elapsedSec, const Vector2f& direction , float speed)
 
 void Entity::OnStateChanged()
 {
-	const AnimationData trackData{ m_AnimationsData[int(m_State)]};
+	std::cout << int(m_State) << std::endl;
+	const AnimationData trackData{ m_AnimationsData[int(m_State)] };
 	//Default Animation update for any entity
 	if (m_pCoreAnimation != nullptr) {
+		std::cout << m_pCoreAnimation->GetName() << " is already present" << std::endl;
 		m_pCoreAnimation->DeleteAnimation();
 		m_pCoreAnimation = nullptr;
 	};
 
-	Animation* animation = m_pAnimator->PlayAnimation(trackData.name, trackData.frames, trackData.priority);
+	Animation* animation{ m_pAnimator->PlayAnimation(trackData.name, trackData.frames, trackData.priority) };
 	animation->SetUpdateTime(trackData.updateTime);
 	animation->Loop(trackData.loop);
 
 	if (trackData.loop) {
 		m_pCoreAnimation = animation;
+		std::cout << m_pCoreAnimation->GetName() << " is now present :D" << std::endl;
+
 	}
-	
 }
 
 
 void Entity::SetState(EntityState newState)
 {
-	//std::cout << m_AnimationsData.size() << std::endl;
 	m_State = newState;
 	if (m_OldState != m_State) {
-		//std::cout << "State has changed !!" << " : " << static_cast<int>(m_State) << std::endl;
 		m_OldState = m_State;
 		OnStateChanged();
 	}
+}
+
+bool Entity::TakeDamage(const int damage)
+{
+	if (CanDamage()) {
+		int currentHealth{ m_Health };
+		int newHealth{ currentHealth - damage };
+		SetHealth(newHealth);
+
+		OnDamage();
+
+		if (newHealth <= 0 && currentHealth > 0) {
+			OnDied();
+		};
+
+		m_TimeElapsedLastHit = 0;
+
+		return true;
+	}
+
+	return false;
+}
+
+void Entity::OnDamage()
+{
+	std::cout << "hit" << std::endl;
+	m_TimeElapsedLastHit = 0;
+}
+
+
+void Entity::OnDied() {
+	std::cout << "ded" << std::endl;
+}
+
+void Entity::SetHealth(const int health)
+{
+	m_Health = health;
+}
+
+bool Entity::CanDamage() const
+{
+	return 
+		m_TimeElapsedLastHit > INVINCIBILITY_TIME 
+		&& IsAlive()
+		&& !IsInvincible();
 }

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Player.h" 
+#include "EntityManager.h"
 #include "Entity.h"
 #include "Animation.h"
 #include "AnimationController.h"
@@ -11,9 +12,12 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	: 
 		Entity(manager, origin, entityName),
 		m_JumpClock{ 0 },
+		m_DeflateClock{ KIRBY_DEFLATE_TIME },
 		m_Jumping{false},
+		m_Sucking{ false },
 		m_PressedSpace{false}
 { 
+	this->SetHealth(6);
 	this->GetTransform()->SetWidth(DEFAULT_ENTITY_WIDTH);
 	this->GetTransform()->SetHeight(DEFAULT_ENTITY_HEIGHT); 
 
@@ -25,6 +29,7 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	playerTracks[4] = AnimationData{ "FallingDown",5,(DEFAULT_ANIMATION_UPDATE * .75f),false,2 };
 	playerTracks[5] = AnimationData{ "Freefall",1,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[6] = AnimationData{ "Landed",1,DEFAULT_ANIMATION_UPDATE,false,2 };
+	playerTracks[7] = AnimationData{ "Sucking",1,DEFAULT_ANIMATION_UPDATE,true };
 
 	this->SetAnimationData(playerTracks);
 }
@@ -39,6 +44,9 @@ void Player::OnKeyDownEvent(const SDL_KeyboardEvent& e)
 				m_PressedSpace = true;
 				Jump();
 			}
+			break;
+		case SDLK_w:
+			SuckStart();
 			break;
 		default:
 			break;
@@ -55,6 +63,9 @@ void Player::OnKeyUpEvent(const SDL_KeyboardEvent& e)
 				m_PressedSpace = false;
 			}
 			break;
+		case SDLK_w:
+			SuckEnd();
+			break;
 		default:
 			break;
 	}
@@ -66,6 +77,7 @@ void Player::Update(float elapsedSec)
 	Transform* playerTransform{ this->GetTransform() };
 	const float currentLookDirection{ playerTransform->GetLookDirection() };
 	const Vector2f alphaCurrentVelocity{ playerTransform->GetCurrentVelocity() };
+	const bool wasSucking{m_Sucking};
 
 	// Default Update
 
@@ -80,6 +92,14 @@ void Player::Update(float elapsedSec)
 	this->GetTransform()->ApplyPhysics(elapsedSec);
 
 	// Update States
+	
+	if (IsBig()) {
+		this->GetTransform()->SetWidth(KIRBY_ENTITY_BIG_WIDTH);
+		this->GetTransform()->SetHeight(KIRBY_ENTITY_BIG_HEIGHT);
+	} else {
+		this->GetTransform()->SetWidth(DEFAULT_ENTITY_WIDTH);
+		this->GetTransform()->SetHeight(DEFAULT_ENTITY_HEIGHT);
+	};
 
 	const Vector2f currentVelocity{ playerTransform->GetCurrentVelocity() };
 	EntityState currentState{ m_State };
@@ -130,8 +150,19 @@ void Player::Update(float elapsedSec)
 		if (m_Jumping) {
 			nextState = EntityState::Jump;
 		}
-		
 	}
+
+
+	// Sucking
+	if (m_Sucking) {
+		Suck();
+		nextState = EntityState::Sucking;
+	}
+	else {
+		m_DeflateClock += elapsedSec;
+	}
+	
+	// FIX THIS FREAK AH FUCKING SUCKING GLITCH :>
 
 	SetState(nextState);
 
@@ -143,6 +174,7 @@ void Player::Update(float elapsedSec)
 	if (currentState == EntityState::Landed) {
 		m_JumpClock = 0;
 		m_Jumping = false;
+		SetState(EntityState::Idle);
 	};
 	
 	// Side Slip on run thing Event
@@ -165,6 +197,21 @@ void Player::Update(float elapsedSec)
 			m_pAnimator->PlayAnimation("Squish", 1, 1)->SetUpdateTime(KIRBY_SQUISH_TIME);
 		}
 	}
+
+	// Invicibility manager
+	const bool Invincible{
+		m_Sucking
+	};
+	SetInvincible(Invincible);
+
+}
+
+bool Player::CanControl() const
+{
+	return 
+		not IsHitstunned() 
+		and not IsSucking()
+		and not IsDeflating();
 }
 
 bool Player::InAir()
@@ -175,9 +222,26 @@ bool Player::InAir()
 		or m_State == EntityState::Freefall;
 }
 
+bool Player::IsHitstunned() const
+{
+	return (m_TimeElapsedLastHit < KIRBY_STUN_TIME);
+}
+
+bool Player::IsDeflating() const
+{
+	return (m_DeflateClock < KIRBY_DEFLATE_TIME);
+}
+
+bool Player::IsBig() const
+{
+	return 
+		IsSucking()
+		or IsDeflating();
+}
+
 void Player::Jump()
 {	
-	if (!m_Jumping && !InAir()) {
+	if (!m_Jumping && !InAir() && CanControl()) {
 		m_JumpClock = 0;
 		m_Jumping = true;
 		GetTransform()->SetVelocity(Vector2f{ GetTransform()->GetVelocity().x ,0 });
@@ -191,6 +255,56 @@ void Player::JumpEnd()
 		m_Jumping = false;
 	}
 
+}
+
+void Player::SuckStart()
+{
+	if (!m_Sucking) {
+		m_pAnimator->PlayAnimation("SuckStart", 2, 3)->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
+		m_Sucking = true;
+	}
+	
+}
+
+void Player::Suck()
+{
+	for (size_t entityIndex{}; entityIndex < m_pManager->GetEntities().size(); entityIndex++) {
+		Entity* entityAtIndex{ m_pManager->GetEntities()[entityIndex] };
+		if (entityAtIndex != this) {
+			const Vector2f playerToEnemyVector{ (entityAtIndex->GetTransform()->GetPosition() - this->GetTransform()->GetPosition()) };
+			if (playerToEnemyVector.Length() < KIRBY_ABSORB_RANGE) {
+				entityAtIndex->GetTransform()->ApplyImpulse(playerToEnemyVector.Normalized() * -KIRBY_ABSORB_POWER);
+				break;
+			}
+		}
+	}
+}
+
+void Player::SuckEnd()
+{
+	if (m_Sucking) {
+		m_pAnimator->PlayAnimation("SuckEnd", 2, 3)->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
+		m_DeflateClock = 0;
+		m_Sucking = false;
+	}
+}
+
+void Player::OnDamage()
+{
+	Entity::OnDamage();
+	m_Sucking = false;
+	m_DeflateClock = KIRBY_DEFLATE_TIME;
+
+	const Vector2f direction{ 1*this->GetTransform()->GetLookDirection(),0};
+	const Vector2f incomingVelocity{ this->GetTransform()->GetCurrentVelocity() + direction };
+	const Vector2f outgoingVelocity{ (incomingVelocity * 100).Normalized() * -KIRBY_KNOCKBACK_ON_HIT};
+	this->GetTransform()->SetVelocity(Vector2f());
+	this->GetTransform()->ApplyImpulse( Vector2f(outgoingVelocity.x,-outgoingVelocity.y) );
+	this->GetTransform()->SetFlipped(false);
+
+	Animation* hurtAnimation{ m_pAnimator->PlayAnimation("Hurt", 2, 3) };
+	hurtAnimation->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
+	hurtAnimation->SetFlipped(true);
 }
 
 void Player::UpdateKeyboard(float elapsedSec)
@@ -210,15 +324,17 @@ void Player::UpdateKeyboard(float elapsedSec)
 	if (pStates[SDL_SCANCODE_RIGHT]) {
 		direction.x = 1;
 		playerTransform->AddAcceleration(accelSpeed);
-		//playerTransform->SetAcceleration(100);
 		inputPressed = true;
 	} else if (pStates[SDL_SCANCODE_LEFT]) {
 		direction.x = -1;
 		playerTransform->AddAcceleration(accelSpeed);
-		//playerTransform->SetAcceleration(100);
 		inputPressed = true;
 	};
+
+	//m_Sucking = pStates[SDL_SCANCODE_Z]; // Sucking state update
 	 
-	this->MoveTo(elapsedSec, direction.Normalized(), KIRBY_MOVEMENT_SPEED * currentAccelerationRatio);
+	if (CanControl()) {
+		this->MoveTo(elapsedSec, direction.Normalized(), KIRBY_MOVEMENT_SPEED * currentAccelerationRatio);
+	}
 }
 

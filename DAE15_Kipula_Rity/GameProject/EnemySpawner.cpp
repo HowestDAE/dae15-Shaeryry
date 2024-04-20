@@ -42,9 +42,7 @@ void EnemySpawner::RemoveEnemy(Enemy* enemy)
 	if (HasSpawned) {
 		for (size_t enemyIndex{}; enemyIndex < m_SpawnedEnemies.size(); enemyIndex++) {
 			if (m_SpawnedEnemies[enemyIndex] == enemy) {
-				//m_SpawnedEnemies[enemyIndex] = nullptr;
 				delete m_SpawnedEnemies[enemyIndex];
-				//m_SpawnedEnemies[enemyIndex] = nullptr;
 				m_SpawnedEnemies.erase(m_SpawnedEnemies.begin() + enemyIndex);
 				break;
 			}

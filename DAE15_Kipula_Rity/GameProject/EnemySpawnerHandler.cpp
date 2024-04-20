@@ -56,8 +56,11 @@ void EnemySpawnerHandler::Update(float elapsedSec)
 		// Handle enemy logic & behaviour
 		std::vector<Enemy*> enemyVector{ currentSpawner->GetEnemies() };
 		for (size_t enemyIndex{}; enemyIndex < enemyVector.size(); enemyIndex++) {
-			enemyVector[enemyIndex]->GoToTarget(elapsedSec, m_pScene->GetPlayer());
-			enemyVector[enemyIndex]->AttackTarget(m_pScene->GetPlayer());
+			Enemy* enemyAtIndex{ enemyVector[enemyIndex] };
+			if (enemyAtIndex->IsAlive()) {
+				enemyVector[enemyIndex]->GoToTarget(elapsedSec, m_pScene->GetPlayer());
+				enemyVector[enemyIndex]->AttackTarget(m_pScene->GetPlayer());
+			}
 		}
 
 		currentSpawner->Update(elapsedSec, m_pScene->GetCamera());

@@ -27,6 +27,7 @@ public:
 	std::string GetTag() const { return m_Tag; };
 	Component* GetComponent() const { return m_Instance; }; 
 	std::vector<Point2f> GetVertices() const { return m_Vertices; };
+	Rectf GetRect() const;
 
 	bool IsGrounded() const { return m_IsGrounded; };
 	bool IsWallbound() const { return m_IsWallbound; };

@@ -6,6 +6,7 @@ Transform::Transform() :
 	m_Position(0, 0),
 	m_PreviousPosition(0, 0),
 	m_Velocity(0, 0),
+	m_Impulse(0,0),
 	m_CurrentVelocity(0, 0),
 	m_Width{ 0 },
 	m_Height{ 0 },
@@ -17,9 +18,14 @@ Transform::Transform() :
 
 void Transform::Update(float elapsedSec)
 {
-	const float Deceleration{ m_Deceleration * elapsedSec };
+	const float GravityFrameIndependant{ (GRAVITY * elapsedSec) };
+	const float FakeAirPressureFrameIndependant{ (FAKE_AIR_PRESSURE * elapsedSec) };
 
-	m_Position += (m_Velocity * elapsedSec);
+	const float Deceleration{ m_Deceleration * elapsedSec };
+	const Vector2f newVelocity{ (m_Velocity + m_Impulse) };
+
+	m_Position += (newVelocity * elapsedSec);
+
 
 	// Deceleration
 
@@ -29,6 +35,29 @@ void Transform::Update(float elapsedSec)
 
 	const Vector2f currentVelocity{ (m_Position - m_PreviousPosition) };
 	SetCurrentVelocity(currentVelocity); // UPDATE THE VELOCITY !!
+
+	// Impulse stuff
+
+		// x
+		if (m_Impulse.Length()> MINIMUM_IMPULSE_LENGTH){
+			if (m_Impulse.x < 0) {
+				m_Impulse.x += FakeAirPressureFrameIndependant;
+			}
+			else {
+				m_Impulse.x -= FakeAirPressureFrameIndependant;
+			}
+			// y
+			if (m_Impulse.y < 0) {
+				m_Impulse.y += GravityFrameIndependant;
+			}
+			else {
+				m_Impulse.y -= GravityFrameIndependant;
+			}
+		}
+		else {
+			m_Impulse = Vector2f();
+		}
+		
 
 	// Update Position Tracker
 
