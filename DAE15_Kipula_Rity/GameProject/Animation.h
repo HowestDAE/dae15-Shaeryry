@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "utils.h"
 #include <iostream>
 #include "Component.h"
 #include <Texture.h>
@@ -18,6 +19,7 @@ struct AnimationData {
 	float updateTime;
 	bool loop;
 	int priority = 0;
+	bool pingpong;
 };
 
 class AnimationController;
@@ -28,25 +30,32 @@ public:
 	Animation(const Animation& other) = delete;
 	~Animation();
 
-	void Draw() const; // draw animation
-	void Update(float elapsedSec);
+	virtual void Update(float elapsedSec);
+	virtual void Draw() const; // draw animation
 
 	void Loop(bool loopState) { m_Looped = loopState; };
 	void SetUpdateTime(float updateTime) { m_TimePerFrame = updateTime; }
-	void SetFlipped(bool state) { m_Flipped = state; }
+	void SetFlipped(bool state) { m_Flipped = state; };
+	void SetPingPong(bool pingpong) { m_PingPong = pingpong; }
+	void SetOffset(const Vector2f newOffset) { m_Offset = newOffset; }; 
 
 	void DeleteAnimation();
 	// GET METHODS
+	float GetAnimationUpdateTime() const { return m_TimePerFrame; }
+	Vector2f GetAnimationOffset() const { return m_Offset; };
 	AnimationPriority GetAnimationPriority() const { return m_Priority; }; 
 	std::string GetAnimationPath() const;
 	Texture* GetAnimationTexture() const { return m_pTexture; };
 	AnimationController* GetController() const { return m_pAnimationController; };
+	
 	// STATE METHODS
 	bool IsPaused() const { return m_Paused; };
 	bool IsLooped() const { return m_Looped; };
 	bool IsEnded() const { return m_HasEnded; };
 	bool IsFlipped() const { return m_Flipped; };
+	bool IsPingPong() const { return m_PingPong; };
 private:
+	bool m_PingPong;
 	bool m_HasEnded;
 	bool m_Paused;
 	bool m_Looped; 
@@ -55,6 +64,7 @@ private:
 	float m_TimePerFrame;
 	int m_FrameCount; 
 	int m_CurrentFrame;
+	Vector2f m_Offset;
 	Texture* m_pTexture;
 	AnimationController* m_pAnimationController;
 	AnimationPriority m_Priority;

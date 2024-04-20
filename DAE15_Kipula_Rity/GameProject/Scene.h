@@ -27,6 +27,7 @@ public:
 	Camera* GetCamera() const { return m_pCamera; };
 	EntityManager* GetEntityManager() const { return m_pEntityManager; };
 	CollisionHandler* GetCollisionHandler() const { return m_pCollisionHandler; };
+	World* GetWorld() const { return m_pWorld; };
 private:
 	float m_SceneTime;
 	bool m_Initialized;

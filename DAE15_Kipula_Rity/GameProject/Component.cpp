@@ -18,4 +18,3 @@ Component::~Component()
 	}
 	delete m_pTransform;
 }
-

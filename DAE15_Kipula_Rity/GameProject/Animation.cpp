@@ -10,11 +10,12 @@ Animation::Animation(AnimationController* animationController, const std::string
 	m_AnimationName{ animationName },
 	m_EntityName{ (m_pAnimationController->GetParent()->GetName()) },
 	m_Priority{ static_cast<AnimationPriority>(animationPriorityIndex) },
-
+	m_Offset{ Vector2f(0,0) },
+	m_CurrentFrame{ 0 },
 	m_AnimationClock{ 0 },
 	m_FrameCount{ frames },
-	m_CurrentFrame{ 0 },
 	m_TimePerFrame{ DEFAULT_ANIMATION_UPDATE },
+	m_PingPong{false},
 	m_Flipped{ false },
 	m_Paused{ false },
 	m_Looped{ false },
@@ -49,7 +50,7 @@ void Animation::Draw() const
 		};
 
 		glPushMatrix();
-		glTranslatef(position.x - std::min(0.f,width*lookDirection), position.y, 0);
+		glTranslatef( (position.x + m_Offset.x) - std::min(0.f, width * lookDirection), position.y + m_Offset.y, 0);
 		glScalef(lookDirection, 1, 1);
 		Rectf dstRect{
 			0,//m_pAnimationController->GetParent()->GetTransform()->GetPosition().x,
@@ -75,12 +76,23 @@ void Animation::Draw() const
 void Animation::Update(float elapsedSec)
 {
 	if (!IsPaused()) {
+		const float animationLength{ m_TimePerFrame * float(m_FrameCount) };
 		int frame{ static_cast<int>(m_AnimationClock / m_TimePerFrame) };
 		int currentFrame{ (frame % m_FrameCount) };
 
-		//std::cout << m_AnimationName << " : " << animationSpeed << std::endl;// << " : " << m_AnimationClock << std::endl;
+		if (!IsPingPong()) {
+			m_CurrentFrame = currentFrame;
+		}
+		else {
+			const float animationRatio{ m_AnimationClock / animationLength };
+			const float fullPeriod{ float(M_PI) };
+			const float periodAnimation{ fullPeriod * animationRatio };
 
-		m_CurrentFrame = currentFrame; 
+			int pingpongFrame{ int(m_FrameCount * sin(periodAnimation)) };
+			//std::cout << m_AnimationName << " : " << pingpongFrame << std::endl;// << " : " << m_AnimationClock << std::endl;
+			m_CurrentFrame = abs(pingpongFrame);
+
+		}
 		m_AnimationClock += elapsedSec;
 		
 		// Loop logic???

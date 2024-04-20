@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "Component.h"
 #include "Animation.h"
+#include "Power.h"
 #include <iostream>
 #include <map>
 #include <vector>
@@ -15,13 +16,17 @@ enum class EntityState {
 	FallingDown,
 	Freefall,
 	Landed,
-	Sucking
+	Sucking,
+	BigIdle,
+	BigRun,
+	BigJump,
+	BigLanded,
+	BigFreefall,
 };
 
 class EntityManager;
 class AnimationController;
 class Animation;
-class Power;
 class Entity : public Component {
 public:
 	explicit Entity(
@@ -31,12 +36,11 @@ public:
 	);
 	Entity& operator=(const Entity& rhs) = delete;
 	Entity(const Entity& other) = delete;
-	~Entity();
+	virtual ~Entity();
 
 	virtual void Update(float elapsedSec);
 	virtual void Draw() const;
 
-	std::vector<Entity*> CastHitbox(const Rectf& hurtbox);
 	void MoveTo(float elapsedSec, const Vector2f& direction, float speed);
 	bool TakeDamage(const int damage);
 
@@ -51,6 +55,8 @@ public:
 	void SetAnimationData(const std::map<int, AnimationData>& entityAnimations) { m_AnimationsData = entityAnimations; };
 	// GET METHODS
 	AnimationController* GetAnimator() const { return m_pAnimator; };
+	Power GetPower() const { return m_Power; };
+	int GetHealth() const { return m_Health; };
 
 	// STATE METHODS
 	bool CanDamage() const;
@@ -62,6 +68,7 @@ protected:
 	EntityManager* m_pManager;   
 
 	// states
+
 	bool m_InAir;
 	EntityState m_State;
 	EntityState m_OldState;
@@ -72,6 +79,7 @@ protected:
 	std::map<int, AnimationData> m_AnimationsData;
 
 	// variables
+	Power m_Power;
 	bool m_Invincible;
 	int m_Health;
 	float m_TimeElapsedLastHit;

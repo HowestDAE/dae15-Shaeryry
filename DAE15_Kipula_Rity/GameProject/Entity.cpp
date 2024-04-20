@@ -37,24 +37,6 @@ void Entity::Draw() const
 	m_pAnimator->DrawAnimations();
 }
 
-std::vector<Entity*> Entity::CastHitbox(const Rectf& hurtbox)
-{
-	std::vector<Entity*> EntityList{ m_pManager->GetEntities() };
-	std::vector<Entity*> EntitiesInBox{};
-	for (size_t entityIndex{}; entityIndex < EntityList.size(); entityIndex++) {
-		Entity* EntityAtIndex{EntityList[entityIndex]};
-		const CollisionBody* EntityBody{ EntityAtIndex->GetCollisionBody() };
-
-		if (EntityBody->IsActive() && EntityAtIndex != this) {
-			if (utils::IsOverlapping(hurtbox, EntityBody->GetRect())) {
-				EntitiesInBox.push_back(EntityAtIndex);
-			}
-		}
-	}
-
-	return EntitiesInBox;
-}
-
 void Entity::Update(float elapsedSec)
 {
 	m_pAnimator->UpdateAnimations(elapsedSec);
@@ -92,11 +74,11 @@ void Entity::MoveTo(float elapsedSec, const Vector2f& direction , float speed)
 
 void Entity::OnStateChanged()
 {
-	std::cout << int(m_State) << std::endl;
+	//std::cout << int(m_State) << std::endl;
 	const AnimationData trackData{ m_AnimationsData[int(m_State)] };
 	//Default Animation update for any entity
 	if (m_pCoreAnimation != nullptr) {
-		std::cout << m_pCoreAnimation->GetName() << " is already present" << std::endl;
+		//std::cout << m_pCoreAnimation->GetName() << " is already present" << std::endl;
 		m_pCoreAnimation->DeleteAnimation();
 		m_pCoreAnimation = nullptr;
 	};
@@ -104,14 +86,15 @@ void Entity::OnStateChanged()
 	Animation* animation{ m_pAnimator->PlayAnimation(trackData.name, trackData.frames, trackData.priority) };
 	animation->SetUpdateTime(trackData.updateTime);
 	animation->Loop(trackData.loop);
+	animation->SetPingPong(trackData.pingpong);
 
 	if (trackData.loop) {
 		m_pCoreAnimation = animation;
-		std::cout << m_pCoreAnimation->GetName() << " is now present :D" << std::endl;
+		//std::cout << m_pCoreAnimation->GetName() << " is now present :D" << std::endl;
 
 	}
 }
-
+ 
 
 void Entity::SetState(EntityState newState)
 {
@@ -129,7 +112,7 @@ bool Entity::TakeDamage(const int damage)
 		int newHealth{ currentHealth - damage };
 		SetHealth(newHealth);
 
-		OnDamage();
+		OnDamage(); 
 
 		if (newHealth <= 0 && currentHealth > 0) {
 			OnDied();
@@ -145,13 +128,13 @@ bool Entity::TakeDamage(const int damage)
 
 void Entity::OnDamage()
 {
-	std::cout << "hit" << std::endl;
+	//std::cout << "hit" << std::endl;
 	m_TimeElapsedLastHit = 0;
 }
 
 
 void Entity::OnDied() {
-	std::cout << "ded" << std::endl;
+	//std::cout << "ded" << std::endl;
 }
 
 void Entity::SetHealth(const int health)
@@ -162,7 +145,7 @@ void Entity::SetHealth(const int health)
 bool Entity::CanDamage() const
 {
 	return 
-		m_TimeElapsedLastHit > INVINCIBILITY_TIME 
+		(m_TimeElapsedLastHit > INVINCIBILITY_TIME)
 		&& IsAlive()
 		&& !IsInvincible();
 }

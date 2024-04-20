@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Enemy.h"
+#include "EntityManager.h"
 #include "Transform.h"
 #include "CollisionBody.h"
 
@@ -26,15 +27,15 @@ void Enemy::GoToTarget(float elapsedSec, Entity* target)
 
 void Enemy::AttackTarget(Entity* target)
 {
-	const CollisionBody* collisionBody{ GetCollisionBody() };
-	const std::vector<Entity*> targets{ this->CastHitbox( collisionBody->GetRect() ) };
+	const CollisionBody* collisionBody{ GetCollisionBody() }; 
+	const std::vector<Entity*> targets{ this->m_pManager->CastHitbox( this ,collisionBody->GetRect() ) };
 	//std::cout << targets.size() << std::endl;
 
 	const bool inRange{ std::find(targets.begin(),targets.end(),target) != targets.end() };
 	if (inRange) {
-		bool damagedTarget{ this->TakeDamage(1) };
+		bool damagedTarget{ target->TakeDamage(1) };
 		if (damagedTarget) {
-			target->TakeDamage(1);
+			this->TakeDamage(1);
 		}
 	} 
 }

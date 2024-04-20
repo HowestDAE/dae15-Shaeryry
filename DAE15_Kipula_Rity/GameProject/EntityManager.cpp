@@ -40,10 +40,11 @@ void EntityManager::UpdateEntities(float elapsedSec)
 		if (entity != nullptr && entity->IsAlive()) {
 			entity->Update(elapsedSec);
 
-			if (!entity->IsAlive()) {
-				delete entity;
-				entityIndex -=1;
-			}
+		} else if (entity != nullptr and !entity->IsAlive()) {
+			std::cout << entity->GetName() << " : " << entity->GetHealth() << std::endl;
+
+			delete entity;
+			entityIndex--;
 		};
 	};
 }
@@ -65,3 +66,22 @@ void EntityManager::RemoveEntity(Entity* entity)
 		}
 	}
 }
+
+std::vector<Entity*> EntityManager::CastHitbox(const Entity* attacker,const Rectf& hurtbox)
+{
+	std::vector<Entity*> EntityList{ this->GetEntities() };
+	std::vector<Entity*> EntitiesInBox{};
+	for (size_t entityIndex{}; entityIndex < EntityList.size(); entityIndex++) {
+		Entity* EntityAtIndex{ EntityList[entityIndex] };
+		const CollisionBody* EntityBody{ EntityAtIndex->GetCollisionBody() };
+
+		if (EntityBody->IsActive() && EntityAtIndex != attacker) {
+			if (utils::IsOverlapping(hurtbox, EntityBody->GetRect())) {
+				EntitiesInBox.push_back(EntityAtIndex);
+			}
+		}
+	}
+
+	return EntitiesInBox;
+}
+

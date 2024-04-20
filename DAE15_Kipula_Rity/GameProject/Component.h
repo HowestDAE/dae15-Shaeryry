@@ -12,6 +12,9 @@ public:
 	Component(const Component& other) = delete;
 	~Component();
 
+	/*virtual void Update(float elapsedSec);
+	virtual void Draw() const;*/
+
 	void SetName(const std::string& name) { m_Name = name; };
 	std::string GetName() const { return m_Name; };
 
@@ -25,6 +28,9 @@ public:
 
 	CollisionBody* GetCollisionBody() const { return m_pCollisionBody; };
 	void SetCollisionBody(CollisionBody* body) { m_pCollisionBody = body; };
+
+	// Methods
+
 protected:
 	std::string m_Name;
 	Component* m_pParent; 

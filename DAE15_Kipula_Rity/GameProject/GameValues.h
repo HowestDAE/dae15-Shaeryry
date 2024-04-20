@@ -2,7 +2,7 @@
 
 // Global Values
 
-static const float DEFAULT_ANIMATION_UPDATE{ .125 };
+static const float DEFAULT_ANIMATION_UPDATE{ .115f };
 
 static const float DEFAULT_ENTITY_WIDTH{ 40 }; 
 static const float DEFAULT_ENTITY_HEIGHT{ 40 };
@@ -26,10 +26,15 @@ static const float KIRBY_FLIP_SIDE_TIME{ .125f };
 static const float KIRBY_SQUISH_TIME{ .08f };
 static const float KIRBY_KNOCKBACK_ON_HIT{ 450 };
 static const float KIRBY_STUN_TIME{ .35f };
+static const float KIRBY_SHOOT_GROUND_ANIMATION_UPDATE{ .1f };
+static const float KIRBY_SHOOTING_TIME{ KIRBY_SHOOT_GROUND_ANIMATION_UPDATE * 4 };
 
 static const float KIRBY_ABSORB_RANGE{ 150 };
+static const float KIRBY_EAT_RANGE{ 15 };
 static const float KIRBY_ABSORB_POWER{ 15 };
+
 static const float KIRBY_DEFLATE_TIME{ DEFAULT_ANIMATION_UPDATE*2 };
+static const float KIRBY_BIG_RUN_UPDATE{ .15f };
 static const float KIRBY_ENTITY_BIG_WIDTH{ 60 };
 static const float KIRBY_ENTITY_BIG_HEIGHT{ 60 };
 
@@ -37,3 +42,14 @@ static const float KIRBY_ENTITY_BIG_HEIGHT{ 60 };
 
 static const float WADDLEDOO_MOVEMENT_SPEED{ 85 };
 static const float WADDLEDOO_ANIMATION_UPDATE{ 0.325f };
+
+// Projectiles
+static const float PROJECTILE_DEFAULT_WIDTH{ 30 };
+static const float PROJECTILE_DEFAULT_HEIGHT{ 30 };
+
+// Star
+
+static const float STAR_SPEED{ 800 };
+static const float STAR_ANIMATION_UPDATE{ .05f };
+static const float STAR_WIDTH{ 40 };
+static const float STAR_HEIGHT{ 40 };
