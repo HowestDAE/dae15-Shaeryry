@@ -18,6 +18,7 @@ Camera::~Camera()
 void Camera::Reset()
 {
 	glPopMatrix();
+	Component::ResetEffectLayer();
 }
 
 void Camera::UpdateCameraDimensions()
@@ -28,6 +29,8 @@ void Camera::UpdateCameraDimensions()
 
 void Camera::UpdateCamera(float elapsedSec, World* world, const Vector2f& center)
 {
+	Component::Update(elapsedSec);
+
 	Rectf worldRect{ world->GetWorldRect() };
 	Vector2f aimPosition{ center };
 	Vector2f cameraPosition{};
@@ -50,6 +53,8 @@ void Camera::UpdateCamera(float elapsedSec, World* world, const Vector2f& center
 
 void Camera::DrawCamera() const
 {
+	Component::ApplyComponentEffects();
+
 	glPushMatrix();
 
 	glTranslatef(m_CameraViewport.left, m_CameraViewport.bottom, 0);

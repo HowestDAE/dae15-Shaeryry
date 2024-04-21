@@ -4,7 +4,8 @@
 
 static const float INF{ 100000.f };
 static const float DEFAULT_ANIMATION_UPDATE{ .115f };
-static const float FAST_ANIMATION_UPDATE{ .08f };
+static const float WORLD_ANIMATION_UPDATE{ .5f };
+static const float WORLD_MARGIN_TOP{ 30 };
 
 static const float DEFAULT_ENTITY_WIDTH{ 40 }; 
 static const float DEFAULT_ENTITY_HEIGHT{ 40 };

@@ -34,11 +34,14 @@ Entity::~Entity() {
 
 void Entity::Draw() const
 {		
+	Component::ApplyComponentEffects();
 	m_pAnimator->DrawAnimations();
+	Component::ResetEffectLayer();
 }
 
 void Entity::Update(float elapsedSec)
 {
+	Component::Update(elapsedSec);
 	m_pAnimator->UpdateAnimations(elapsedSec);
 	GetTransform()->Update(elapsedSec);
 	if (this->GetCollisionBody() != nullptr) {

@@ -179,7 +179,7 @@ void Player::Update(float elapsedSec)
 					nextState = EntityState::Idle; // Default idle state !
 				}
 			}
-			else {
+			else { 
 				if (IsRunning) { // Run
 					nextState = EntityState::BigRun;
 				}
@@ -439,7 +439,7 @@ void Player::ClampToScreen()
 	
 	// Y-Axis
 	const float minY{ 0 };
-	const float maxY{ (abs(viewport.bottom) + viewport.height) - playerTransform->GetHeight() };
+	const float maxY{ (abs(viewport.bottom) + viewport.height) - playerTransform->GetHeight() - WORLD_MARGIN_TOP };
 
 	if (currentPosition.y < minY) {
 		newPosition.y = minY;
@@ -506,6 +506,7 @@ void Player::Suck()
 						m_Absorbed = true;
 						m_AbsoredPower = entityAtIndex->GetPower();
 						entityAtIndex->SetHealth(0);
+						ShakeComponent(Vector2f(10, 10), 0.8f);
 						SuckEnd();
 					}
 
@@ -580,6 +581,7 @@ void Player::OnDamage()
 	this->GetTransform()->ApplyImpulse( Vector2f(outgoingVelocity.x,-outgoingVelocity.y) );
 	this->GetTransform()->SetFlipped(false);
 
+	this->m_pManager->GetScene()->GetCamera()->ShakeComponent(Vector2f(12, 12), .5f);
 	Animation* hurtAnimation;
 	if (not IsBig()) {
 		hurtAnimation = m_pAnimator->PlayAnimation("Hurt", 2, 3);

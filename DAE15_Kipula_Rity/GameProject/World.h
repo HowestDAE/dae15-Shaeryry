@@ -16,12 +16,12 @@ struct SpawnerData {
 struct WorldData {
 	std::string name;
 	float scale;
-	float frames;
+	int frames;
 	std::vector<SpawnerData> spawners;
 };
 
 class Camera;
-class World final : public Component
+class World final : public Component 
 {
 public:
 	explicit World(const WorldData& worldData,TextureManager* textureManager);
@@ -41,8 +41,10 @@ public:
 private:
 	std::string GetWorldTexturePath();
 	std::vector<std::vector<Point2f>> m_CollisionData;
+	WorldData m_Data;
 	Texture* m_pWorldTexture;
 	Rectf m_WorldRect;
 	float m_WorldScale;
+	float m_WorldElapsedTime;
 };
 

@@ -6,8 +6,10 @@
 #include "Component.h"
 #include "CollisionBody.h"
 
-World::World(const WorldData& worldData,TextureManager* textureManager) :
-	m_WorldScale{worldData.scale}
+World::World(const WorldData& worldData, TextureManager* textureManager) :
+	m_Data{ worldData },
+	m_WorldScale{worldData.scale},
+	m_WorldElapsedTime{0}
 {
 
 	SetName(worldData.name);
@@ -17,7 +19,7 @@ World::World(const WorldData& worldData,TextureManager* textureManager) :
 		0,
 		0,
 		m_pWorldTexture->GetWidth(),
-		m_pWorldTexture->GetHeight()
+		m_pWorldTexture->GetHeight() / m_Data.frames
 	};
 	
 	// COLLISION DATA SETUP
@@ -41,16 +43,23 @@ World::World(const WorldData& worldData,TextureManager* textureManager) :
 
 World::~World()
 {
-
 }
 
 void World::Draw() const
 {
-	glPushMatrix();
+	glPushMatrix();	
 	glScalef(m_WorldScale, m_WorldScale, m_WorldScale);
 
 	if (m_pWorldTexture != nullptr) {
-		m_pWorldTexture->Draw(m_WorldRect);
+		const int frame{ int(m_WorldElapsedTime / WORLD_ANIMATION_UPDATE) };
+		const int currentFrame{ frame % m_Data.frames };
+		const Rectf srcRect{
+			0,
+			currentFrame * m_WorldRect.height,
+			m_WorldRect.width,
+			m_WorldRect.height
+		};
+		m_pWorldTexture->Draw(m_WorldRect, srcRect);
 	};
 
 	glPopMatrix();
@@ -64,6 +73,7 @@ void World::Update(float elapsedSec)
 	if (this->GetCollisionBody() != nullptr) {
 		this->GetCollisionBody()->SetVertices(m_CollisionData[0]);
 	}
+	m_WorldElapsedTime += elapsedSec;
 }
 
 std::string World::GetWorldTexturePath()

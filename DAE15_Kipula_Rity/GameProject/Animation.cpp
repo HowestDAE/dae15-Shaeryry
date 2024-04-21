@@ -77,7 +77,7 @@ void Animation::Update(float elapsedSec)
 {
 	if (!IsPaused()) {
 		const float animationLength{ m_TimePerFrame * float(m_FrameCount) };
-		int frame{ static_cast<int>(m_AnimationClock / m_TimePerFrame) };
+		int frame{ int(m_AnimationClock / m_TimePerFrame) };
 		int currentFrame{ (frame % m_FrameCount) };
 
 		if (!IsPingPong()) {

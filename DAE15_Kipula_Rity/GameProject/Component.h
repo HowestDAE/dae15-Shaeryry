@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "utils.h"
 #include <iostream>
 
 class Transform;
@@ -12,8 +13,7 @@ public:
 	Component(const Component& other) = delete;
 	~Component();
 
-	/*virtual void Update(float elapsedSec);
-	virtual void Draw() const;*/
+	virtual void Update(float elapsedSec);
 
 	void SetName(const std::string& name) { m_Name = name; };
 	std::string GetName() const { return m_Name; };
@@ -30,7 +30,9 @@ public:
 	void SetCollisionBody(CollisionBody* body) { m_pCollisionBody = body; };
 
 	// Methods
-
+	void ApplyComponentEffects() const;
+	void ShakeComponent(const Vector2f force,float intensity=1); 
+	void ResetEffectLayer() const;
 protected:
 	std::string m_Name;
 	Component* m_pParent; 
@@ -38,5 +40,9 @@ private:
 	TextureManager* m_pTextureManager;
 	Transform* m_pTransform;
 	CollisionBody* m_pCollisionBody;
+
+	// Effects
+	Vector2f m_Displacement;
+	Vector2f m_ShakingForce;
 };
 
