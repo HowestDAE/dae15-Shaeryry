@@ -15,7 +15,7 @@ Entity::Entity(EntityManager* manager, const Vector2f& origin, const std::string
 	m_OldState{ EntityState::None },
 	m_InAir{ false },
 	m_Invincible{false},
-	m_TimeElapsedLastHit{ 0 },
+	m_TimeElapsedLastHit{ INVINCIBILITY_TIME },
 	m_Health{1}
 {
 	m_pAnimator = new AnimationController(this);
@@ -52,9 +52,10 @@ void Entity::MoveTo(float elapsedSec, const Vector2f& direction , float speed)
 {
 	Transform* entityTransform{ this->GetTransform() };
 	const Vector2f entityPosition{ entityTransform->GetPosition() };
+	const float xPos{ ((direction.Normalized().x * speed) * elapsedSec) };
+	const float yPos{ ((direction.Normalized().y * speed) * elapsedSec) };
+
 	Vector2f movement{};
-	float xPos{ ((direction.Normalized().x * speed) * elapsedSec) };
-	float yPos{ ((direction.Normalized().y * speed) * elapsedSec) };
 	movement.x = xPos;
 	movement.y = yPos;
 
@@ -64,6 +65,7 @@ void Entity::MoveTo(float elapsedSec, const Vector2f& direction , float speed)
 	if (xDifference != 0) {
 		entityTransform->SetFlipped(xDifference < 0);
 	}
+
 	if (!GetCollisionBody()->FrontCollision(newPosition)) {
 		this->GetTransform()->SetPosition(newPosition);
 	}
@@ -91,7 +93,6 @@ void Entity::OnStateChanged()
 	if (trackData.loop) {
 		m_pCoreAnimation = animation;
 		//std::cout << m_pCoreAnimation->GetName() << " is now present :D" << std::endl;
-
 	}
 }
  

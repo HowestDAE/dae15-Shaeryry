@@ -50,14 +50,13 @@ void Scene::Initialize(const std::string& worldName)
 		m_pCollisionHandler->AddBody(new CollisionBody(m_pWorld));
 		m_pWorld->GetCollisionBody()->SetTag("Collidable");
 		 
-		m_pPlayer = new Player(m_pEntityManager, Vector2f{ 0,500.f }, "Kirby");
+		m_pPlayer = new Player(m_pEntityManager, Vector2f{ 200.f,200.f }, "Kirby");
 		// Change spawn point dependant on world data later??? Maybe throw in an extra parameter so I can choose where you land!!
 
 		for (size_t spawnerIndex{}; spawnerIndex < worldData.spawners.size(); spawnerIndex++) {
 			SpawnerData spawnerData{ worldData.spawners[spawnerIndex] };
 			m_pSpawnerManager->CreateSpawner(new EnemySpawner(spawnerData.typeSpawner, spawnerData.position, spawnerData.amountEnemies));
 		}
-
 
 		m_Initialized = true;
 		m_SceneTime = 0;

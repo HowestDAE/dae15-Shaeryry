@@ -40,9 +40,11 @@ void Projectile::Update(float elapsedSec)
 	const Transform* projectileTransform{ this->GetTransform() };
 
 	if (m_Active) {
-		const Vector2f originToTarget{ (m_Target - m_Origin) };
+		const Vector2f originToTarget{ (m_Target - projectileTransform->GetPosition()) };
 		const Vector2f displacement{ originToTarget.Normalized() * m_Speed * elapsedSec };
-		this->GetTransform()->SetPosition(projectileTransform->GetPosition() + displacement);
+		if (originToTarget.Length()>2) {
+			this->GetTransform()->SetPosition(projectileTransform->GetPosition() + displacement);
+		}
 
 
 		this->GetCollisionBody()->UpdateCollider(elapsedSec);

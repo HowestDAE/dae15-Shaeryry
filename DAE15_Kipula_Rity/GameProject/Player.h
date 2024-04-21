@@ -16,20 +16,24 @@ public:
 	
 	//States
 	bool CanControl() const;
-	bool InAir();
+	bool InAir() const;
 	bool IsHitstunned() const;
 	bool IsSucking() const { return m_Sucking; };
 	bool IsDeflating() const;
 	bool IsBig() const;
 	bool IsFull() const { return m_Absorbed; };
 	bool IsShooting() const;
+	bool IsFlying() const;
 	// Actions
+	void ClampToScreen();
 	void Jump();
 	void JumpEnd();
 	void SuckStart();
 	void Suck();
 	void SuckEnd();
 	void Shoot();
+	void Fly();
+	void FlyEnd();
 	// Overriden stuff 
 	virtual void OnDamage() override;
 private:
@@ -39,12 +43,15 @@ private:
 	Power m_AbsoredPower;
 	
 	bool m_PressedSpace;
+	bool m_Flying;
 	bool m_Jumping;
 	bool m_Sucking;
 	bool m_Absorbed;
 	bool m_CanShoot;
 	bool m_SuckingTargets;
-
+		
+	float m_FlyingEndClock;
+	float m_FlyingClock;
 	float m_RunClock;
 	float m_ShootingClock;
 	float m_DeflateClock;

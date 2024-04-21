@@ -25,7 +25,7 @@ AnimationController::~AnimationController()
 
 void AnimationController::DrawAnimations() const
 {
-	if (GetTextureManager() != nullptr) {
+	if (GetTextureManager() != nullptr) { 
 
 		if (m_pAnimations.size() > 0) {
 			Animation* playingAnimation{ m_pAnimations[0] };
@@ -61,9 +61,9 @@ void AnimationController::AddAnimation(Animation* animation)
 
 	if (m_pAnimations.size() > 0) {
 		for (Animation* animationAtIndex : m_pAnimations) {
-			int priorityAtIndex{ static_cast<int>(animationAtIndex->GetAnimationPriority()) };
+			const int priorityAtIndex{ int(animationAtIndex->GetAnimationPriority()) };
 
-			if (priority >= priorityAtIndex) {
+			if (priority >= priorityAtIndex or animationAtIndex->IsEnded()) {
 				std::vector<Animation*>::iterator it = std::find(m_pAnimations.begin(), m_pAnimations.end(), animationAtIndex);
 				m_pAnimations.insert(it, animation);
 				//std::cout << "Added animation ! : " << animation->GetAnimationPath() << std::endl;

@@ -41,7 +41,7 @@ void EntityManager::UpdateEntities(float elapsedSec)
 			entity->Update(elapsedSec);
 
 		} else if (entity != nullptr and !entity->IsAlive()) {
-			std::cout << entity->GetName() << " : " << entity->GetHealth() << std::endl;
+			std::cout << entity->GetName() << " died !" << std::endl;
 
 			delete entity;
 			entityIndex--;

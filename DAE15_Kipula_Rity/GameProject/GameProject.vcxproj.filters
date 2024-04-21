@@ -105,6 +105,9 @@
     <ClCompile Include="Star.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cloud.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -180,6 +183,9 @@
       <Filter>Header Files\Powers</Filter>
     </ClInclude>
     <ClInclude Include="Star.h">
+      <Filter>Header Files\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Cloud.h">
       <Filter>Header Files\Projectiles</Filter>
     </ClInclude>
   </ItemGroup>

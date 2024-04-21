@@ -15,6 +15,7 @@ enum class EntityState {
 	Jump,
 	FallingDown,
 	Freefall,
+	Flying,
 	Landed,
 	Sucking,
 	BigIdle,

@@ -33,7 +33,7 @@ void ProjectileManager::Update(float elapsedSec)
 		// Damage
 		if (projectile->IsActive()) {
 			const std::vector<Entity*> targets{ this->m_pEntityManager->CastHitbox( m_pOwner ,projectile->GetCollisionBody()->GetRect() )};
-			std::cout << targets.size() << std::endl;
+
 			for (size_t entityIndex{ 0 }; entityIndex < targets.size(); entityIndex++) {
 				Entity* target{ targets[entityIndex] };
 				bool damagedTarget{ target->TakeDamage(projectile->GetDamage()) };
@@ -60,6 +60,7 @@ void ProjectileManager::Draw() const
 
 void ProjectileManager::AddProjectile(Projectile* newProjectile)
 {
+	newProjectile->GetTransform()->SetFlipped(m_pOwner->GetTransform()->GetLookDirection() == -1);
 	m_pEntityManager->GetScene()->GetCollisionHandler()->AddBody(new CollisionBody(newProjectile));
 	newProjectile->GetCollisionBody()->SetTag("Projectile");
 	m_pProjectiles.push_back(newProjectile);

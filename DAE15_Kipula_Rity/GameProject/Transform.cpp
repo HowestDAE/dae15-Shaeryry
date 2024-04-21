@@ -3,6 +3,7 @@
 #include <iostream>
 
 Transform::Transform() :
+	m_Gravity{ GRAVITY },
 	m_Position(0, 0),
 	m_PreviousPosition(0, 0),
 	m_Velocity(0, 0),
@@ -18,7 +19,7 @@ Transform::Transform() :
 
 void Transform::Update(float elapsedSec)
 {
-	const float GravityFrameIndependant{ (GRAVITY * elapsedSec) };
+	const float GravityFrameIndependant{ (m_Gravity * elapsedSec) };
 	const float FakeAirPressureFrameIndependant{ (FAKE_AIR_PRESSURE * elapsedSec) };
 
 	const float Deceleration{ m_Deceleration * elapsedSec };
@@ -69,7 +70,7 @@ void Transform::Update(float elapsedSec)
 
 void Transform::ApplyPhysics(float elapsedSec)
 {
-	AddVelocity(Vector2f{ 0,-GRAVITY }*elapsedSec);	
+	AddVelocity(Vector2f{ 0,-m_Gravity }*elapsedSec);	
 }
 
 void Transform::AddAcceleration(float accel)

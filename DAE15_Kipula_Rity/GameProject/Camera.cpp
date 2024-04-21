@@ -7,6 +7,7 @@
 Camera::Camera(const Rectf& viewport):
 	m_Viewport{viewport}
 {
+	UpdateCameraDimensions();
 }
 
 Camera::~Camera()
@@ -17,6 +18,12 @@ Camera::~Camera()
 void Camera::Reset()
 {
 	glPopMatrix();
+}
+
+void Camera::UpdateCameraDimensions()
+{
+	m_CameraViewport.width = m_Viewport.width;
+	m_CameraViewport.height = m_Viewport.height;
 }
 
 void Camera::UpdateCamera(float elapsedSec, World* world, const Vector2f& center)
@@ -36,9 +43,9 @@ void Camera::UpdateCamera(float elapsedSec, World* world, const Vector2f& center
 	if (cameraPosition.x < 0) {
 		m_CameraViewport.left = cameraPosition.x;
 		m_CameraViewport.bottom = cameraPosition.y;
-		m_CameraViewport.width = m_Viewport.width;
-		m_CameraViewport.height = m_Viewport.height;
 	}
+
+	UpdateCameraDimensions();
 }
 
 void Camera::DrawCamera() const

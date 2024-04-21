@@ -10,6 +10,7 @@ public:
 	void Update(float elapsedSec);
 	void ApplyPhysics(float elapsedSec);
 
+	void SetGravity(float gravity) { m_Gravity = gravity; };
 	// Position
 
 	void SetPosition(const Vector2f& newPosition) { m_Position = newPosition; };
@@ -47,6 +48,7 @@ private:
 	Vector2f m_Impulse;
 	Vector2f m_Velocity;
 	Vector2f m_PreviousPosition; 
+	float m_Gravity;
 	float m_Width;
 	float m_Height;
 	float m_Acceleration;

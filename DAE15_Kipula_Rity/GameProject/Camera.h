@@ -13,6 +13,7 @@ public:
 	~Camera();
 
 	void Reset();
+	void UpdateCameraDimensions();
 	void UpdateCamera(float elapsedSec, World* world, const Vector2f& center);
 	void DrawCamera() const;
 	Rectf GetCameraViewport() const { return m_CameraViewport; };

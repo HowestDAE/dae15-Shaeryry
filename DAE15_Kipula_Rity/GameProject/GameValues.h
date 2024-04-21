@@ -2,7 +2,9 @@
 
 // Global Values
 
+static const float INF{ 100000.f };
 static const float DEFAULT_ANIMATION_UPDATE{ .115f };
+static const float FAST_ANIMATION_UPDATE{ .08f };
 
 static const float DEFAULT_ENTITY_WIDTH{ 40 }; 
 static const float DEFAULT_ENTITY_HEIGHT{ 40 };
@@ -38,6 +40,13 @@ static const float KIRBY_BIG_RUN_UPDATE{ .15f };
 static const float KIRBY_ENTITY_BIG_WIDTH{ 60 };
 static const float KIRBY_ENTITY_BIG_HEIGHT{ 60 };
 
+static const float KIRBY_FLYING_GRAVITY{ 200 };
+static const float KIRBY_FLYING_MOVEMENT_SPEED{ 200 };
+static const float KIRBY_IDLE_FLYING_ANIMATION_UPDATE{ .5f };
+static const float KIRBY_RISING_FLYING_ANIMATION_UPDATE{ .08f };
+static const float KIRBY_FLYING_BOBBING_OFFSET{ 5.f };
+static const float KIRBY_FLYING_END_ANIMATION_UPDATE{ DEFAULT_ANIMATION_UPDATE * 4 };
+
 // Waddle Doo values
 
 static const float WADDLEDOO_MOVEMENT_SPEED{ 85 };
@@ -50,6 +59,17 @@ static const float PROJECTILE_DEFAULT_HEIGHT{ 30 };
 // Star
 
 static const float STAR_SPEED{ 800 };
+static const float STAR_RANGE{ INF };
 static const float STAR_ANIMATION_UPDATE{ .05f };
 static const float STAR_WIDTH{ 40 };
 static const float STAR_HEIGHT{ 40 };
+static const float STAR_DURATION{ 5 };
+
+// Cloud 
+
+static const float CLOUD_SPEED{ 800 };
+static const float CLOUD_RANGE{ 150 };
+static const float CLOUD_WIDTH{ 40 };
+static const float CLOUD_HEIGHT{ 40 };
+static const float CLOUD_DURATION{ .5f };
+

@@ -17,7 +17,6 @@ CollisionBody::CollisionBody(Component* Instance) :
 
 CollisionBody::~CollisionBody()
 {
-	std::cout << "Destroyed this !" << std::endl;
 }
 
 void CollisionBody::DrawCollider() const

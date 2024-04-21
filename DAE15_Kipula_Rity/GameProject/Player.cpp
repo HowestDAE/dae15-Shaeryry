@@ -7,9 +7,12 @@
 #include "AnimationController.h"
 #include "Transform.h"
 #include "CollisionBody.h"
+#include "Camera.h"
+#include "Scene.h"
 
 // Projectiles
 #include "Star.h"
+#include "Cloud.h"
 //
 
 #include <map>
@@ -18,9 +21,12 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	Entity(manager, origin, entityName),
 	m_JumpClock{ 0 },
 	m_RunClock{ 0 },
+	m_FlyingClock{ 0 },
+	m_FlyingEndClock{ KIRBY_FLYING_END_ANIMATION_UPDATE },
 	m_ShootingClock{ KIRBY_SHOOTING_TIME },
 	m_DeflateClock{ KIRBY_DEFLATE_TIME },
-	m_Jumping{ false },
+	m_Jumping{ false }, 
+	m_Flying{false}, 
 	m_Sucking{ false },
 	m_SuckingTargets{ false },
 	m_Absorbed{false},
@@ -29,18 +35,20 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	m_Shooter{ new ProjectileManager(this,m_pManager) }
 { 
 	this->SetHealth(6);
+	this->GetTransform()->SetPosition(origin);
 	this->GetTransform()->SetWidth(DEFAULT_ENTITY_WIDTH);
 	this->GetTransform()->SetHeight(DEFAULT_ENTITY_HEIGHT); 
 
 	std::map<int, AnimationData> playerTracks{};
-	playerTracks[0] = AnimationData{ "None",1,2,true };
-	playerTracks[1] = AnimationData{"Idle",1,2,true};
-	playerTracks[2] = AnimationData{ "Run",4,DEFAULT_ANIMATION_UPDATE,true };
-	playerTracks[3] = AnimationData{ "Jump",1,DEFAULT_ANIMATION_UPDATE,true };
-	playerTracks[4] = AnimationData{ "FallingDown",5,(DEFAULT_ANIMATION_UPDATE * .75f),false,2 };
-	playerTracks[5] = AnimationData{ "Freefall",1,DEFAULT_ANIMATION_UPDATE,true };
-	playerTracks[6] = AnimationData{ "Landed",1,DEFAULT_ANIMATION_UPDATE,false,2 };
-	playerTracks[7] = AnimationData{ "Sucking",1,DEFAULT_ANIMATION_UPDATE,true };
+	playerTracks[static_cast<int>(EntityState::None)] = AnimationData{ "None",1,2,true };
+	playerTracks[static_cast<int>(EntityState::Idle)] = AnimationData{"Idle",1,2,true};
+	playerTracks[static_cast<int>(EntityState::Run)] = AnimationData{ "Run",4,DEFAULT_ANIMATION_UPDATE,true };
+	playerTracks[static_cast<int>(EntityState::Jump)] = AnimationData{ "Jump",1,DEFAULT_ANIMATION_UPDATE,true };
+	playerTracks[static_cast<int>(EntityState::FallingDown)] = AnimationData{ "FallingDown",5,(DEFAULT_ANIMATION_UPDATE * .75f),false,2 };
+	playerTracks[static_cast<int>(EntityState::Flying)] = AnimationData{ "Flying",2,DEFAULT_ANIMATION_UPDATE,true };
+	playerTracks[static_cast<int>(EntityState::Freefall)] = AnimationData{ "Freefall",1,DEFAULT_ANIMATION_UPDATE,true };
+	playerTracks[static_cast<int>(EntityState::Landed)] = AnimationData{ "Landed",1,DEFAULT_ANIMATION_UPDATE,false,2 };
+	playerTracks[static_cast<int>(EntityState::Sucking)] = AnimationData{ "Sucking",1,DEFAULT_ANIMATION_UPDATE,true,2 };
 	playerTracks[static_cast<int>(EntityState::BigIdle)] = AnimationData{ "Big_Idle",1,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::BigRun)] = AnimationData{ "Big_Run",4,KIRBY_BIG_RUN_UPDATE,true,0 };
 	playerTracks[static_cast<int>(EntityState::BigJump)] = AnimationData{ "Big_Jump",4,DEFAULT_ANIMATION_UPDATE,true };
@@ -67,10 +75,13 @@ void Player::OnKeyDownEvent(const SDL_KeyboardEvent& e)
 				Jump();
 			}
 			break;
-		case SDLK_w:
+		case SDLK_z:
 			Shoot();
+			FlyEnd();
 			SuckStart();
 			break;
+		case SDLK_UP:
+			Fly();
 		default:
 			break;
 	}
@@ -86,7 +97,7 @@ void Player::OnKeyUpEvent(const SDL_KeyboardEvent& e)
 				m_PressedSpace = false;
 			}
 			break;
-		case SDLK_w:
+		case SDLK_z:
 			SuckEnd();
 			if (IsFull()) {
 				m_CanShoot = true;
@@ -156,58 +167,64 @@ void Player::Update(float elapsedSec)
 		}
 	}
 
-	if (GetCollisionBody()->IsGrounded()) // Small Grounded logic
-	{
-		// Run & Idle
-		if (not IsFull()) {
-			if (IsRunning) { // Run
-				nextState = EntityState::Run;
-			}
-			else {
-				nextState = EntityState::Idle; // Default idle state !
-			}
-		}
-		else {
-			if (IsRunning) { // Run
-				nextState = EntityState::BigRun;
-			}
-			else {
-				nextState = EntityState::BigIdle; // Default idle state !
-			}
-		}
-		
-		 
-		// Landing
-		if (InAir()) { // Checks if the current state is in the air when you're just grounded !
+	if (not IsFlying()) {
+		if (GetCollisionBody()->IsGrounded()) // Small Grounded logic
+		{
+			// Run & Idle
 			if (not IsFull()) {
-				nextState = EntityState::Landed;
+				if (IsRunning) { // Run
+					nextState = EntityState::Run;
+				}
+				else {
+					nextState = EntityState::Idle; // Default idle state !
+				}
 			}
 			else {
-				nextState = EntityState::BigLanded;
+				if (IsRunning) { // Run
+					nextState = EntityState::BigRun;
+				}
+				else {
+					nextState = EntityState::BigIdle; // Default idle state !
+				}
+			}
+
+
+			// Landing
+			if (InAir()) { // Checks if the current state is in the air when you're just grounded !
+				if (not IsFull()) {
+					nextState = EntityState::Landed;
+				}
+				else {
+					nextState = EntityState::BigLanded;
+				}
 			}
 		}
-	} else { //  Air Logic
+		else { //  Air Logic
 			// Falling
-		if (IsFalling) { // Checks if Y motion is negative, which means you're falling !
-			if (not IsFull()) {
-				nextState = EntityState::Freefall;
+			if (IsFalling) { // Checks if Y motion is negative, which means you're falling !
+				if (not IsFull()) {
+					nextState = EntityState::Freefall;
+				}
+				else {
+					nextState = EntityState::BigFreefall;
+				}
 			}
-			else {
-				nextState = EntityState::BigFreefall;
+			// Jumping
+			if (m_Jumping) {
+				if (not IsFull()) {
+					nextState = EntityState::Jump;
+				}
+				else {
+					nextState = EntityState::BigJump;
+				}
 			}
 		}
-		// Jumping
-		if (m_Jumping) {
-			if (not IsFull()) {
-				nextState = EntityState::Jump;
-			}
-			else {
-				nextState = EntityState::BigJump;
-			}
-		}
+
+	}
+	else {
+		nextState = EntityState::Flying;
 	}
 	
-
 
 	// Sucking
 	if (m_Sucking) {
@@ -218,8 +235,6 @@ void Player::Update(float elapsedSec)
 		m_DeflateClock += elapsedSec;
 	}
 	
-	// FIX THIS FREAK AH FUCKING SUCKING GLITCH :>
-
 	SetState(nextState);
 
 	// State Actions  
@@ -276,7 +291,7 @@ void Player::Update(float elapsedSec)
 		}
 
 	// Wall stop !
-	if (not IsFull()) {
+	if (not IsFull() and not IsFlying()) {
 		if (playerTransform->GetCurrentVelocity().x <= 0 && abs(alphaCurrentVelocity.x) > 0 && GetCollisionBody()->IsWallbound()) {
 			if (playerTransform->GetAcceleration() >= 50) {
 				//std::cout << "Wall oomf chan" << std::endl;
@@ -286,6 +301,46 @@ void Player::Update(float elapsedSec)
 		}
 	}
 	
+
+	// Flying handler :P (bleh)
+
+	const bool rising{ (playerTransform->GetCurrentVelocity().y >= 0.25) };
+	if (currentState == EntityState::Flying) {
+		m_FlyingClock += elapsedSec;
+
+		float updateTime{};
+		if (rising) {
+			updateTime = (KIRBY_RISING_FLYING_ANIMATION_UPDATE);
+		}
+		else {
+			updateTime = (KIRBY_IDLE_FLYING_ANIMATION_UPDATE);
+		}
+
+		// Bobbing
+		const float currentRatio{ (m_FlyingClock / updateTime) };
+		const float periodBounce{ float( (M_PI / 2) * currentRatio ) };
+		const int bounceRythm{ int( std::round( sin(periodBounce) ) ) };
+
+		//
+
+		if (m_pCoreAnimation != nullptr) {
+			//std::cout << bounceRythm << std::endl;
+			const Vector2f offset{ 0, (KIRBY_FLYING_BOBBING_OFFSET * abs(bounceRythm)) };
+
+			m_pCoreAnimation->SetUpdateTime(updateTime);
+			m_pCoreAnimation->SetOffset(offset);
+		}
+
+		this->GetTransform()->SetGravity(KIRBY_FLYING_GRAVITY);
+	}
+	else {
+		m_FlyingClock = 0;
+		this->GetTransform()->SetGravity(GRAVITY);
+	}
+
+	if (not m_Flying and IsFlying()) {
+		m_FlyingEndClock += elapsedSec;
+	}
 
 	// Invicibility manager
 	const bool Invincible{
@@ -302,6 +357,7 @@ void Player::Update(float elapsedSec)
 
 	// Finish
 	m_SuckingTargets = false;
+	ClampToScreen();
 }
 
 void Player::Draw() const
@@ -318,12 +374,15 @@ bool Player::CanControl() const
 		and not IsDeflating();
 }
 
-bool Player::InAir()
+bool Player::InAir() const
 {
-	return 
+	return  
 		m_State == EntityState::Jump
 		or m_State == EntityState::FallingDown
-		or m_State == EntityState::Freefall;
+		or m_State == EntityState::Freefall
+		or m_State == EntityState::Flying
+		or m_State == EntityState::BigJump
+		or m_State == EntityState::BigFreefall;
 }
 
 bool Player::IsHitstunned() const
@@ -342,7 +401,8 @@ bool Player::IsBig() const
 		IsSucking()
 		or IsDeflating()
 		or IsFull()
-		or IsShooting(); // Check if you're shooting
+		or IsShooting()
+		or IsFlying(); // Check if you're shooting
 }
 
 bool Player::IsShooting() const
@@ -350,9 +410,50 @@ bool Player::IsShooting() const
 	return (m_ShootingClock < KIRBY_SHOOTING_TIME);
 }
 
+bool Player::IsFlying() const
+{
+	return 
+		m_Flying
+		or (m_FlyingEndClock < KIRBY_FLYING_END_ANIMATION_UPDATE);
+}
+
+void Player::ClampToScreen()
+{
+	Transform* playerTransform{ this->GetTransform() };
+	Vector2f newPosition{ playerTransform->GetPosition() };
+
+	const Camera* sceneCamera{ m_pManager->GetScene()->GetCamera() };
+	const Rectf viewport{ sceneCamera->GetCameraViewport() };
+	const Vector2f currentPosition{ playerTransform->GetPosition() };
+
+	// X-axis
+	const float minX{ 0 };
+	const float maxX{ (abs(viewport.left) + viewport.width) - playerTransform->GetWidth() };
+
+	if (currentPosition.x < minX) {
+		newPosition.x = minX;
+	}
+	else if (currentPosition.x > maxX) {
+		newPosition.x = maxX;
+	}
+	
+	// Y-Axis
+	const float minY{ 0 };
+	const float maxY{ (abs(viewport.bottom) + viewport.height) - playerTransform->GetHeight() };
+
+	if (currentPosition.y < minY) {
+		newPosition.y = minY;
+	}
+	else if (currentPosition.y > maxY) {
+		newPosition.y = maxY;
+	}
+
+	playerTransform->SetPosition(newPosition);
+}
+
 void Player::Jump()
 {	
-	if (!m_Jumping && !InAir() && CanControl()) {
+	if (not m_Jumping and not InAir() and CanControl()) {
 		m_JumpClock = 0;
 		m_Jumping = true;
 		GetTransform()->SetVelocity(Vector2f{ GetTransform()->GetVelocity().x ,0 });
@@ -362,7 +463,7 @@ void Player::Jump()
 void Player::JumpEnd()
 {
 	if (m_Jumping) {
-		if (not IsFull()) {
+		if (not IsBig()) {
 			m_pAnimator->PlayAnimation("FallingDown", 5, 1)->SetUpdateTime((DEFAULT_ANIMATION_UPDATE * .75f));
 		}
 		m_Jumping = false;
@@ -372,7 +473,7 @@ void Player::JumpEnd()
 
 void Player::SuckStart()
 {
-	if (CanControl()) {
+	if (CanControl() and not IsFlying()) {
 		if (not m_Sucking and not IsFull() and not IsShooting()) {
 			m_pAnimator->PlayAnimation("SuckStart", 2, 3)->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
 			m_Sucking = true;
@@ -382,7 +483,7 @@ void Player::SuckStart()
 
 void Player::Suck()
 {
-	if (not IsFull()) {
+	if (not IsFull() and not IsFlying()) {
 		const Vector2f suckOrigin{ this->GetTransform()->GetPosition() };
 
 		for (size_t entityIndex{}; entityIndex < m_pManager->GetEntities().size(); entityIndex++) {
@@ -435,11 +536,34 @@ void Player::Shoot()
 		m_Absorbed = false;
 		const Transform* playerTransform{ this->GetTransform() };
 		const Vector2f origin{ playerTransform->GetPosition() + Vector2f(playerTransform->GetWidth()/2,DEFAULT_ENTITY_HEIGHT/2) };
-		const Vector2f target{ origin + Vector2f(100 * playerTransform->GetLookDirection(),0) };
+		const Vector2f target{ origin + Vector2f(STAR_RANGE * playerTransform->GetLookDirection(),0) };
 		m_pAnimator->PlayAnimation("GroundShoot", 4, 3)->SetUpdateTime(KIRBY_SHOOT_GROUND_ANIMATION_UPDATE);
 
-		m_Shooter->AddProjectile(new Star(origin, target, 5));
+		m_Shooter->AddProjectile(new Star(origin, target, STAR_DURATION));
 		m_ShootingClock = 0;
+	}
+}
+
+void Player::Fly()
+{
+	if (not IsFlying() and not IsBig()) {
+		m_pAnimator->PlayAnimation("Fly_Start", 4, 2)->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
+		m_Flying = true;
+	}
+}
+
+void Player::FlyEnd()
+{
+	if (m_Flying) {
+		m_Flying = false;
+		m_pAnimator->PlayAnimation("Fly_End", 4, 3)->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
+
+		const Transform* playerTransform{ this->GetTransform() };
+		const Vector2f origin{ playerTransform->GetPosition() + Vector2f(playerTransform->GetWidth() / 2,DEFAULT_ENTITY_HEIGHT / 2) };
+		const Vector2f target{ origin + Vector2f(CLOUD_RANGE * playerTransform->GetLookDirection(),0) };
+		m_Shooter->AddProjectile(new Cloud(origin, target, CLOUD_DURATION));
+
+		m_FlyingEndClock = 0;
 	}
 }
 
@@ -457,7 +581,7 @@ void Player::OnDamage()
 	this->GetTransform()->SetFlipped(false);
 
 	Animation* hurtAnimation;
-	if (not IsFull()) {
+	if (not IsBig()) {
 		hurtAnimation = m_pAnimator->PlayAnimation("Hurt", 2, 3);
 		hurtAnimation->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
 		hurtAnimation->SetFlipped(true);
@@ -472,10 +596,10 @@ void Player::OnDamage()
 void Player::UpdateKeyboard(float elapsedSec)
 {
 	Transform* playerTransform{ this->GetTransform() };
+	float movementSpeed{ KIRBY_MOVEMENT_SPEED };
 	const float accelSpeed{ KIRBY_ACCELERATION_SPEED * elapsedSec };
 	const float currentAccelerationRatio{ (playerTransform->GetAcceleration() / 100) };
 	const Vector2f currentPosition{ this->GetTransform()->GetPosition() };
-	bool inputPressed{ false };
 
 	Vector2f direction( 
 		playerTransform->GetCurrentVelocity().x * currentAccelerationRatio,
@@ -486,17 +610,23 @@ void Player::UpdateKeyboard(float elapsedSec)
 	if (pStates[SDL_SCANCODE_RIGHT]) {
 		direction.x = 1;
 		playerTransform->AddAcceleration(accelSpeed);
-		inputPressed = true;
 	} else if (pStates[SDL_SCANCODE_LEFT]) {
 		direction.x = -1;
 		playerTransform->AddAcceleration(accelSpeed);
-		inputPressed = true;
 	};
 
-	//m_Sucking = pStates[SDL_SCANCODE_Z]; // Sucking state update
+	if (pStates[SDL_SCANCODE_UP] and IsFlying()) {
+		direction.y = 1;
+		playerTransform->SetVelocity(Vector2f(this->GetTransform()->GetVelocity().x, 0));
+		playerTransform->AddAcceleration(accelSpeed);
+	}
+
+	if (IsFlying()) {
+		movementSpeed = KIRBY_FLYING_MOVEMENT_SPEED;
+	}
 	 
 	if (CanControl()) {
-		this->MoveTo(elapsedSec, direction.Normalized(), KIRBY_MOVEMENT_SPEED * currentAccelerationRatio);
+		this->MoveTo(elapsedSec, direction.Normalized(), movementSpeed * currentAccelerationRatio);
 	}
 }
 
