@@ -9,6 +9,8 @@
 #include "CollisionBody.h"
 #include "Camera.h"
 #include "Scene.h"
+#include "SceneManager.h"
+#include "World.h"
 
 // Projectiles
 #include "Star.h"
@@ -22,9 +24,11 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	m_JumpClock{ 0 },
 	m_RunClock{ 0 },
 	m_FlyingClock{ 0 },
+	m_LeavingClock{ 0 },
 	m_FlyingEndClock{ KIRBY_FLYING_END_ANIMATION_UPDATE },
 	m_ShootingClock{ KIRBY_SHOOTING_TIME },
 	m_DeflateClock{ KIRBY_DEFLATE_TIME },
+	m_Leaving{ false },
 	m_Jumping{ false }, 
 	m_Flying{false}, 
 	m_Sucking{ false },
@@ -32,6 +36,7 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	m_Absorbed{false},
 	m_CanShoot{false},
 	m_PressedSpace{false},
+	m_nextWorld{"None"},
 	m_Shooter{ new ProjectileManager(this,m_pManager) }
 { 
 	this->SetHealth(6);
@@ -81,6 +86,7 @@ void Player::OnKeyDownEvent(const SDL_KeyboardEvent& e)
 			SuckStart();
 			break;
 		case SDLK_UP:
+			Leave();
 			Fly();
 		default:
 			break;
@@ -355,6 +361,20 @@ void Player::Update(float elapsedSec)
 
 	m_Shooter->Update(elapsedSec);
 
+	// Leaving
+	
+	if (IsLeaving()) {
+		if (not IsBig()) {
+			m_LeavingClock += elapsedSec;
+		}
+		if (HasLeft()) {
+			//m_pAnimator->PlayAnimation("Left", 1, 3)->Loop(true);
+			
+			m_pManager->GetScene()->Destroy();
+			m_pManager->GetScene()->GetSceneManager()->LoadScene(m_nextWorld);
+		};
+	};
+
 	// Finish
 	m_SuckingTargets = false;
 	ClampToScreen();
@@ -368,10 +388,12 @@ void Player::Draw() const
 
 bool Player::CanControl() const
 {
-	return 
-		not IsHitstunned() 
+	return
+		not IsHitstunned()
 		and not IsSucking()
-		and not IsDeflating();
+		and not IsDeflating()
+		and not IsLeaving()
+		and not HasLeft();
 }
 
 bool Player::InAir() const
@@ -415,6 +437,25 @@ bool Player::IsFlying() const
 	return 
 		m_Flying
 		or (m_FlyingEndClock < KIRBY_FLYING_END_ANIMATION_UPDATE);
+}
+
+bool Player::IsOnDoor() const
+{
+	const std::vector<Door> doorsInWorld{ m_pManager->GetScene()->GetWorld()->GetDoors() };
+	const Vector2f currentPosition{ this->GetTransform()->GetPosition() };
+	const float xPosition{ currentPosition.x + this->GetTransform()->GetWidth() };
+
+	for (size_t doorIndex{}; doorIndex < doorsInWorld.size(); doorIndex++) {
+		const Door door{ doorsInWorld[doorIndex] };
+		const bool onDoor{
+			(xPosition > door.area.left) and (xPosition < door.area.left + door.area.width)
+		};
+		if (onDoor) {
+			return onDoor;
+		}
+	};
+
+	return false;
 }
 
 void Player::ClampToScreen()
@@ -547,7 +588,7 @@ void Player::Shoot()
 
 void Player::Fly()
 {
-	if (not IsFlying() and not IsBig()) {
+	if (not IsFlying() and not IsBig() and not IsOnDoor() ) {
 		m_pAnimator->PlayAnimation("Fly_Start", 4, 2)->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
 		m_Flying = true;
 	}
@@ -565,6 +606,26 @@ void Player::FlyEnd()
 		m_Shooter->AddProjectile(new Cloud(origin, target, CLOUD_DURATION));
 
 		m_FlyingEndClock = 0;
+	}
+}
+
+void Player::Leave()
+{
+	if (not m_Leaving) {
+		if (IsOnDoor() and not IsBig()) {
+			m_Leaving = true; 
+			m_pAnimator->PlayAnimation("Leaving", 2, 3)->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
+
+			// Set next world !
+			const std::vector<Door> doorsInWorld{ m_pManager->GetScene()->GetWorld()->GetDoors() };
+
+			for (size_t doorIndex{}; doorIndex < doorsInWorld.size(); doorIndex++) {
+				const Door door{ doorsInWorld[doorIndex] };
+				m_nextWorld = door.world;
+				break;
+			};
+
+		}
 	}
 }
 

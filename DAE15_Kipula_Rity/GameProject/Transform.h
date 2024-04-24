@@ -7,7 +7,7 @@ public:
 	explicit Transform();
 	//~Transform();
 
-	void Update(float elapsedSec);
+	void Update(float elapsedSec); 
 	void ApplyPhysics(float elapsedSec);
 
 	void SetGravity(float gravity) { m_Gravity = gravity; };

@@ -154,6 +154,7 @@ xcopy "$(SolutionDir)Resources\*.*" "$(TargetDir)" /y /d /s</Command>
     <ClCompile Include="CollisionBody.cpp" />
     <ClCompile Include="CollisionHandler.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="Door.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemySpawner.cpp" />
     <ClCompile Include="EnemySpawnerHandler.cpp" />
@@ -182,6 +183,7 @@ xcopy "$(SolutionDir)Resources\*.*" "$(TargetDir)" /y /d /s</Command>
     <ClInclude Include="CollisionBody.h" />
     <ClInclude Include="CollisionHandler.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="Door.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EnemySpawner.h" />
     <ClInclude Include="EnemySpawnerHandler.h" />

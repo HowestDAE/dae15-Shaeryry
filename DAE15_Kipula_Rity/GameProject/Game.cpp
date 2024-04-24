@@ -23,14 +23,21 @@ void Game::Initialize( )
 	m_Scenes["Vegetable Valley 1"] = WorldData{ "VegetableValley",3.f,3,
 		{
 			SpawnerData{ Vector2f(870,165),EnemyType::WaddleDoo,1}
+		},
+		{
+			Door{  Rectf(2904,170,150/3,200/3),"Vegetable Valley 2" }
 		}
 	};
 
-	m_SceneManager = new SceneManager();
+	m_Scenes["Vegetable Valley 2"] = WorldData{ "VegetableValley_2",3.f,1,
+		{
+		},
+		{
+		}
+	};
 
-	Scene* newScene{ new Scene(this) }; // Temporary way of loading scenes ! Once I focus on the scene manager, I'll have it do :P
-	newScene->Initialize("Vegetable Valley 1");
-	m_SceneManager->AddScene(newScene);
+	m_SceneManager = new SceneManager(this);
+	m_SceneManager->LoadScene("Vegetable Valley 1");
 
 }
 

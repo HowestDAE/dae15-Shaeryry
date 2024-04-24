@@ -9,6 +9,7 @@
 World::World(const WorldData& worldData, TextureManager* textureManager) :
 	m_Data{ worldData },
 	m_WorldScale{worldData.scale},
+	m_Doors{ worldData.doors },
 	m_WorldElapsedTime{0}
 {
 
@@ -33,6 +34,7 @@ World::World(const WorldData& worldData, TextureManager* textureManager) :
 
 	SVGParser::GetVerticesFromSvgFile(collisionPath, m_CollisionData);
 
+	std::cout << m_CollisionData.size() << std::endl;
 	for (size_t index{}; index < m_CollisionData.size(); index++) {
 		m_CollisionData[index] = transform_matrix.Transform(m_CollisionData[index]);
 	};
@@ -43,6 +45,9 @@ World::World(const WorldData& worldData, TextureManager* textureManager) :
 
 World::~World()
 {
+	for (size_t bodyIndex{}; bodyIndex < m_Bodies.size(); bodyIndex++) {
+		delete m_Bodies[bodyIndex];
+	}
 }
 
 void World::Draw() const
@@ -66,14 +71,30 @@ void World::Draw() const
 
 	//this->GetCollisionBody()->DrawCollider();
 	//utils::DrawPolygon(m_CollisionData[0], true, 5.f);
+	for (size_t doorIndex{}; doorIndex < m_Doors.size(); doorIndex++) {
+		utils::SetColor(Color4f(1, 1, 1, 1));
+		utils::FillRect(m_Doors[doorIndex].area);
+	}
 }
 
 void World::Update(float elapsedSec)
 {
-	if (this->GetCollisionBody() != nullptr) {
+	/*if (this->GetCollisionBody() != nullptr) {
 		this->GetCollisionBody()->SetVertices(m_CollisionData[0]);
-	}
+	}*/
 	m_WorldElapsedTime += elapsedSec;
+}
+
+void World::CreateCollisions(CollisionHandler* collisionHandler)
+{
+	for (size_t verticesDataIndex{}; verticesDataIndex < m_CollisionData.size(); verticesDataIndex++) {
+		CollisionBody* newBody{ new CollisionBody(this) };
+		newBody->SetVertices(m_CollisionData[verticesDataIndex]);
+		newBody->SetTag("Collidable");
+		collisionHandler->AddBody(newBody);
+		m_Bodies.push_back(newBody);
+	}
+	this->SetCollisionBody(nullptr);
 }
 
 std::string World::GetWorldTexturePath()

@@ -24,6 +24,9 @@ public:
 	bool IsFull() const { return m_Absorbed; };
 	bool IsShooting() const;
 	bool IsFlying() const;
+	bool HasLeft() const { return (m_LeavingClock > KIRBY_LEAVE_TIME); };
+	bool IsLeaving() const { return m_Leaving; };
+	bool IsOnDoor() const;
 	// Actions
 	void ClampToScreen();
 	void Jump();
@@ -34,6 +37,7 @@ public:
 	void Shoot();
 	void Fly();
 	void FlyEnd();
+	void Leave();
 	// Overriden stuff 
 	virtual void OnDamage() override;
 private:
@@ -41,7 +45,9 @@ private:
 
 	ProjectileManager* m_Shooter;
 	Power m_AbsoredPower;
+	std::string m_nextWorld;
 	
+	bool m_Leaving;
 	bool m_PressedSpace;
 	bool m_Flying;
 	bool m_Jumping;
@@ -56,5 +62,6 @@ private:
 	float m_ShootingClock;
 	float m_DeflateClock;
 	float m_JumpClock;
+	float m_LeavingClock;
 };
 

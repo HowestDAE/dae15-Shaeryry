@@ -108,6 +108,9 @@
     <ClCompile Include="Cloud.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Door.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -187,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="Cloud.h">
       <Filter>Header Files\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Door.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

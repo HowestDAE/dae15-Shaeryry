@@ -23,6 +23,6 @@ void Star::OnDestroy(bool collidedWall)
 {
 	Projectile::OnDestroy(collidedWall);
 	GetAnimation()->DeleteAnimation();
-	GetController()->PlayAnimation("Star_Explode", 3, 1);
+	GetController()->PlayAnimation("Explode", 3, 1);
 }
 

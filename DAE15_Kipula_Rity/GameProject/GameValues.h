@@ -4,7 +4,7 @@
 
 static const float INF{ 100000.f };
 static const float DEFAULT_ANIMATION_UPDATE{ .115f };
-static const float WORLD_ANIMATION_UPDATE{ .5f };
+static const float WORLD_ANIMATION_UPDATE{ .35f };
 static const float WORLD_MARGIN_TOP{ 30 };
 
 static const float DEFAULT_ENTITY_WIDTH{ 40 }; 
@@ -12,6 +12,12 @@ static const float DEFAULT_ENTITY_HEIGHT{ 40 };
 static const float DEFAULT_ENTITY_DECELERATION{ 250 };
 
 static const float INVINCIBILITY_TIME{ 1 };
+
+// Scene
+
+static const float SCENE_TRANSITION_TIME{ .5f };
+static const float SCENE_INITIAL_DARKNESS{ .2f };
+static const float MAX_SCENE_AMOUNT{ 2 };
 
 // Physics stuff ig???
 
@@ -21,6 +27,7 @@ static const float MINIMUM_IMPULSE_LENGTH{10};
 
 // Player values
 
+static const float KIRBY_LEAVE_TIME{ (DEFAULT_ANIMATION_UPDATE * 2) };
 static const float KIRBY_MOVEMENT_SPEED{ 270 };
 static const float KIRBY_ACCELERATION_SPEED{ 550 };
 static const float KIRBY_JUMP_POWER{ (1250 * 12) };

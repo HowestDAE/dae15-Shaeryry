@@ -18,3 +18,10 @@ Cloud::Cloud(const Vector2f& from, const Vector2f& to, const float duration) :
 	cloudAnimation->Loop(true);
 	SetAnimation(cloudAnimation);
 }
+
+void Cloud::OnDestroy(bool collidedWall)
+{
+	Projectile::OnDestroy(collidedWall);
+	GetAnimation()->DeleteAnimation();
+	GetController()->PlayAnimation("Explode", 3, 1);
+}
