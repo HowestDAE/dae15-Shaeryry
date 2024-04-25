@@ -17,7 +17,6 @@ public:
 	void DrawCollider() const;
 	void UpdateCollider(float elapsedSec);
 	void ApplyDefaultCollisions();
-	bool FrontCollision(const Vector2f& pos);
 	 
 	void SetTag(const std::string& tag) { m_Tag = tag; };
 	void SetVertices(const std::vector<Point2f>& newVertices);
@@ -29,6 +28,9 @@ public:
 	std::vector<Point2f> GetVertices() const { return m_Vertices; };
 	Rectf GetRect() const;
 
+	Vector2f GetFrontCollisionNormal() const { return m_FrontCollision.normal; };
+	Vector2f GetGroundCollisionNormal() const { return m_FloorCollision.normal; };
+
 	bool IsGrounded() const { return m_IsGrounded; };
 	bool IsWallbound() const { return m_IsWallbound; };
 	bool IsActive() const { return m_Active; }; 
@@ -37,6 +39,8 @@ private:
 	Component* m_Instance;
 	std::vector<Point2f> m_Vertices;
 	std::string m_Tag;
+	utils::HitInfo m_FrontCollision;
+	utils::HitInfo m_FloorCollision;
 	bool m_Active;
 	bool m_IsGrounded;
 	bool m_IsWallbound;

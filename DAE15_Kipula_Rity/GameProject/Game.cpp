@@ -37,7 +37,7 @@ void Game::Initialize( )
 	};
 
 	m_SceneManager = new SceneManager(this);
-	m_SceneManager->LoadScene("Vegetable Valley 1");
+	m_SceneManager->LoadScene("Vegetable Valley 2");
 
 }
 

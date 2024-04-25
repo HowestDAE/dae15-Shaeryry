@@ -27,7 +27,6 @@ void Transform::Update(float elapsedSec)
 
 	m_Position += (newVelocity * elapsedSec);
 
-
 	// Deceleration
 
 	AddAcceleration(-Deceleration);

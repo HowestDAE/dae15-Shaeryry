@@ -12,7 +12,7 @@ CollisionBody::CollisionBody(Component* Instance) :
 	m_Instance{ Instance },
 	m_pCollisionHandler{nullptr}
 {
-
+	
 }
 
 CollisionBody::~CollisionBody()
@@ -49,61 +49,66 @@ void CollisionBody::ApplyDefaultCollisions()
 		const float bodyWidth{ bodyTransform->GetWidth() };
 		const float bodyHeight{ bodyTransform->GetHeight() };
 		const Vector2f position{ bodyTransform->GetPosition() };
-		const Vector2f origin{ position + Vector2f{bodyWidth/2,bodyHeight/2}};
+		const Vector2f origin{ position + Vector2f(bodyWidth / 2,bodyHeight/2) };
 		const Vector2f minimumVelocity( float(0),float(0) );
 		const Vector2f currentVelocity{ bodyTransform->GetCurrentVelocity() + minimumVelocity };
 
-		const float lookDirection{ bodyTransform->GetLookDirection() };
+		const float lookDirection{ abs(currentVelocity.x) / currentVelocity.x };
 		const float upDirection{ abs(currentVelocity.y) / currentVelocity.y };
-		const float yRayLength{ (bodyHeight / 2)  };
+		const float xRayLength{ (bodyWidth / 2) };
+		const float yRayLength{ (bodyHeight / 2) + 1 };
 
-		const Vector2f upVector{ origin + Vector2f{ 0 , yRayLength * upDirection }}; 
+		const Vector2f upVector{ origin + Vector2f(0 , (yRayLength * upDirection)) };
+		const Vector2f lookVector{ origin + Vector2f( (xRayLength * lookDirection) , 0 ) };
 
-		utils::HitInfo upCollision{ CheckCollision(origin, upVector,{"Collidable"}) };
+		utils::HitInfo upCollision{ CheckCollision(origin + currentVelocity, upVector,{"Collidable"})};
+		utils::HitInfo lookCollision{ CheckCollision(origin + currentVelocity, lookVector,{"Collidable"}) };
+
 		Vector2f positionPostCollision{ position };
 		Vector2f velocityPostCollision{ bodyTransform->GetVelocity() };
 
-		if (upCollision.lambda != -1) { // if something is hit
-			positionPostCollision.y = upCollision.intersectPoint.y;// + (bodyHeight - (bodyHeight * upDirection) ));
-			velocityPostCollision.y = 0;
-			m_IsGrounded = true;
-			//bodyTransform->SetAcceleration(0);
-		} else {
-			m_IsGrounded = false;
-		} 
-		 
+		if (IsActive()) {
+			const float DOT_PRODUCT_WALL{ lookVector.Normalized().DotProduct(lookCollision.normal)};
+
+			if (upCollision.lambda != -1) { // if something is hit
+				positionPostCollision.y = (upCollision.intersectPoint.y);// + (bodyHeight - (bodyHeight * upDirection) ));
+				velocityPostCollision.y = 0; 
+				m_IsGrounded = true;
+			}
+			else {
+				m_IsGrounded = false;
+			}
+
+			if (lookCollision.lambda != -1) {
+				if (abs(DOT_PRODUCT_WALL) > .95f) {
+					float xPos{ lookCollision.intersectPoint.x };
+					if (lookDirection > 0) {
+						xPos -= (bodyWidth);
+					}
+					positionPostCollision.x = xPos;
+					velocityPostCollision.x = 0;
+					m_IsWallbound = true;
+				}
+				else {
+					m_IsWallbound = false;
+				}
+			}
+			else {
+				m_IsWallbound = false;
+			}
+		}
+		
 		bodyTransform->SetVelocity(velocityPostCollision);
 		bodyTransform->SetPosition(positionPostCollision);
+
+		m_FrontCollision = lookCollision;
+		m_FloorCollision = upCollision;
+
+
 		//std::cout << "X -> " << currentVelocity.x << " : Y -> " << currentVelocity.y << std::endl;
 
 		//std::cout << " X hit -> " << lookCollision.lambda << " - Y hit -> " << upCollision.lambda << std::endl;
 	}
-}
-
-bool CollisionBody::FrontCollision(const Vector2f& pos)
-{
-	Transform* bodyTransform{ m_Instance->GetTransform() };
-	const float bodyWidth{ bodyTransform->GetWidth() };
-	const float bodyHeight{ bodyTransform->GetHeight() };
-	const Vector2f position{ pos };
-	const Vector2f origin{ position + Vector2f{bodyWidth / 2,bodyHeight / 2} };
-	const Vector2f minimumVelocity(float(0), float(0));
-	const Vector2f currentVelocity{ (position - bodyTransform->GetPosition()) + minimumVelocity };
-
-	const float lookDirection{ abs(currentVelocity.x) / currentVelocity.x };
-	const float xRayLength{ (bodyWidth / 2)  };
-
-	const Vector2f lookVector{ origin + Vector2f{ (xRayLength * lookDirection) , currentVelocity.y * (xRayLength * 1.25f) } };
-	utils::HitInfo lookCollision{ CheckCollision(origin, lookVector,{"Collidable"})};
-
-	bool isColliding{ (IsActive() && (lookCollision.lambda != -1)) };
-	if (isColliding) {
-		m_IsWallbound = true;
-	}
-	else {
-		m_IsWallbound = false;
-	}
-	return isColliding;
 }
 
 utils::HitInfo CollisionBody::CheckCollision(const Vector2f& from, const Vector2f& target,const std::vector<std::string>& tags)

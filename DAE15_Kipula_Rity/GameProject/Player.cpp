@@ -52,11 +52,12 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	playerTracks[static_cast<int>(EntityState::FallingDown)] = AnimationData{ "FallingDown",5,(DEFAULT_ANIMATION_UPDATE * .75f),false,2 };
 	playerTracks[static_cast<int>(EntityState::Flying)] = AnimationData{ "Flying",2,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::Freefall)] = AnimationData{ "Freefall",1,DEFAULT_ANIMATION_UPDATE,true };
+	playerTracks[static_cast<int>(EntityState::Sliding)] = AnimationData{ "Sliding",1,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::Landed)] = AnimationData{ "Landed",1,DEFAULT_ANIMATION_UPDATE,false,2 };
 	playerTracks[static_cast<int>(EntityState::Sucking)] = AnimationData{ "Sucking",1,DEFAULT_ANIMATION_UPDATE,true,2 };
 	playerTracks[static_cast<int>(EntityState::BigIdle)] = AnimationData{ "Big_Idle",1,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::BigRun)] = AnimationData{ "Big_Run",4,KIRBY_BIG_RUN_UPDATE,true,0 };
-	playerTracks[static_cast<int>(EntityState::BigJump)] = AnimationData{ "Big_Jump",4,DEFAULT_ANIMATION_UPDATE,true };
+	playerTracks[static_cast<int>(EntityState::BigJump)] = AnimationData{ "Big_Jump",4,	DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::BigLanded)] = AnimationData{ "Big_Landed",1,DEFAULT_ANIMATION_UPDATE,false,2 };
 	playerTracks[static_cast<int>(EntityState::BigFreefall)] = AnimationData{ "Big_Freefall",1,DEFAULT_ANIMATION_UPDATE,true };
 
@@ -122,11 +123,6 @@ void Player::Update(float elapsedSec)
 	const Vector2f alphaCurrentVelocity{ playerTransform->GetCurrentVelocity() };
 	const bool wasSucking{m_Sucking};
 
-
-	// Default Update
-
-	Entity::Update(elapsedSec);
-
 	// Keyboard
 
 	this->UpdateKeyboard(elapsedSec);
@@ -134,6 +130,10 @@ void Player::Update(float elapsedSec)
 	// Physics && Movement
 
 	this->GetTransform()->ApplyPhysics(elapsedSec);
+
+	// Default Update
+
+	Entity::Update(elapsedSec);
 
 	// Update States
 	
@@ -150,7 +150,8 @@ void Player::Update(float elapsedSec)
 	EntityState nextState{ m_State };
 
 	const bool IsRunning{ abs(currentVelocity.x) > 0 };
-	const bool IsFalling{ currentVelocity.y < 0 };
+	const bool IsFalling{ (currentVelocity.y < 0) };
+	const float groundDOT{ Vector2f(0,1).DotProduct(GetCollisionBody()->GetGroundCollisionNormal()) };
 
 	// Jump
 	if (m_Jumping) {
@@ -180,6 +181,10 @@ void Player::Update(float elapsedSec)
 			if (not IsFull()) {
 				if (IsRunning) { // Run
 					nextState = EntityState::Run;
+
+					if (groundDOT < 0.8f and IsFalling) {
+						nextState = EntityState::Sliding;
+					}
 				}
 				else {
 					nextState = EntityState::Idle; // Default idle state !
@@ -196,7 +201,11 @@ void Player::Update(float elapsedSec)
 
 
 			// Landing
-			if (InAir()) { // Checks if the current state is in the air when you're just grounded !
+			const bool wasInAir{
+				InAir()
+			};
+
+			if (wasInAir) { // Checks if the current state is in the air when you're just grounded !
 				if (not IsFull()) {
 					nextState = EntityState::Landed;
 				}
@@ -298,7 +307,7 @@ void Player::Update(float elapsedSec)
 
 	// Wall stop !
 	if (not IsFull() and not IsFlying()) {
-		if (playerTransform->GetCurrentVelocity().x <= 0 && abs(alphaCurrentVelocity.x) > 0 && GetCollisionBody()->IsWallbound()) {
+		if (playerTransform->GetCurrentVelocity().Length() > 0 and abs(alphaCurrentVelocity.x) > 0 and GetCollisionBody()->IsWallbound()) {
 			if (playerTransform->GetAcceleration() >= 50) {
 				//std::cout << "Wall oomf chan" << std::endl;
 				playerTransform->SetAcceleration(0);
@@ -668,6 +677,12 @@ void Player::UpdateKeyboard(float elapsedSec)
 		playerTransform->GetCurrentVelocity().x * currentAccelerationRatio,
 		0
 	);
+	
+	if (GetCollisionBody()->IsWallbound()) {
+		//std::cout << "Colliding wall" << std::endl;
+		direction.x = 0;
+		playerTransform->SetAcceleration(0);
+	}
 
 	const Uint8* pStates = SDL_GetKeyboardState(nullptr);
 	if (pStates[SDL_SCANCODE_RIGHT]) {
@@ -684,9 +699,22 @@ void Player::UpdateKeyboard(float elapsedSec)
 		playerTransform->AddAcceleration(accelSpeed);
 	}
 
+	// Speed modifiers
 	if (IsFlying()) {
 		movementSpeed = KIRBY_FLYING_MOVEMENT_SPEED;
 	}
+	else {
+		const Vector2f groundNormal{ GetCollisionBody()->GetGroundCollisionNormal() };
+		const float groundDOTproduct{ Vector2f(0,1).DotProduct(groundNormal) };
+
+		//std::cout << groundDOTproduct << std::endl;
+
+		if (GetCollisionBody()->IsGrounded()) {
+			movementSpeed *= pow(groundDOTproduct, 4);
+		}
+		//std::cout << wallDOTproduct << std::endl;
+	}
+	//
 	 
 	if (CanControl()) {
 		this->MoveTo(elapsedSec, direction.Normalized(), movementSpeed * currentAccelerationRatio);

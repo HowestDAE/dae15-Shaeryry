@@ -69,9 +69,22 @@ void Entity::MoveTo(float elapsedSec, const Vector2f& direction , float speed)
 		entityTransform->SetFlipped(xDifference < 0);
 	}
 
-	if (!GetCollisionBody()->FrontCollision(newPosition)) {
-		this->GetTransform()->SetPosition(newPosition);
+	const Vector2f wallNormal{ GetCollisionBody()->GetFrontCollisionNormal() };
+
+	//if (!GetCollisionBody()->IsWallbound()) {
+	//std::cout << "Move" << std::endl;
+ 	this->GetTransform()->SetPosition(newPosition);
+	//}
+
+	/*if (collidingFront) {
+
 	}
+	else {
+		this->GetTransform()->SetPosition(newPosition);
+	}*/
+	/*if (!GetCollisionBody()->FrontCollision(newPosition)) {
+		this->GetTransform()->SetPosition(newPosition);
+	}*/ // old without accounting for slanted stuff
 }
 
 // State Methods
@@ -79,7 +92,7 @@ void Entity::MoveTo(float elapsedSec, const Vector2f& direction , float speed)
 
 void Entity::OnStateChanged()
 {
-	//std::cout << int(m_State) << std::endl;
+	std::cout << int(m_State) << std::endl;
 	const AnimationData trackData{ m_AnimationsData[int(m_State)] };
 	//Default Animation update for any entity
 	if (m_pCoreAnimation != nullptr) {
