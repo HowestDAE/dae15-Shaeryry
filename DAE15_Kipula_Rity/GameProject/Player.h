@@ -47,6 +47,13 @@ private:
 	Power m_AbsoredPower;
 	std::string m_nextWorld;
 	
+	// Variables
+	float m_GroundDOTproduct;
+	float m_LookVectorToGroundDOTproduct;
+
+	// States
+	bool m_MoveInput;
+
 	bool m_Leaving;
 	bool m_PressedSpace;
 	bool m_Flying;
@@ -55,7 +62,13 @@ private:
 	bool m_Absorbed;
 	bool m_CanShoot;
 	bool m_SuckingTargets;
+
+	bool m_SlidingDownSlope;
+	bool m_GoingUpSlope;
+	bool m_GoingUpSteepSlope;
 		
+	// Clocks
+
 	float m_FlyingEndClock;
 	float m_FlyingClock;
 	float m_RunClock;

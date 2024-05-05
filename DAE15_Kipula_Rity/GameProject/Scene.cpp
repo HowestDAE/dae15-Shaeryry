@@ -13,6 +13,7 @@
 #include "EnemySpawner.h"
 #include "EnemySpawnerHandler.h"
 #include "Transform.h"
+#include "GUI.h"	
 
 
 Scene::Scene(Game* game, SceneManager* manager) :
@@ -32,6 +33,7 @@ Scene::Scene(Game* game, SceneManager* manager) :
 	m_pTextureManager = new TextureManager();
 	m_pCollisionHandler = new CollisionHandler();
 	m_pEntityManager = new EntityManager(this);
+	m_pGUI = new GUI(this);
 }
 
 Scene::Scene(Game* game, SceneManager* manager, float transitionTime): 
@@ -48,6 +50,7 @@ Scene::~Scene()
 	delete m_pTextureManager;
 	delete m_pCollisionHandler;
 	delete m_pWorld;
+	delete m_pGUI;
 }
 
 void Scene::Initialize(const std::string& worldName)
@@ -58,8 +61,6 @@ void Scene::Initialize(const std::string& worldName)
 		m_pWorld = new World(worldData, m_pTextureManager);
 		m_pWorld->SetWorldScale(worldData.scale);
 		m_pWorld->CreateCollisions(m_pCollisionHandler);
-		/*m_pCollisionHandler->AddBody(new CollisionBody(m_pWorld));
-		m_pWorld->GetCollisionBody()->SetTag("Collidable");*/
 		 
 		m_pPlayer = new Player(m_pEntityManager, Vector2f{ 200.f,200.f }, "Kirby");
 		// Change spawn point dependant on world data later??? Maybe throw in an extra parameter so I can choose where you land!!
@@ -77,11 +78,27 @@ void Scene::Initialize(const std::string& worldName)
 void Scene::Update(float elapsedSec)
 {   
 	if (m_Initialized and not m_Paused and not m_Destroying) {
+		// Platform update 
+		if (this->GetPlayer() != nullptr) {
+			const Transform* playerTransform{ this->GetPlayer()->GetTransform() };
+			const Vector2f playerPosition{ playerTransform->GetPosition() };
+			const std::vector<CollisionBody*> platforms{ m_pWorld->GetPlatforms() };
+			//std::cout << playerPosition.y << std::endl;
+
+			for (size_t platformIndex{}; platformIndex < platforms.size(); platformIndex++) {
+				CollisionBody* platform{ platforms[platformIndex] };
+				const Rectf platformRect{ platform->GetRect() };
+				const float platformY{ platform->GetVerticesPosition().y };
+				 
+				platform->SetActive(playerPosition.y > platformY);
+			}
+		} 
+
 		m_pSpawnerManager->Update(elapsedSec);
 		m_pEntityManager->UpdateEntities(elapsedSec);
 		m_pCamera->UpdateCamera(elapsedSec, m_pWorld, m_pPlayer->GetTransform()->GetPosition() );
 		m_pWorld->Update(elapsedSec);
-		//std::cout << m_pPlayer->GetTransform()->GetPosition().x << std::endl;
+		m_pGUI->Update(elapsedSec);
 	}
 
 	if (m_Destroying) {
@@ -93,14 +110,33 @@ void Scene::Update(float elapsedSec)
 void Scene::Draw() const
 {
 	if (m_Initialized) {
+		glPushMatrix();
+		glTranslatef(0, GUI_HEIGHT, 0);
 		m_pCamera->DrawCamera();
 		m_pWorld->Draw();
 		m_pEntityManager->DrawEntities();
+
+		// Show collisions
+		/*for (size_t collisionIndex{}; collisionIndex < m_pCollisionHandler->GetBodies().size(); collisionIndex++) {
+			if (m_pCollisionHandler->GetBodies()[collisionIndex]->IsActive()) {
+				utils::SetColor(Color4f(0, 1, 0, 1));
+			}
+			else {
+				utils::SetColor(Color4f(1, 0, 0, 1));
+			}
+			utils::DrawPolygon(m_pCollisionHandler->GetBodies()[collisionIndex]->GetVertices(),5);
+		}*/
+
+		//
+
 		m_pCamera->Reset(); // reset camera matrix! 
+		glPopMatrix();
+
+		m_pGUI->Draw();
 	}
 }
 
-void Scene::Destroy()
+void Scene::Destroy() 
 {
 	if (not m_Destroying) {
 		m_Destroying = true;

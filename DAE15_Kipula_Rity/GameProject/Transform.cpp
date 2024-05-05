@@ -61,7 +61,7 @@ void Transform::Update(float elapsedSec)
 
 	// Update Position Tracker
 
-	if (m_Position != m_PreviousPosition) {
+	if (abs((m_PreviousPosition - m_Position).Length())>0) {
 		m_PreviousPosition = m_Position;
 	};
 

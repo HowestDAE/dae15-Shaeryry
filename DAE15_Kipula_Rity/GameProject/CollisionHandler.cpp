@@ -34,7 +34,7 @@ void CollisionHandler::RemoveBody(Component* Instance)
 			m_Objects.erase(m_Objects.begin() + indexBody);
 			break;
 		}
-	}
+	} 
 }
 
 std::vector<CollisionBody*> CollisionHandler::GetBodies() const

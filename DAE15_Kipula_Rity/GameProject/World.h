@@ -24,6 +24,7 @@ struct WorldData {
 	std::string name;
 	float scale;
 	int frames;
+	float updateFrames;
 	std::vector<SpawnerData> spawners;
 	std::vector<Door>doors;
 };
@@ -48,13 +49,17 @@ public:
 	Rectf GetWorldRect() { return m_WorldRect; };
 	float GetWorldScale() { return m_WorldScale; };
 	void CreateCollisions( CollisionHandler* collisionHandler );
+
 	std::vector<std::vector<Point2f>> GetWorldVertices() const { return m_CollisionData; };
+	std::vector<CollisionBody*> GetPlatforms() const { return m_Platforms; };
 private:
 	std::string GetWorldTexturePath();
 
 	// Variables
 	std::vector<CollisionBody*> m_Bodies;
+	std::vector<CollisionBody*> m_Platforms;
 	std::vector<std::vector<Point2f>> m_CollisionData;
+	std::vector<std::vector<Point2f>> m_PlatformsData;
 	std::vector<Door> m_Doors;
 
 	WorldData m_Data;

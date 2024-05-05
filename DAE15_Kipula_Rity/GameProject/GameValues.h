@@ -2,6 +2,10 @@
 
 // Global Values
 
+static const float GUI_HEIGHT{ 150.f };
+static const float GUI_OFFSET{ 00.f };
+
+
 static const float INF{ 100000.f };
 static const float DEFAULT_ANIMATION_UPDATE{ .115f };
 static const float WORLD_ANIMATION_UPDATE{ .35f };
@@ -54,6 +58,9 @@ static const float KIRBY_IDLE_FLYING_ANIMATION_UPDATE{ .5f };
 static const float KIRBY_RISING_FLYING_ANIMATION_UPDATE{ .08f };
 static const float KIRBY_FLYING_BOBBING_OFFSET{ 5.f };
 static const float KIRBY_FLYING_END_ANIMATION_UPDATE{ DEFAULT_ANIMATION_UPDATE * 4 };
+
+static const float KIRBY_CLIMBING_WIDTH{ DEFAULT_ENTITY_WIDTH };
+static const float KIRBY_CLIMBING_HEIGHT{ 60 };
 
 // Waddle Doo values
 

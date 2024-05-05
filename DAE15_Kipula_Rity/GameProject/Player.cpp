@@ -25,17 +25,23 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	m_RunClock{ 0 },
 	m_FlyingClock{ 0 },
 	m_LeavingClock{ 0 },
+	m_LookVectorToGroundDOTproduct{ 0 },
+	m_GroundDOTproduct{ 0 },
 	m_FlyingEndClock{ KIRBY_FLYING_END_ANIMATION_UPDATE },
 	m_ShootingClock{ KIRBY_SHOOTING_TIME },
 	m_DeflateClock{ KIRBY_DEFLATE_TIME },
+	m_GoingUpSlope{ false },
+	m_GoingUpSteepSlope{ false },
+	m_SlidingDownSlope{ false },
 	m_Leaving{ false },
-	m_Jumping{ false }, 
-	m_Flying{false}, 
+	m_Jumping{ false },
+	m_Flying{ false },
 	m_Sucking{ false },
 	m_SuckingTargets{ false },
-	m_Absorbed{false},
-	m_CanShoot{false},
-	m_PressedSpace{false},
+	m_Absorbed{ false },
+	m_CanShoot{ false },
+	m_PressedSpace{ false },
+	m_MoveInput{ false },
 	m_nextWorld{"None"},
 	m_Shooter{ new ProjectileManager(this,m_pManager) }
 { 
@@ -47,13 +53,24 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	std::map<int, AnimationData> playerTracks{};
 	playerTracks[static_cast<int>(EntityState::None)] = AnimationData{ "None",1,2,true };
 	playerTracks[static_cast<int>(EntityState::Idle)] = AnimationData{"Idle",1,2,true};
+	playerTracks[static_cast<int>(EntityState::SharpLeftSlopeIdle)] = AnimationData{ "Idle_Sharp_Slope_Left",1,2,true };
+	playerTracks[static_cast<int>(EntityState::SoftLeftSlopeIdle)] = AnimationData{ "Idle_Soft_Slope_Left",1,2,true };
+	playerTracks[static_cast<int>(EntityState::SharpRightSlopeIdle)] = AnimationData{ "Idle_Sharp_Slope_Right",1,2,true };
+	playerTracks[static_cast<int>(EntityState::SoftRightSlopeIdle)] = AnimationData{ "Idle_Soft_Slope_Right",1,2,true };
 	playerTracks[static_cast<int>(EntityState::Run)] = AnimationData{ "Run",4,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::Jump)] = AnimationData{ "Jump",1,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::FallingDown)] = AnimationData{ "FallingDown",5,(DEFAULT_ANIMATION_UPDATE * .75f),false,2 };
 	playerTracks[static_cast<int>(EntityState::Flying)] = AnimationData{ "Flying",2,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::Freefall)] = AnimationData{ "Freefall",1,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::Sliding)] = AnimationData{ "Sliding",1,DEFAULT_ANIMATION_UPDATE,true };
+	playerTracks[static_cast<int>(EntityState::Climbing)] = AnimationData{ "Climbing",4,(DEFAULT_ANIMATION_UPDATE * 1.25f),true };
+
 	playerTracks[static_cast<int>(EntityState::Landed)] = AnimationData{ "Landed",1,DEFAULT_ANIMATION_UPDATE,false,2 };
+	playerTracks[static_cast<int>(EntityState::SharpLeftLanded)] = AnimationData{ "Sharp_Left_Landing",1,DEFAULT_ANIMATION_UPDATE,false,2 };
+	playerTracks[static_cast<int>(EntityState::SoftLeftLanded)] = AnimationData{ "Soft_Left_Landing",1,DEFAULT_ANIMATION_UPDATE,false,2 };
+	playerTracks[static_cast<int>(EntityState::SoftRightLanded)] = AnimationData{ "Soft_Right_Landing",1,DEFAULT_ANIMATION_UPDATE,false,2 };
+	playerTracks[static_cast<int>(EntityState::SharpRightLanded)] = AnimationData{ "Sharp_Right_Landing",1,DEFAULT_ANIMATION_UPDATE,false,2 };
+
 	playerTracks[static_cast<int>(EntityState::Sucking)] = AnimationData{ "Sucking",1,DEFAULT_ANIMATION_UPDATE,true,2 };
 	playerTracks[static_cast<int>(EntityState::BigIdle)] = AnimationData{ "Big_Idle",1,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::BigRun)] = AnimationData{ "Big_Run",4,KIRBY_BIG_RUN_UPDATE,true,0 };
@@ -123,6 +140,7 @@ void Player::Update(float elapsedSec)
 	const Vector2f alphaCurrentVelocity{ playerTransform->GetCurrentVelocity() };
 	const bool wasSucking{m_Sucking};
 
+
 	// Keyboard
 
 	this->UpdateKeyboard(elapsedSec);
@@ -135,15 +153,16 @@ void Player::Update(float elapsedSec)
 
 	Entity::Update(elapsedSec);
 
+	// Calculations
+
+	const Vector2f groundNormal{ GetCollisionBody()->GetGroundCollisionNormal() };
+	const float DotGround{ Vector2f(0, 1).DotProduct(groundNormal) };
+	const float DotLookGround{ Vector2f(playerTransform->GetLookDirection(), 0).DotProduct(groundNormal) };
+	m_GroundDOTproduct = DotGround;
+	m_LookVectorToGroundDOTproduct = DotLookGround;
+
+	//std::cout << DotGround << std::endl;
 	// Update States
-	
-	if (IsBig()) {
-		this->GetTransform()->SetWidth(KIRBY_ENTITY_BIG_WIDTH);
-		this->GetTransform()->SetHeight(KIRBY_ENTITY_BIG_HEIGHT);
-	} else {
-		this->GetTransform()->SetWidth(DEFAULT_ENTITY_WIDTH);
-		this->GetTransform()->SetHeight(DEFAULT_ENTITY_HEIGHT);
-	};
 
 	const Vector2f currentVelocity{ playerTransform->GetCurrentVelocity() };
 	EntityState currentState{ m_State };
@@ -151,9 +170,18 @@ void Player::Update(float elapsedSec)
 
 	const bool IsRunning{ abs(currentVelocity.x) > 0 };
 	const bool IsFalling{ (currentVelocity.y < 0) };
-	const float groundDOT{ Vector2f(0,1).DotProduct(GetCollisionBody()->GetGroundCollisionNormal()) };
+	const bool IsClimbing{ m_MoveInput and m_GoingUpSteepSlope };
 
-	// Jump
+	if (IsBig()) {
+		this->GetTransform()->SetWidth(KIRBY_ENTITY_BIG_WIDTH);
+		this->GetTransform()->SetHeight(KIRBY_ENTITY_BIG_HEIGHT);
+	}
+	else { 
+		this->GetTransform()->SetWidth(DEFAULT_ENTITY_WIDTH);
+		this->GetTransform()->SetHeight(DEFAULT_ENTITY_HEIGHT);
+	};
+
+	// Jump  
 	if (m_Jumping) {
 		m_JumpClock += elapsedSec;
 
@@ -177,12 +205,19 @@ void Player::Update(float elapsedSec)
 	if (not IsFlying()) {
 		if (GetCollisionBody()->IsGrounded()) // Small Grounded logic
 		{
+			// Slope semantics :P
+
+			m_GoingUpSlope = m_LookVectorToGroundDOTproduct < 0;
+			m_GoingUpSteepSlope = m_GoingUpSlope and abs(m_GroundDOTproduct<0.8f) ;
+			m_SlidingDownSlope = abs(m_GroundDOTproduct)<0.8f;
+			
+			//std::cout << GetCollisionBody()->IsGrounded() << std::endl;
 			// Run & Idle
 			if (not IsFull()) {
 				if (IsRunning) { // Run
 					nextState = EntityState::Run;
 
-					if (groundDOT < 0.8f and IsFalling) {
+					if (m_SlidingDownSlope) {
 						nextState = EntityState::Sliding;
 					}
 				}
@@ -199,6 +234,36 @@ void Player::Update(float elapsedSec)
 				}
 			}
 
+			// Slope actions
+			const bool goingUp{ m_LookVectorToGroundDOTproduct < 0 };
+			const bool goingDown{ m_LookVectorToGroundDOTproduct > 0 };
+			const bool IsIdle{
+				abs(currentVelocity.x) <= 0
+			};
+			
+			if (IsIdle) { // Slope idles
+				if (goingUp) {
+					if (abs(m_LookVectorToGroundDOTproduct) < 0.8) {
+						nextState = EntityState::SharpLeftSlopeIdle;
+					}
+					if (abs(m_LookVectorToGroundDOTproduct) < 0.5) {
+						nextState = EntityState::SoftLeftSlopeIdle;
+					}
+				}
+				else if (goingDown) {	
+					if (abs(m_LookVectorToGroundDOTproduct) < 0.8) {
+						nextState = EntityState::SharpRightSlopeIdle;
+					} 
+					if (abs(m_LookVectorToGroundDOTproduct) < 0.5) {
+						nextState = EntityState::SoftRightSlopeIdle;
+					}
+				}
+			}
+
+			if (IsClimbing) {
+				nextState = EntityState::Climbing;
+			}
+
 
 			// Landing
 			const bool wasInAir{
@@ -207,7 +272,25 @@ void Player::Update(float elapsedSec)
 
 			if (wasInAir) { // Checks if the current state is in the air when you're just grounded !
 				if (not IsFull()) {
-					nextState = EntityState::Landed;
+					if (goingUp) {
+						if (abs(m_LookVectorToGroundDOTproduct) < 0.8) {
+							nextState = EntityState::SharpLeftLanded;
+						}
+						if (abs(m_LookVectorToGroundDOTproduct) < 0.5) {
+							nextState = EntityState::SoftLeftLanded;
+						} 
+					}
+					else if (goingDown) {
+						if (abs(m_LookVectorToGroundDOTproduct) < 0.8) {
+							nextState = EntityState::SharpRightLanded;
+						}
+						if (abs(m_LookVectorToGroundDOTproduct) < 0.5) {
+							nextState = EntityState::SoftRightLanded;
+						}
+					}
+					else {
+						nextState = EntityState::Landed;
+					}
 				}
 				else {
 					nextState = EntityState::BigLanded;
@@ -234,7 +317,6 @@ void Player::Update(float elapsedSec)
 				}
 			}
 		}
-
 	}
 	else {
 		nextState = EntityState::Flying;
@@ -256,8 +338,88 @@ void Player::Update(float elapsedSec)
 
 	currentState = m_State; // Update the variable because it could've potentially changed !
 
+	// Slope actions and stuff
+	const bool slopeAction{
+		currentState == EntityState::SharpLeftSlopeIdle
+		or currentState == EntityState::SoftLeftSlopeIdle
+		or currentState == EntityState::SoftRightSlopeIdle
+		or currentState == EntityState::SharpRightSlopeIdle
+		or currentState == EntityState::SharpLeftLanded
+		or currentState == EntityState::SoftLeftLanded
+		or currentState == EntityState::SoftRightLanded
+		or currentState == EntityState::SharpRightLanded
+	};
+
+	const bool sharpAction{
+		currentState == EntityState::SharpLeftSlopeIdle
+		or currentState == EntityState::SharpRightSlopeIdle
+		or currentState == EntityState::SharpLeftLanded
+		or currentState == EntityState::SharpRightLanded
+	};
+
+	if (m_pAnimator->GetPlayingAnimation() != nullptr) {
+		if (slopeAction) {
+			if (sharpAction) {
+				this->GetTransform()->SetWidth(KIRBY_CLIMBING_WIDTH);
+				this->GetTransform()->SetHeight(KIRBY_CLIMBING_HEIGHT);
+
+				const Vector2f constantClimbingOffset{
+					0,
+					(DEFAULT_ENTITY_HEIGHT - KIRBY_CLIMBING_HEIGHT)
+				};
+				m_pAnimator->GetPlayingAnimation()->SetOffset(constantClimbingOffset);
+			}
+			else {
+				this->GetTransform()->SetWidth(DEFAULT_ENTITY_WIDTH);
+				this->GetTransform()->SetHeight(DEFAULT_ENTITY_HEIGHT);
+
+				const Vector2f constantClimbingOffset{
+					0,
+					-6.4f
+				};
+				m_pAnimator->GetPlayingAnimation()->SetOffset(constantClimbingOffset);
+			}
+		}
+	}
+
+	// Sliding stuff
+	if (currentState == EntityState::Sliding) {
+		playerTransform->ApplyImpulse(Vector2f(groundNormal.x,-groundNormal.y)*15);
+	}
+	
+	// Climbing stuff
+	if (currentState == EntityState::Climbing) {
+		if (m_pAnimator->GetPlayingAnimation()!=nullptr) {
+			this->GetTransform()->SetWidth(KIRBY_CLIMBING_WIDTH);
+			this->GetTransform()->SetHeight(KIRBY_CLIMBING_HEIGHT);
+
+			const float timeForBounce{ DEFAULT_ANIMATION_UPDATE * 2 };
+			const float timeRatio{ (m_RunClock / timeForBounce) };
+			const float bounceRythm{ std::round(sin(float(M_PI * timeRatio))) };
+			const float offset{ 3.5f + (3.5f * abs(bounceRythm)) };
+
+			const Vector2f constantClimbingOffset{
+				0,
+				(DEFAULT_ENTITY_HEIGHT - KIRBY_CLIMBING_HEIGHT)
+			};
+
+			const Vector2f shuffleOffset{ (offset + groundNormal.x) * playerTransform->GetLookDirection() , offset + groundNormal.y};
+
+			m_pAnimator->GetPlayingAnimation()->SetOffset(constantClimbingOffset + shuffleOffset );
+		}
+	}
+
 	// Landing Event
-	if (currentState == EntityState::Landed or currentState == EntityState::BigLanded) {
+	const bool HasLanded{
+		currentState == EntityState::Landed
+		or currentState == EntityState::BigLanded 
+		or currentState == EntityState::SharpLeftLanded
+		or currentState == EntityState::SoftLeftLanded
+		or currentState == EntityState::SoftRightLanded
+		or currentState == EntityState::SharpRightLanded
+		
+	};
+	if (HasLanded) {
 		m_JumpClock = 0;
 		m_Jumping = false;
 		if (not IsFull()) {
@@ -270,7 +432,7 @@ void Player::Update(float elapsedSec)
 	
 	// Run Actions
 		// Run Clock 
-		if (currentState == EntityState::Run or currentState == EntityState::BigRun) {
+		if (currentState == EntityState::Run or currentState == EntityState::BigRun or m_MoveInput) {
 			m_RunClock += elapsedSec;
 		}
 		else {
@@ -384,7 +546,7 @@ void Player::Update(float elapsedSec)
 		};
 	};
 
-	// Finish
+	// None related
 	m_SuckingTargets = false;
 	ClampToScreen();
 }
@@ -673,6 +835,8 @@ void Player::UpdateKeyboard(float elapsedSec)
 	const float currentAccelerationRatio{ (playerTransform->GetAcceleration() / 100) };
 	const Vector2f currentPosition{ this->GetTransform()->GetPosition() };
 
+	m_MoveInput = false;
+
 	Vector2f direction( 
 		playerTransform->GetCurrentVelocity().x * currentAccelerationRatio,
 		0
@@ -681,16 +845,17 @@ void Player::UpdateKeyboard(float elapsedSec)
 	if (GetCollisionBody()->IsWallbound()) {
 		//std::cout << "Colliding wall" << std::endl;
 		direction.x = 0;
-		playerTransform->SetAcceleration(0);
-	}
+		playerTransform->SetAcceleration(0);	}
 
 	const Uint8* pStates = SDL_GetKeyboardState(nullptr);
 	if (pStates[SDL_SCANCODE_RIGHT]) {
 		direction.x = 1;
 		playerTransform->AddAcceleration(accelSpeed);
+		m_MoveInput = true;
 	} else if (pStates[SDL_SCANCODE_LEFT]) {
 		direction.x = -1;
 		playerTransform->AddAcceleration(accelSpeed);
+		m_MoveInput = true;
 	};
 
 	if (pStates[SDL_SCANCODE_UP] and IsFlying()) {
@@ -704,19 +869,23 @@ void Player::UpdateKeyboard(float elapsedSec)
 		movementSpeed = KIRBY_FLYING_MOVEMENT_SPEED;
 	}
 	else {
-		const Vector2f groundNormal{ GetCollisionBody()->GetGroundCollisionNormal() };
-		const float groundDOTproduct{ Vector2f(0,1).DotProduct(groundNormal) };
-
-		//std::cout << groundDOTproduct << std::endl;
-
-		if (GetCollisionBody()->IsGrounded()) {
-			movementSpeed *= pow(groundDOTproduct, 4);
+		/*
+		Behaviour expected on slopes !
+		 - When going up a slope, Kirby is slowed down [x]
+		 - If slope is steep enough a special animation will play [x]
+		 - When going down slopes he will go faster/regular speed [x]
+		 - If he's going down a steep slope, he will slide off it [x]
+		*/ 
+		
+		if (not InAir()) {
+			if (m_GoingUpSteepSlope) {
+				movementSpeed *= pow(m_GroundDOTproduct, 1.f);
+			}
 		}
-		//std::cout << wallDOTproduct << std::endl;
 	}
 	//
 	 
-	if (CanControl()) {
+	if (CanControl()) { 
 		this->MoveTo(elapsedSec, direction.Normalized(), movementSpeed * currentAccelerationRatio);
 	}
 }

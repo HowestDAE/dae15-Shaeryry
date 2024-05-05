@@ -20,7 +20,7 @@ Game::~Game( )
 void Game::Initialize( )
 {
 	// Load scenes hashmap so it's easy to load between the "worlds" !
-	m_Scenes["Vegetable Valley 1"] = WorldData{ "VegetableValley",3.f,3,
+	m_Scenes["Vegetable Valley 1"] = WorldData{ "VegetableValley",3.f,3,WORLD_ANIMATION_UPDATE,
 		{
 			SpawnerData{ Vector2f(870,165),EnemyType::WaddleDoo,1}
 		},
@@ -29,8 +29,8 @@ void Game::Initialize( )
 		}
 	};
 
-	m_Scenes["Vegetable Valley 2"] = WorldData{ "VegetableValley_2",3.f,1,
-		{
+	m_Scenes["Vegetable Valley 2"] = WorldData{ "VegetableValley_2",3.f,4,0.25f,
+		{ 
 		},
 		{
 		}

@@ -18,6 +18,7 @@ public:
 	void UpdateCollider(float elapsedSec);
 	void ApplyDefaultCollisions();
 	 
+	void SetActive(bool newState) { m_Active = newState; };
 	void SetTag(const std::string& tag) { m_Tag = tag; };
 	void SetVertices(const std::vector<Point2f>& newVertices);
 	void SetCollisionHandler(CollisionHandler* handler) { m_pCollisionHandler = handler; };
@@ -27,13 +28,14 @@ public:
 	Component* GetComponent() const { return m_Instance; }; 
 	std::vector<Point2f> GetVertices() const { return m_Vertices; };
 	Rectf GetRect() const;
+	Vector2f GetVerticesPosition() const;
 
 	Vector2f GetFrontCollisionNormal() const { return m_FrontCollision.normal; };
 	Vector2f GetGroundCollisionNormal() const { return m_FloorCollision.normal; };
 
 	bool IsGrounded() const { return m_IsGrounded; };
 	bool IsWallbound() const { return m_IsWallbound; };
-	bool IsActive() const { return m_Active; }; 
+	bool IsActive() const { return m_Active; };
 private:
 	CollisionHandler* m_pCollisionHandler;
 	Component* m_Instance;

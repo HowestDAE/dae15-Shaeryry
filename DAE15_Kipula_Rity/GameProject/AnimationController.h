@@ -20,6 +20,7 @@ public:
 	void AddAnimation(Animation* animation);
 	void RemoveAnimation(Animation* animation);
 	Animation* PlayAnimation(const std::string& animationName, const int frames, const int animationPriorityIndex);
+	Animation* GetPlayingAnimation() const { return m_pAnimations[0]; };
 private:
 	std::vector<Animation*> m_pAnimations;
 	TextureManager* m_pTextureManager;

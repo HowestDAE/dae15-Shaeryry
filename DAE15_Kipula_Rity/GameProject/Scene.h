@@ -3,6 +3,7 @@
 #include <iostream>
 #include "Component.h"
 
+class GUI;
 class Camera;
 class World;
 class EntityManager;
@@ -33,6 +34,7 @@ public:
 	float GetTransitionTime() const { return m_SceneTransitionTime; };
 	float GetSceneTimer() const { return m_SceneTime; };
 	float GetSceneInactiveTimer() const { return m_SceneInactiveTime; };
+	Game* GetGame() const { return m_pGame; };
 	Player* GetPlayer() const { return m_pPlayer; };
 	Camera* GetCamera() const { return m_pCamera; };
 	EntityManager* GetEntityManager() const { return m_pEntityManager; };
@@ -47,6 +49,8 @@ private:
 	bool m_Initialized;
 	bool m_Destroying;
 	bool m_Paused;
+
+	GUI* m_pGUI;
 	Game* m_pGame;
 	Player* m_pPlayer;
 	Camera* m_pCamera;

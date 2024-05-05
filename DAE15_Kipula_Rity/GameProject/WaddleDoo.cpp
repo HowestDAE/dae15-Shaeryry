@@ -9,7 +9,7 @@ WaddleDoo::WaddleDoo(EntityManager* entityManager, const Vector2f& origin) :
 	m_WaddleDooTargetDirection{0,0}
 {
 	std::map<int, AnimationData> waddleDooTracks{};
-	waddleDooTracks[2] = AnimationData{ "Run",2,WADDLEDOO_ANIMATION_UPDATE,true };
+	waddleDooTracks[static_cast<int>(EntityState::Run)] = AnimationData{ "Run",2,WADDLEDOO_ANIMATION_UPDATE,true };
 	this->SetAnimationData(waddleDooTracks);
 }
 

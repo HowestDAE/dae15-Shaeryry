@@ -49,53 +49,51 @@ void CollisionBody::ApplyDefaultCollisions()
 		const float bodyWidth{ bodyTransform->GetWidth() };
 		const float bodyHeight{ bodyTransform->GetHeight() };
 		const Vector2f position{ bodyTransform->GetPosition() };
-		const Vector2f origin{ position + Vector2f(bodyWidth / 2,bodyHeight/2) };
+		const Vector2f origin{ position + Vector2f((bodyWidth / 2),(bodyHeight / 2)) };
 		const Vector2f minimumVelocity( float(0),float(0) );
 		const Vector2f currentVelocity{ bodyTransform->GetCurrentVelocity() + minimumVelocity };
 
 		const float lookDirection{ abs(currentVelocity.x) / currentVelocity.x };
-		const float upDirection{ abs(currentVelocity.y) / currentVelocity.y };
+		const float upDirection{abs(currentVelocity.y) / currentVelocity.y };
 		const float xRayLength{ (bodyWidth / 2) };
-		const float yRayLength{ (bodyHeight / 2) + 1 };
+		const float yRayLength{ (bodyHeight / 2) };
 
 		const Vector2f upVector{ origin + Vector2f(0 , (yRayLength * upDirection)) };
 		const Vector2f lookVector{ origin + Vector2f( (xRayLength * lookDirection) , 0 ) };
 
-		utils::HitInfo upCollision{ CheckCollision(origin + currentVelocity, upVector,{"Collidable"})};
-		utils::HitInfo lookCollision{ CheckCollision(origin + currentVelocity, lookVector,{"Collidable"}) };
+		utils::HitInfo upCollision{ CheckCollision(origin, upVector + currentVelocity,{"Collidable"})};
+		utils::HitInfo lookCollision{ CheckCollision(origin, lookVector + currentVelocity,{"Collidable"}) };
 
 		Vector2f positionPostCollision{ position };
 		Vector2f velocityPostCollision{ bodyTransform->GetVelocity() };
 
-		if (IsActive()) {
-			const float DOT_PRODUCT_WALL{ lookVector.Normalized().DotProduct(lookCollision.normal)};
 
-			if (upCollision.lambda != -1) { // if something is hit
-				positionPostCollision.y = (upCollision.intersectPoint.y);// + (bodyHeight - (bodyHeight * upDirection) ));
-				velocityPostCollision.y = 0; 
-				m_IsGrounded = true;
-			}
-			else {
-				m_IsGrounded = false;
-			}
+		if (upCollision.lambda != -1) {
+			positionPostCollision.y = (upCollision.intersectPoint.y-1); 
+			velocityPostCollision.y = 0; 
+			m_IsGrounded = true;
+		}
+		else {
+			m_IsGrounded = false;
+		}
 
-			if (lookCollision.lambda != -1) {
-				if (abs(DOT_PRODUCT_WALL) > .95f) {
-					float xPos{ lookCollision.intersectPoint.x };
-					if (lookDirection > 0) {
-						xPos -= (bodyWidth);
-					}
-					positionPostCollision.x = xPos;
-					velocityPostCollision.x = 0;
-					m_IsWallbound = true;
+		if (lookCollision.lambda != -1) {
+			const float DOT_PRODUCT_WALL{ lookVector.Normalized().DotProduct(lookCollision.normal) };
+			if (abs(DOT_PRODUCT_WALL) > .95f) {
+				float xPos{ lookCollision.intersectPoint.x };
+				if (lookDirection > 0) {
+					xPos -= (bodyWidth);
 				}
-				else {
-					m_IsWallbound = false;
-				}
+				positionPostCollision.x = xPos;
+				velocityPostCollision.x = 0;
+				m_IsWallbound = true;
 			}
 			else {
 				m_IsWallbound = false;
 			}
+		}
+		else {
+			m_IsWallbound = false;
 		}
 		
 		bodyTransform->SetVelocity(velocityPostCollision);
@@ -103,30 +101,33 @@ void CollisionBody::ApplyDefaultCollisions()
 
 		m_FrontCollision = lookCollision;
 		m_FloorCollision = upCollision;
-
-
-		//std::cout << "X -> " << currentVelocity.x << " : Y -> " << currentVelocity.y << std::endl;
-
-		//std::cout << " X hit -> " << lookCollision.lambda << " - Y hit -> " << upCollision.lambda << std::endl;
 	}
 }
 
 utils::HitInfo CollisionBody::CheckCollision(const Vector2f& from, const Vector2f& target,const std::vector<std::string>& tags)
 {
-	std::vector<CollisionBody*> m_Bodies{ m_pCollisionHandler->GetBodies() };
+	const std::vector<CollisionBody*> bodies{ m_pCollisionHandler->GetBodies() };
 	utils::HitInfo hitResult;
 	hitResult.lambda = -1;
 
-	for (size_t collisionBodyIndex{}; collisionBodyIndex < m_Bodies.size(); collisionBodyIndex++) {
-		const CollisionBody* currentBody{ m_Bodies[collisionBodyIndex] };
+
+	for (size_t collisionBodyIndex{}; collisionBodyIndex < bodies.size(); collisionBodyIndex++) {
+		const CollisionBody* currentBody{ bodies[collisionBodyIndex] };
 		const bool hasTag{ std::find(tags.begin(), tags.end(), currentBody->GetTag() ) != tags.end() };
-		utils::HitInfo ray;
+		const bool IsActive{ currentBody->IsActive() };
+		//std::cout << "#" << collisionBodyIndex << " is active > " << IsActive << std::endl;
+
 
 		if (currentBody != this && hasTag) {
-			bool rayHit{ utils::Raycast(currentBody->GetVertices(), from.ToPoint2f(), target.ToPoint2f(), ray) };
-			if (rayHit) {
-				hitResult = ray;
-				break;
+			if (IsActive) { 
+				utils::HitInfo ray;
+				bool rayHit{ utils::Raycast(currentBody->GetVertices(), from.ToPoint2f(), target.ToPoint2f(), ray) };
+				if (rayHit) {
+					//std::cout << "standing on #" << collisionBodyIndex << std::endl;
+
+					hitResult = ray;
+					//break;
+				}
 			}
 		}
 		
@@ -144,6 +145,23 @@ Rectf CollisionBody::GetRect() const
 		m_Instance->GetTransform()->GetWidth(),
 		m_Instance->GetTransform()->GetHeight()
 	);
+}
+
+Vector2f CollisionBody::GetVerticesPosition() const
+{
+	float xPosition{ 0 };
+	float yPosition{ 0 };
+
+	for (size_t verticesIndex{ 0 }; verticesIndex < m_Vertices.size(); verticesIndex++) {
+		xPosition += m_Vertices[verticesIndex].x;
+		yPosition += m_Vertices[verticesIndex].y;
+	}
+
+	xPosition = xPosition / float(m_Vertices.size());
+	yPosition = yPosition / float(m_Vertices.size());
+
+
+	return Vector2f(xPosition,yPosition);
 }
 
 

@@ -92,7 +92,7 @@ void Entity::MoveTo(float elapsedSec, const Vector2f& direction , float speed)
 
 void Entity::OnStateChanged()
 {
-	std::cout << int(m_State) << std::endl;
+	//std::cout << int(m_State) << std::endl;
 	const AnimationData trackData{ m_AnimationsData[int(m_State)] };
 	//Default Animation update for any entity
 	if (m_pCoreAnimation != nullptr) {
