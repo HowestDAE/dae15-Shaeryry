@@ -2,6 +2,11 @@
 #include "Power.h"
 #include <iostream>
 
+enum class PowerTypes {
+	None,
+	Beam
+};
+
 Power::Power(Entity* entity, const PowerTypes powerType) :
 	m_PowerType{ powerType },
 	m_ElapsedTime{ 0 },
