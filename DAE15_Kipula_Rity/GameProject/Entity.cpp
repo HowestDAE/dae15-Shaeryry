@@ -1,6 +1,7 @@
 #include "pch.h"
 #include <iostream>
 #include "Entity.h"
+#include "PowerManager.h"
 #include "EntityManager.h"
 #include "Animation.h"
 #include "CollisionHandler.h"
@@ -10,13 +11,15 @@
 
 Entity::Entity(EntityManager* manager, const Vector2f& origin, const std::string& entityName) :
 	m_pManager{ manager },
+	m_pPowerManager{ PowerManager(this) },
+	m_pPower{ nullptr },
 	m_pCoreAnimation{ nullptr },
 	m_State{ EntityState::Idle },
 	m_OldState{ EntityState::None },
 	m_InAir{ false },
 	m_Invincible{false},
 	m_TimeElapsedLastHit{ INVINCIBILITY_TIME },
-	m_Health{1}
+	m_Health{1} 
 {
 	m_pAnimator = new AnimationController(this);
 
@@ -27,21 +30,28 @@ Entity::Entity(EntityManager* manager, const Vector2f& origin, const std::string
 } 
 
 Entity::~Entity() {
-	// Remove entity from the manager !
-	m_pManager->RemoveEntity(this);
+	// Remove entity from the manager !	
+	delete m_pPower;
 	delete m_pAnimator;
+	m_pManager->RemoveEntity(this);
 }
 
 void Entity::Draw() const
 {		
 	Component::ApplyComponentEffects();
 	m_pAnimator->DrawAnimations();
+	if (m_pPower != nullptr) {
+		m_pPower->Draw();
+	}
 	Component::ResetEffectLayer();
 }
 
 void Entity::Update(float elapsedSec)
 {
 	Component::Update(elapsedSec);
+	if (m_pPower != nullptr) {
+		m_pPower->Update(elapsedSec);
+	}	
 	m_pAnimator->UpdateAnimations(elapsedSec);
 	GetTransform()->Update(elapsedSec);
 	if (this->GetCollisionBody() != nullptr) {
@@ -157,6 +167,19 @@ void Entity::OnDied() {
 void Entity::SetHealth(const int health)
 {
 	m_Health = health;
+}
+
+void Entity::SetPower(const PowerTypes power)
+{
+	if (m_pPower != nullptr) {
+		delete m_pPower;
+		m_pPower = nullptr;
+	}
+
+	if (power != PowerTypes::None) {
+		m_pPower = m_pPowerManager.CreatePower(power);
+		m_pPower->SetEntity(this);
+	}
 }
 
 bool Entity::CanDamage() const

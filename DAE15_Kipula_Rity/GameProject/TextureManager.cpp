@@ -13,6 +13,7 @@ TextureManager::~TextureManager()
 	ClearTextures();
 }
 
+
 Texture* TextureManager::GetTexture(const std::string& key,const std::string& texturePath)
 {
 	Texture* foundTexture{ m_Textures[key] };

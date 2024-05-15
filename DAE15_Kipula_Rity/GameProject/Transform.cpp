@@ -72,6 +72,11 @@ void Transform::ApplyPhysics(float elapsedSec)
 	AddVelocity(Vector2f{ 0,-m_Gravity }*elapsedSec);	
 }
 
+Vector2f Transform::GetCenterPosition() const
+{
+	return GetPosition() + Vector2f(m_Width/2,m_Height/2);
+}
+
 void Transform::AddAcceleration(float accel)
 {
 	m_Acceleration += accel;

@@ -33,8 +33,10 @@ enum class EntityState {
 	BigJump,
 	BigLanded,
 	BigFreefall,
+	Crouched,
 };
 
+class PowerManager;
 class EntityManager;
 class AnimationController;
 class Animation;
@@ -64,20 +66,22 @@ public:
 	void SetState(EntityState newState);
 	void SetInvincible(bool status) { m_Invincible = status; }
 	void SetAnimationData(const std::map<int, AnimationData>& entityAnimations) { m_AnimationsData = entityAnimations; };
+	void SetPower(const PowerTypes power);
 	// GET METHODS
 	AnimationController* GetAnimator() const { return m_pAnimator; };
-	Power GetPower() const { return m_Power; };
+	Power* GetPower() const { return m_pPower; };
 	int GetHealth() const { return m_Health; };
 
 	// STATE METHODS
 	bool CanDamage() const;
 	bool IsAlive() const { return (m_Health > 0); };
 	bool IsInvincible() const { return m_Invincible; };
+	float GetHitClock() const { return m_TimeElapsedLastHit; };
 	
 protected:
 	// manager
 	EntityManager* m_pManager;   
-
+	PowerManager m_pPowerManager;
 	// states
 
 	bool m_InAir;
@@ -90,7 +94,8 @@ protected:
 	std::map<int, AnimationData> m_AnimationsData;
 
 	// variables
-	Power m_Power;
+
+	Power* m_pPower;
 	bool m_Invincible;
 	int m_Health;
 	float m_TimeElapsedLastHit;

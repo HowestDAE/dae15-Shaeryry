@@ -15,6 +15,7 @@ public:
 
 	void SetPosition(const Vector2f& newPosition) { m_Position = newPosition; };
 	Vector2f GetPosition() const { return m_Position; };
+	Vector2f GetCenterPosition() const;
 	// Velocity 
 
 	void AddVelocity(const Vector2f& Velocity) { m_Velocity += Velocity; };

@@ -21,6 +21,7 @@
 
 Player::Player(EntityManager* manager, const Vector2f& origin, const std::string& entityName) :
 	Entity(manager, origin, entityName),
+	m_AbsoredPower{ PowerTypes::None },
 	m_JumpClock{ 0 },
 	m_RunClock{ 0 },
 	m_FlyingClock{ 0 },
@@ -42,6 +43,8 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	m_CanShoot{ false },
 	m_PressedSpace{ false },
 	m_MoveInput{ false },
+	m_Crouched{ false },
+	m_CanCrouch{ true },
 	m_nextWorld{"None"},
 	m_Shooter{ new ProjectileManager(this,m_pManager) }
 { 
@@ -78,6 +81,9 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	playerTracks[static_cast<int>(EntityState::BigLanded)] = AnimationData{ "Big_Landed",1,DEFAULT_ANIMATION_UPDATE,false,2 };
 	playerTracks[static_cast<int>(EntityState::BigFreefall)] = AnimationData{ "Big_Freefall",1,DEFAULT_ANIMATION_UPDATE,true };
 
+	playerTracks[static_cast<int>(EntityState::Crouched)] = AnimationData{ "Crouch",1,DEFAULT_ANIMATION_UPDATE,true };
+
+
 	 
 	this->SetAnimationData(playerTracks);
 }
@@ -99,6 +105,7 @@ void Player::OnKeyDownEvent(const SDL_KeyboardEvent& e)
 			}
 			break;
 		case SDLK_z:
+			UsePower();
 			Shoot();
 			FlyEnd();
 			SuckStart();
@@ -106,6 +113,10 @@ void Player::OnKeyDownEvent(const SDL_KeyboardEvent& e)
 		case SDLK_UP:
 			Leave();
 			Fly();
+			break;
+		case SDLK_DOWN:
+			OnCrouch();
+			break;
 		default:
 			break;
 	}
@@ -126,6 +137,9 @@ void Player::OnKeyUpEvent(const SDL_KeyboardEvent& e)
 			if (IsFull()) {
 				m_CanShoot = true;
 			}
+			break;
+		case SDLK_DOWN:
+			CrouchEnd();
 			break;
 		default:
 			break;
@@ -195,7 +209,7 @@ void Player::Update(float elapsedSec)
 			playerTransform->AddVelocity(Vector2f{ 0,((KIRBY_JUMP_POWER * jumpDampening) * elapsedSec) });
 		}
 
-		if (m_JumpClock >= KIRBY_JUMP_MAX_TIME) {
+		if (m_JumpClock >= KIRBY_JUMP_MAX_TIME) { 
 			// THIS IS THE END OF A JUMP
 			JumpEnd();
 			m_JumpClock = KIRBY_JUMP_MAX_TIME;
@@ -332,8 +346,14 @@ void Player::Update(float elapsedSec)
 		m_DeflateClock += elapsedSec;
 	}
 	
-	SetState(nextState);
+	// Down action
 
+	if (m_Crouched) {
+		nextState = EntityState::Crouched;
+	}
+
+	SetState(nextState);
+	
 	// State Actions  
 
 	currentState = m_State; // Update the variable because it could've potentially changed !
@@ -417,8 +437,8 @@ void Player::Update(float elapsedSec)
 		or currentState == EntityState::SoftLeftLanded
 		or currentState == EntityState::SoftRightLanded
 		or currentState == EntityState::SharpRightLanded
-		
 	};
+
 	if (HasLanded) {
 		m_JumpClock = 0;
 		m_Jumping = false;
@@ -564,7 +584,13 @@ bool Player::CanControl() const
 		and not IsSucking()
 		and not IsDeflating()
 		and not IsLeaving()
-		and not HasLeft();
+		and not HasLeft()
+		and not IsCrouched();
+}
+
+bool Player::HasPower() const
+{
+	return (m_pPower != nullptr and m_pPower->GetType() != PowerTypes::None);
 }
 
 bool Player::InAir() const
@@ -621,12 +647,45 @@ bool Player::IsOnDoor() const
 		const bool onDoor{
 			(xPosition > door.area.left) and (xPosition < door.area.left + door.area.width)
 		};
+
 		if (onDoor) {
 			return onDoor;
 		}
 	};
-
+	
 	return false;
+}
+
+void Player::UsePower()
+{
+	if (m_pPower != nullptr) {
+		m_pPower->Use();
+	}
+}
+
+void Player::CrouchEnd()
+{
+	if (m_Crouched) {
+		m_Crouched = false;
+	}
+	m_CanCrouch = true;
+}
+
+void Player::OnCrouch()
+{
+	if (not m_Crouched and not IsFlying() and m_CanCrouch) {
+		m_Crouched = true;
+		m_CanCrouch = false;
+
+		if (m_Absorbed) { 
+			this->SetPower(m_AbsoredPower);
+			
+			m_pAnimator->PlayAnimation("Absorb", 3, 3)->SetUpdateTime( KIRBY_DEFLATE_TIME/3 );
+			m_DeflateClock = 0;
+			m_Crouched = false; 
+			m_Absorbed = false;
+		}
+	};
 }
 
 void Player::ClampToScreen()
@@ -685,7 +744,7 @@ void Player::JumpEnd()
 
 void Player::SuckStart()
 {
-	if (CanControl() and not IsFlying()) {
+	if (CanControl() and not IsFlying() and not IsCrouched() and not HasPower()) {
 		if (not m_Sucking and not IsFull() and not IsShooting()) {
 			m_pAnimator->PlayAnimation("SuckStart", 2, 3)->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
 			m_Sucking = true;
@@ -716,7 +775,7 @@ void Player::Suck()
 
 					if (distance < KIRBY_EAT_RANGE) {
 						m_Absorbed = true;
-						m_AbsoredPower = entityAtIndex->GetPower();
+						m_AbsoredPower = entityAtIndex->GetPower()->GetType();
 						entityAtIndex->SetHealth(0);
 						ShakeComponent(Vector2f(10, 10), 0.8f);
 						SuckEnd();
@@ -745,7 +804,7 @@ void Player::SuckEnd()
 
 void Player::Shoot()
 {
-	if (IsFull() and not IsShooting() and m_CanShoot) {
+	if (IsFull() and not IsShooting() and not IsCrouched() and m_CanShoot and not HasPower()) {
 		m_Absorbed = false;
 		const Transform* playerTransform{ this->GetTransform() };
 		const Vector2f origin{ playerTransform->GetPosition() + Vector2f(playerTransform->GetWidth()/2,DEFAULT_ENTITY_HEIGHT/2) };
@@ -759,13 +818,13 @@ void Player::Shoot()
 
 void Player::Fly()
 {
-	if (not IsFlying() and not IsBig() and not IsOnDoor() ) {
+	if (not IsFlying() and not IsBig() and not IsOnDoor() and not IsCrouched()) {
 		m_pAnimator->PlayAnimation("Fly_Start", 4, 2)->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
 		m_Flying = true;
 	}
 }
 
-void Player::FlyEnd()
+void Player::FlyEnd() 
 {
 	if (m_Flying) {
 		m_Flying = false;
@@ -824,7 +883,7 @@ void Player::OnDamage()
 		hurtAnimation = m_pAnimator->PlayAnimation("Big_Hurt", 1, 3);
 		hurtAnimation->SetUpdateTime(DEFAULT_ANIMATION_UPDATE*2);
 		hurtAnimation->SetFlipped(true);
-	}
+	} 
 }
 
 void Player::UpdateKeyboard(float elapsedSec)
@@ -836,7 +895,7 @@ void Player::UpdateKeyboard(float elapsedSec)
 	const Vector2f currentPosition{ this->GetTransform()->GetPosition() };
 
 	m_MoveInput = false;
-
+	
 	Vector2f direction( 
 		playerTransform->GetCurrentVelocity().x * currentAccelerationRatio,
 		0
@@ -869,14 +928,6 @@ void Player::UpdateKeyboard(float elapsedSec)
 		movementSpeed = KIRBY_FLYING_MOVEMENT_SPEED;
 	}
 	else {
-		/*
-		Behaviour expected on slopes !
-		 - When going up a slope, Kirby is slowed down [x]
-		 - If slope is steep enough a special animation will play [x]
-		 - When going down slopes he will go faster/regular speed [x]
-		 - If he's going down a steep slope, he will slide off it [x]
-		*/ 
-		
 		if (not InAir()) {
 			if (m_GoingUpSteepSlope) {
 				movementSpeed *= pow(m_GroundDOTproduct, 1.f);

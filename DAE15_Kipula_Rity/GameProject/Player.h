@@ -16,6 +16,7 @@ public:
 	
 	//States
 	bool CanControl() const;
+	bool HasPower() const;
 	bool InAir() const;
 	bool IsHitstunned() const;
 	bool IsSucking() const { return m_Sucking; };
@@ -26,8 +27,12 @@ public:
 	bool IsFlying() const;
 	bool HasLeft() const { return (m_LeavingClock > KIRBY_LEAVE_TIME); };
 	bool IsLeaving() const { return m_Leaving; };
+	bool IsCrouched() const { return m_Crouched; };
 	bool IsOnDoor() const;
 	// Actions
+	void UsePower();
+	void CrouchEnd();
+	void OnCrouch();
 	void ClampToScreen();
 	void Jump();
 	void JumpEnd();
@@ -44,7 +49,7 @@ private:
 	void UpdateKeyboard(float elapsedSec);
 
 	ProjectileManager* m_Shooter;
-	Power m_AbsoredPower;
+	PowerTypes m_AbsoredPower;
 	std::string m_nextWorld;
 	
 	// Variables
@@ -53,6 +58,8 @@ private:
 
 	// States
 	bool m_MoveInput;
+	bool m_Crouched;
+	bool m_CanCrouch;
 
 	bool m_Leaving;
 	bool m_PressedSpace;
