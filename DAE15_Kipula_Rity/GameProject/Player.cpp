@@ -143,7 +143,7 @@ void Player::OnKeyUpEvent(const SDL_KeyboardEvent& e)
 			break;
 		default:
 			break;
-	}
+	} 
 
 }
 

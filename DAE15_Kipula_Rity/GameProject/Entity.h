@@ -36,7 +36,6 @@ enum class EntityState {
 	Crouched,
 };
 
-class PowerManager;
 class EntityManager;
 class AnimationController;
 class Animation;
@@ -81,7 +80,6 @@ public:
 protected:
 	// manager
 	EntityManager* m_pManager;   
-	PowerManager m_pPowerManager;
 	// states
 
 	bool m_InAir;

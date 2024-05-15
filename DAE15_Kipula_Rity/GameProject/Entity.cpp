@@ -1,7 +1,6 @@
 #include "pch.h"
 #include <iostream>
 #include "Entity.h"
-#include "PowerManager.h"
 #include "EntityManager.h"
 #include "Animation.h"
 #include "CollisionHandler.h"
@@ -9,9 +8,11 @@
 #include "Transform.h"
 #include <map>
 
+// Powers
+#include "Beam.h"
+
 Entity::Entity(EntityManager* manager, const Vector2f& origin, const std::string& entityName) :
 	m_pManager{ manager },
-	m_pPowerManager{ PowerManager(this) },
 	m_pPower{ nullptr },
 	m_pCoreAnimation{ nullptr },
 	m_State{ EntityState::Idle },
@@ -134,7 +135,7 @@ void Entity::SetState(EntityState newState)
 
 bool Entity::TakeDamage(const int damage)
 {
-	if (CanDamage()) {
+	if (CanDamage()) { 
 		int currentHealth{ m_Health };
 		int newHealth{ currentHealth - damage };
 		SetHealth(newHealth);
@@ -177,7 +178,15 @@ void Entity::SetPower(const PowerTypes power)
 	}
 
 	if (power != PowerTypes::None) {
-		m_pPower = m_pPowerManager.CreatePower(power);
+		switch (power)
+		{
+		case PowerTypes::Beam:
+			m_pPower = new Beam(this);
+			break;
+		default:
+			m_pPower = new Power(this);
+			break;
+		};
 		m_pPower->SetEntity(this);
 	}
 }
