@@ -133,6 +133,7 @@ void Player::OnKeyUpEvent(const SDL_KeyboardEvent& e)
 			}
 			break;
 		case SDLK_z:
+			m_CanUsePower = true;
 			SuckEnd();
 			if (IsFull()) {
 				m_CanShoot = true;
@@ -585,7 +586,8 @@ bool Player::CanControl() const
 		and not IsDeflating()
 		and not IsLeaving()
 		and not HasLeft()
-		and not IsCrouched();
+		and not IsCrouched()
+		and not (m_pPower != nullptr and m_pPower->IsActive());
 }
 
 bool Player::HasPower() const
@@ -658,8 +660,9 @@ bool Player::IsOnDoor() const
 
 void Player::UsePower()
 {
-	if (m_pPower != nullptr) {
+	if (m_pPower != nullptr and m_CanUsePower) {
 		m_pPower->Use();
+		m_CanUsePower = false;
 	}
 }
 

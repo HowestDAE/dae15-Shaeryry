@@ -10,6 +10,7 @@
 
 // Powers
 #include "Beam.h"
+//
 
 Entity::Entity(EntityManager* manager, const Vector2f& origin, const std::string& entityName) :
 	m_pManager{ manager },
@@ -40,10 +41,11 @@ Entity::~Entity() {
 void Entity::Draw() const
 {		
 	Component::ApplyComponentEffects();
-	m_pAnimator->DrawAnimations();
 	if (m_pPower != nullptr) {
 		m_pPower->Draw();
-	}
+	};
+
+	m_pAnimator->DrawAnimations();
 	Component::ResetEffectLayer();
 }
 
@@ -53,8 +55,10 @@ void Entity::Update(float elapsedSec)
 	if (m_pPower != nullptr) {
 		m_pPower->Update(elapsedSec);
 	}	
-	m_pAnimator->UpdateAnimations(elapsedSec);
+
 	GetTransform()->Update(elapsedSec);
+	m_pAnimator->UpdateAnimations(elapsedSec);
+
 	if (this->GetCollisionBody() != nullptr) {
 		this->GetCollisionBody()->UpdateCollider(elapsedSec);
 		GetCollisionBody()->ApplyDefaultCollisions();

@@ -70,6 +70,7 @@ public:
 	AnimationController* GetAnimator() const { return m_pAnimator; };
 	Power* GetPower() const { return m_pPower; };
 	int GetHealth() const { return m_Health; };
+	EntityManager* GetManager() const { return m_pManager; };
 
 	// STATE METHODS
 	bool CanDamage() const;

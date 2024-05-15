@@ -88,3 +88,13 @@ static const float CLOUD_WIDTH{ 40 };
 static const float CLOUD_HEIGHT{ 40 };
 static const float CLOUD_DURATION{ .5f };
 
+// Beam Power
+
+static const float BEAM_STAR_HITBOX_SIZE{ 35.f };
+static const float BEAM_STAR_SIZE{ 15.f };
+static const float BEAM_LENGTH{ .75f };
+static const float BEAM_TOTAL_ANGLE{ 110.f };
+static const float BEAM_START_ANGLE{ 60.f };
+static const float BEAM_MAX_RANGE{ 150.f };
+static const int BEAM_MAX_SEGMENTS{ 5 };
+static const float BEAM_ANIMATION_UPDATE{ DEFAULT_ANIMATION_UPDATE/2 };

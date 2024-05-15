@@ -13,9 +13,12 @@ Animation::Animation(AnimationController* animationController, const std::string
 	m_Offset{ Vector2f(0,0) },
 	m_CurrentFrame{ 0 },
 	m_AnimationClock{ 0 },
+	m_Width{ 0 },
+	m_Height{ 0 },
 	m_FrameCount{ frames },
 	m_TimePerFrame{ DEFAULT_ANIMATION_UPDATE },
-	m_PingPong{false},
+	m_DynamicAnimationBox{ true },
+	m_PingPong{ false },
 	m_Flipped{ false },
 	m_Paused{ false },
 	m_Looped{ false },
@@ -26,6 +29,8 @@ Animation::Animation(AnimationController* animationController, const std::string
 	m_pTexture = m_pAnimationController->GetTextureManager()->GetTexture(animationKey,GetAnimationPath()); //new Texture(GetAnimationPath()); // USE TEXTURE MANAGER TO OPTIMIZE THIS LATER !!!
 	SetParent(m_pAnimationController);
 	SetName(animationName);
+	m_Width = m_pTexture->GetWidth()/m_FrameCount;
+	m_Height = m_pTexture->GetHeight();
 	//std::cout << "Created animation > " << animationName << std::endl;
 	//m_pAnimationController->AddAnimation(this);
 }
@@ -38,11 +43,17 @@ Animation::~Animation()
 void Animation::Draw() const
 {
 	if (m_pTexture != nullptr) {
+		float width{ m_Width };
+		float height{ m_Height };
+
+		if (m_DynamicAnimationBox) {
+			width = m_pAnimationController->GetParent()->GetTransform()->GetWidth();
+			height = m_pAnimationController->GetParent()->GetTransform()->GetHeight();
+		};
 
 		const float frameWidth{ static_cast<float>(m_pTexture->GetWidth() / m_FrameCount) };
 		const Vector2f position{ m_pAnimationController->GetParent()->GetTransform()->GetPosition() };
-		const float width{ m_pAnimationController->GetParent()->GetTransform()->GetWidth() };
-		const float height{ m_pAnimationController->GetParent()->GetTransform()->GetHeight() };
+
 		float lookDirection{ m_pAnimationController->GetParent()->GetTransform()->GetLookDirection() };
 		
 		if (m_Flipped) {

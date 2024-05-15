@@ -16,9 +16,9 @@ Power::Power(Entity* entity)
 {
 }
 
+
 Power::~Power()
 {
-	std::cout << "deleted power !" << std::endl;
 }
 
 void Power::Update(float elapsedSec)

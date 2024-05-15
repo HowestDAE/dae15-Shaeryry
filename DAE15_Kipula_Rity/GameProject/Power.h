@@ -10,10 +10,10 @@ class Power
 {
 public:
 	explicit Power(Entity* entity,const PowerTypes powerType);
-	explicit Power(Entity* entity);
+	explicit Power(Entity* entity); 
 	Power& operator=(const Power& rhs) = delete;
 	Power(const Power& other) = delete;
-	~Power();
+	virtual ~Power();
 
 	virtual void Update(float elapsedSec);
 	virtual void Draw() const;

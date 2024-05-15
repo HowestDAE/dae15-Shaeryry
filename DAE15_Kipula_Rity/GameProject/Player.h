@@ -57,6 +57,8 @@ private:
 	float m_LookVectorToGroundDOTproduct;
 
 	// States
+
+	bool m_CanUsePower;
 	bool m_MoveInput;
 	bool m_Crouched;
 	bool m_CanCrouch;
