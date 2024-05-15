@@ -1,5 +1,9 @@
 #pragma once
-#include "PowerManager.h"
+
+enum class PowerTypes {
+	None,
+	Beam
+};
 
 class Entity;
 class Power
