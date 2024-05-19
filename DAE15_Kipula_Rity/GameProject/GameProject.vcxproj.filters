@@ -117,6 +117,12 @@
     <ClCompile Include="Beam.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WaddleDee.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BrontoBurt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -205,6 +211,12 @@
     </ClInclude>
     <ClInclude Include="Beam.h">
       <Filter>Header Files\Powers</Filter>
+    </ClInclude>
+    <ClInclude Include="WaddleDee.h">
+      <Filter>Header Files\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="BrontoBurt.h">
+      <Filter>Header Files\Enemies</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

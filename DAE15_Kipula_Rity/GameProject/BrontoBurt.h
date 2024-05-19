@@ -2,16 +2,16 @@
 #include "pch.h"
 #include "Enemy.h"
 
-class WaddleDoo final : public Enemy
+class BrontoBurt final : public Enemy
 {
 public:
-	explicit WaddleDoo(
+	explicit BrontoBurt(
 		EntityManager* entityManager,
 		const Vector2f& origin
 	);
 
 	virtual void Update(float elapsedSec) override;
-	virtual void SpecialAttack(Entity* target) override;
+	virtual void GoToTarget(float elapsedSec, Entity* target) override;
 private:
 };
 

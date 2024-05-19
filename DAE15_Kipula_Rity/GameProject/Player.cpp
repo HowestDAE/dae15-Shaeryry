@@ -35,6 +35,7 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	m_GoingUpSteepSlope{ false },
 	m_SlidingDownSlope{ false },
 	m_Leaving{ false },
+	m_IsDying{ false },
 	m_Jumping{ false },
 	m_Flying{ false },
 	m_Sucking{ false },
@@ -48,7 +49,8 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	m_nextWorld{"None"},
 	m_Shooter{ new ProjectileManager(this,m_pManager) }
 { 
-	this->SetHealth(6);
+	SetDeathDelay(INF);
+	this->SetHealth(1);
 	this->GetTransform()->SetPosition(origin);
 	this->GetTransform()->SetWidth(DEFAULT_ENTITY_WIDTH);
 	this->GetTransform()->SetHeight(DEFAULT_ENTITY_HEIGHT); 
@@ -568,8 +570,16 @@ void Player::Update(float elapsedSec)
 	};
 
 	// None related
+	if (HasDied()) {
+		playerTransform->SetGravity(KIRBY_DEATH_GRAVITY);
+		Dying();
+	}
+	else {
+		ClampToScreen();
+	}
+
+	this->SetRotation(15);
 	m_SuckingTargets = false;
-	ClampToScreen();
 }
 
 void Player::Draw() const
@@ -582,6 +592,7 @@ bool Player::CanControl() const
 {
 	return
 		not IsHitstunned()
+		and not HasDied()
 		and not IsSucking()
 		and not IsDeflating()
 		and not IsLeaving()
@@ -654,15 +665,42 @@ bool Player::IsOnDoor() const
 			return onDoor;
 		}
 	};
-	
+	  
 	return false;
+}
+
+void Player::Dying()
+{
+	Transform* playerTransform{ this->GetTransform() };
+
+	SetVisible(true);
+	if (not m_IsDying and not IsDeathPause()) {
+			this->GetCollisionBody()->SetActive(false);
+			const Vector2f randomForce{
+				0,
+				KIRBY_MAXIMUM_DEATH_FORCE,
+			};
+
+			playerTransform->ApplyImpulse(randomForce);
+
+			m_IsDying = true;
+	}
+	else if (m_IsDying and m_DeathClock >= KIRBY_DEATH_RESTART_TIME) {
+		m_pManager->GetScene()->Destroy();
+		m_pManager->GetScene()->GetSceneManager()->LoadScene(m_pManager->GetScene()->GetWorldKey());
+	}
+	else if (m_IsDying) {
+		this->SetRotation(15);
+	}
 }
 
 void Player::UsePower()
 {
-	if (m_pPower != nullptr and m_CanUsePower) {
-		m_pPower->Use();
-		m_CanUsePower = false;
+	if (CanControl() and not IsFlying()) {
+		if (m_pPower != nullptr and m_CanUsePower) {
+			m_pPower->Use();
+			m_CanUsePower = false;
+		}
 	}
 }
 
@@ -688,7 +726,7 @@ void Player::OnCrouch()
 			m_Crouched = false; 
 			m_Absorbed = false;
 		}
-	};
+	}; 
 }
 
 void Player::ClampToScreen()
@@ -699,7 +737,7 @@ void Player::ClampToScreen()
 	const Camera* sceneCamera{ m_pManager->GetScene()->GetCamera() };
 	const Rectf viewport{ sceneCamera->GetCameraViewport() };
 	const Vector2f currentPosition{ playerTransform->GetPosition() };
-
+	const float GUI_Offset{ GUI_HEIGHT + GUI_OFFSET };
 	// X-axis
 	const float minX{ 0 };
 	const float maxX{ (abs(viewport.left) + viewport.width) - playerTransform->GetWidth() };
@@ -713,7 +751,11 @@ void Player::ClampToScreen()
 	
 	// Y-Axis
 	const float minY{ 0 };
-	const float maxY{ (abs(viewport.bottom) + viewport.height) - playerTransform->GetHeight() - WORLD_MARGIN_TOP };
+	const float maxY{ 
+		(abs(viewport.bottom) + (viewport.height - GUI_Offset) )
+		- (playerTransform->GetHeight())
+		- (WORLD_MARGIN_TOP)
+	};
 
 	if (currentPosition.y < minY) {
 		newPosition.y = minY;
@@ -778,8 +820,15 @@ void Player::Suck()
 
 					if (distance < KIRBY_EAT_RANGE) {
 						m_Absorbed = true;
-						m_AbsoredPower = entityAtIndex->GetPower()->GetType();
-						entityAtIndex->SetHealth(0);
+						if (entityAtIndex->GetPower() != nullptr) {
+							m_AbsoredPower = entityAtIndex->GetPower()->GetType();
+						}
+						else {
+							m_AbsoredPower = PowerTypes::None;
+						}
+						entityAtIndex->TakeDamage(entityAtIndex->GetHealth());
+						entityAtIndex->SetVisible(false);
+						//entityAtIndex->SetHealth(0);
 						ShakeComponent(Vector2f(10, 10), 0.8f);
 						SuckEnd();
 					}
@@ -790,7 +839,6 @@ void Player::Suck()
 			}
 		}
 	}
-	
 }
 
 void Player::SuckEnd()
@@ -868,23 +916,34 @@ void Player::OnDamage()
 	m_Sucking = false;
 	m_DeflateClock = KIRBY_DEFLATE_TIME;
 
-	const Vector2f direction{ 1*this->GetTransform()->GetLookDirection(),0};
-	const Vector2f incomingVelocity{ this->GetTransform()->GetCurrentVelocity() + direction };
-	const Vector2f outgoingVelocity{ (incomingVelocity * 100).Normalized() * -KIRBY_KNOCKBACK_ON_HIT};
-	this->GetTransform()->SetVelocity(Vector2f());
-	this->GetTransform()->ApplyImpulse( Vector2f(outgoingVelocity.x,-outgoingVelocity.y) );
-	this->GetTransform()->SetFlipped(false);
+	const bool deathHit{ not IsAlive() };
+	if (not deathHit) {
+		const Vector2f direction{ 1 * this->GetTransform()->GetLookDirection(),0 };
+		const Vector2f incomingVelocity{ this->GetTransform()->GetCurrentVelocity() + direction };
+		const Vector2f outgoingVelocity{ (incomingVelocity * 100).Normalized() * -KIRBY_KNOCKBACK_ON_HIT };
+
+		this->GetTransform()->SetVelocity(Vector2f());
+		this->GetTransform()->ApplyImpulse(Vector2f(outgoingVelocity.x, -outgoingVelocity.y));
+		this->GetTransform()->SetFlipped(false);
+	}
 
 	this->m_pManager->GetScene()->GetCamera()->ShakeComponent(Vector2f(12, 12), .5f);
 	Animation* hurtAnimation;
 	if (not IsBig()) {
-		hurtAnimation = m_pAnimator->PlayAnimation("Hurt", 2, 3);
-		hurtAnimation->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
-		hurtAnimation->SetFlipped(true);
+		if (not deathHit) {
+			hurtAnimation = m_pAnimator->PlayAnimation("Hurt", 2, 3);
+			hurtAnimation->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
+			hurtAnimation->SetFlipped(true);
+		}
+		else {
+			Animation* deathAnimation;
+			deathAnimation = m_pAnimator->PlayAnimation("Death", 1, 3);
+			deathAnimation->Loop(true);
+		}
 	}
 	else {
 		hurtAnimation = m_pAnimator->PlayAnimation("Big_Hurt", 1, 3);
-		hurtAnimation->SetUpdateTime(DEFAULT_ANIMATION_UPDATE*2);
+		hurtAnimation->SetUpdateTime(DEFAULT_ANIMATION_UPDATE * 2);
 		hurtAnimation->SetFlipped(true);
 	} 
 }

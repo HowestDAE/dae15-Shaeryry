@@ -29,7 +29,9 @@ public:
 	bool IsLeaving() const { return m_Leaving; };
 	bool IsCrouched() const { return m_Crouched; };
 	bool IsOnDoor() const;
+	bool IsDeathPause() const { return (HasDied() and (m_DeathClock < KIRBY_DEATH_PAUSE_TIME)); };
 	// Actions
+	void Dying();
 	void UsePower();
 	void CrouchEnd();
 	void OnCrouch();
@@ -63,6 +65,7 @@ private:
 	bool m_Crouched;
 	bool m_CanCrouch;
 
+	bool m_IsDying;
 	bool m_Leaving;
 	bool m_PressedSpace;
 	bool m_Flying;

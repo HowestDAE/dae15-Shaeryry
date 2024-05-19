@@ -18,10 +18,14 @@ Entity::Entity(EntityManager* manager, const Vector2f& origin, const std::string
 	m_pCoreAnimation{ nullptr },
 	m_State{ EntityState::Idle },
 	m_OldState{ EntityState::None },
+	m_Visible{ true },
+	m_Died{ false },
 	m_InAir{ false },
-	m_Invincible{false},
+	m_Invincible{ false },
 	m_TimeElapsedLastHit{ INVINCIBILITY_TIME },
-	m_Health{1} 
+	m_DeathClock{ 0 },
+	m_DeathDelay{ DEFAULT_DEATH_TIME },
+	m_Health{ 1 }
 {
 	m_pAnimator = new AnimationController(this);
 
@@ -40,30 +44,43 @@ Entity::~Entity() {
 
 void Entity::Draw() const
 {		
-	Component::ApplyComponentEffects();
-	if (m_pPower != nullptr) {
-		m_pPower->Draw();
-	};
+	if (m_Visible) {
+		Component::ApplyComponentEffects();
+		if (m_pPower != nullptr) {
+			m_pPower->Draw();
+		};
 
-	m_pAnimator->DrawAnimations();
-	Component::ResetEffectLayer();
+		m_pAnimator->DrawAnimations();
+		Component::ResetEffectLayer();
+	}
 }
 
 void Entity::Update(float elapsedSec)
 {
+	
 	Component::Update(elapsedSec);
 	if (m_pPower != nullptr) {
 		m_pPower->Update(elapsedSec);
 	}	
 
 	GetTransform()->Update(elapsedSec);
-	m_pAnimator->UpdateAnimations(elapsedSec);
+
+	if (not HasDied()) {
+		m_pAnimator->UpdateAnimations(elapsedSec);
+	}
 
 	if (this->GetCollisionBody() != nullptr) {
 		this->GetCollisionBody()->UpdateCollider(elapsedSec);
 		GetCollisionBody()->ApplyDefaultCollisions();
 	}
 	m_TimeElapsedLastHit += elapsedSec;
+
+	if (HasDied()) {
+		m_DeathClock += elapsedSec;
+		//std::cout << m_DeathClock << std::endl;
+	}
+
+
 }
 
 void Entity::MoveTo(float elapsedSec, const Vector2f& direction , float speed)
@@ -166,6 +183,8 @@ void Entity::OnDamage()
 
 
 void Entity::OnDied() {
+	m_Died = true;
+	//this->SetVisible(false); 
 	//std::cout << "ded" << std::endl;
 }
 

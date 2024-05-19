@@ -62,12 +62,13 @@ void Camera::DrawCamera() const
 
 bool Camera::IsPointOnScreen(const Point2f& point) const
 {
+	const float GUI_Offset{ (GUI_HEIGHT + GUI_OFFSET)/2 };
 	Rectf m_CurrentViewport{ GetCameraViewport() };
 	m_CurrentViewport.left = -m_CurrentViewport.left;
 
 	return (
 		point.x > m_CurrentViewport.left && point.x < m_CurrentViewport.left + m_CurrentViewport.width
-		&& point.y > m_CurrentViewport.bottom && point.y < m_CurrentViewport.bottom + m_CurrentViewport.height
+		&& point.y >(m_CurrentViewport.bottom) && point.y < (m_CurrentViewport.bottom) + m_CurrentViewport.height
 	);
 }
 

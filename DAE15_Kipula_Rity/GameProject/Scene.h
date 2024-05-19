@@ -33,7 +33,7 @@ public:
 	bool IsReady() const;
 	float GetTransitionTime() const { return m_SceneTransitionTime; };
 	float GetSceneTimer() const { return m_SceneTime; };
-	float GetSceneInactiveTimer() const { return m_SceneInactiveTime; };
+	float GetSceneInactiveTimer() const { return m_SceneInactiveTime; }; 
 	Game* GetGame() const { return m_pGame; };
 	Player* GetPlayer() const { return m_pPlayer; };
 	Camera* GetCamera() const { return m_pCamera; };
@@ -41,7 +41,9 @@ public:
 	CollisionHandler* GetCollisionHandler() const { return m_pCollisionHandler; };
 	SceneManager* GetSceneManager() const { return m_pSceneManager; };
 	World* GetWorld() const { return m_pWorld; };
+	std::string GetWorldKey() const { return m_WorldKey; };
 private:
+	std::string m_WorldKey;
 	float m_SceneTransitionTime;
 	float m_SceneTime;
 	float m_SceneInactiveTime;

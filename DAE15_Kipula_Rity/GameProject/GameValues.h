@@ -1,22 +1,22 @@
 #pragma once
 
-// Global Values
-
+// UI Values
 static const float GUI_HEIGHT{ 150.f };
 static const float GUI_OFFSET{ 00.f };
 
+// Global Values
 
 static const float INF{ 100000.f };
 static const float DEFAULT_ANIMATION_UPDATE{ .115f };
 static const float WORLD_ANIMATION_UPDATE{ .35f };
-static const float WORLD_MARGIN_TOP{ 30 };
+static const float WORLD_MARGIN_TOP{ 10 };
 
+static const float DEFAULT_DEATH_TIME{ 0.15f };
 static const float DEFAULT_ENTITY_WIDTH{ 40 }; 
 static const float DEFAULT_ENTITY_HEIGHT{ 40 };
 static const float DEFAULT_ENTITY_DECELERATION{ 250 };
 
 static const float INVINCIBILITY_TIME{ 1 };
-
 // Scene
 
 static const float SCENE_TRANSITION_TIME{ .5f };
@@ -62,10 +62,33 @@ static const float KIRBY_FLYING_END_ANIMATION_UPDATE{ DEFAULT_ANIMATION_UPDATE *
 static const float KIRBY_CLIMBING_WIDTH{ DEFAULT_ENTITY_WIDTH };
 static const float KIRBY_CLIMBING_HEIGHT{ 60 };
 
+static const float KIRBY_DEATH_PAUSE_TIME{ 1.5f };
+static const float KIRBY_DEATH_RESTART_TIME{ 5 };
+static const float KIRBY_MAXIMUM_DEATH_FORCE{ 400 };
+static const float KIRBY_DEATH_GRAVITY{ 300 };
+
+// Enemies
+
+static const float DEFAULT_ENEMY_ABILITY_COOLDOWN{ 3 };
+
 // Waddle Doo values
 
 static const float WADDLEDOO_MOVEMENT_SPEED{ 85 };
 static const float WADDLEDOO_ANIMATION_UPDATE{ 0.325f };
+static const float WADDLEDOO_GRAVITY{ GRAVITY / 8 };
+static const float WADDLEDOO_JUMP_POWER{ 275 };
+
+// Waddle Dee values
+
+static const float WADDLEDEE_MOVEMENT_SPEED{ 85 };
+static const float WADDLEDEE_ANIMATION_UPDATE{ 0.325f };
+
+// Bronto Burt values
+
+static const float BRONTO_AMPLITUDE{ 3200 };
+static const float BRONTO_PERIOD{ 1.25f };
+static const float BRONTO_MOVEMENT_SPEED{ 150 };
+static const float BRONTO_ANIMATION_UPDATE{ 0.325f };
 
 // Projectiles
 static const float PROJECTILE_DEFAULT_WIDTH{ 30 };

@@ -66,18 +66,23 @@ public:
 	void SetInvincible(bool status) { m_Invincible = status; }
 	void SetAnimationData(const std::map<int, AnimationData>& entityAnimations) { m_AnimationsData = entityAnimations; };
 	void SetPower(const PowerTypes power);
+	void SetVisible(bool newState) { m_Visible = newState; };
+	void SetDeathDelay(float deathTime) { m_DeathDelay = deathTime; };
+
 	// GET METHODS
 	AnimationController* GetAnimator() const { return m_pAnimator; };
 	Power* GetPower() const { return m_pPower; };
 	int GetHealth() const { return m_Health; };
 	EntityManager* GetManager() const { return m_pManager; };
-
+	float GetHitClock() const { return m_TimeElapsedLastHit; };
+	float GetDeathDelay() const { return m_DeathDelay; };
 	// STATE METHODS
 	bool CanDamage() const;
 	bool IsAlive() const { return (m_Health > 0); };
-	bool IsInvincible() const { return m_Invincible; };
-	float GetHitClock() const { return m_TimeElapsedLastHit; };
-	
+	bool IsInvincible() const { return m_Invincible; };	
+	bool HasDied() const { return m_Died; };
+	bool IsVisible() const { return m_Visible; };
+	bool CanRemove() const { return (m_DeathClock > m_DeathDelay); };
 protected:
 	// manager
 	EntityManager* m_pManager;   
@@ -95,9 +100,13 @@ protected:
 	// variables
 
 	Power* m_pPower;
+	bool m_Died;
 	bool m_Invincible;
+	bool m_Visible;
 	int m_Health;
 	float m_TimeElapsedLastHit;
+	float m_DeathClock;
+	float m_DeathDelay;
 };
 
 

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "EntityManager.h"
 #include "Entity.h"
+#include "Player.h"
 #include "AnimationController.h"
 #include "Scene.h"
 #include "CollisionHandler.h"
@@ -24,9 +25,12 @@ void EntityManager::DrawEntities() const
 		//std::cout << m_Entities[entityIndex]->GetName() << " #" << entityIndex << std::endl;
 		const size_t index{ (entityIndex - 1) };
 		const Entity* entity{ m_Entities[index] };
-		const bool canDraw{ entity != nullptr && entity->IsAlive() };
-		//std::cout << entity->GetName() << " : " << canDraw << std::endl;
+		const bool canDraw{ 
+			entity != nullptr 
+			and not entity->CanRemove() 
+		};
 		if (canDraw) {
+			//std::cout << entity->GetName() << " : " << canDraw << std::endl;
 			entity->Draw();
 		};
 	};
@@ -35,17 +39,28 @@ void EntityManager::DrawEntities() const
 
 void EntityManager::UpdateEntities(float elapsedSec)
 {
+	const bool playerDiedPause{ m_pScene->GetPlayer() != nullptr and m_pScene->GetPlayer()->IsDeathPause() };
+
 	for (size_t entityIndex{0}; entityIndex < m_Entities.size(); entityIndex++) { // change these to for i
 		Entity* entity{ m_Entities[entityIndex] };
-		if (entity != nullptr && entity->IsAlive()) {
-			entity->Update(elapsedSec);
-
-		} else if (entity != nullptr and !entity->IsAlive()) {
-			std::cout << entity->GetName() << " died !" << std::endl;
-
-			delete entity;
-			entityIndex--;
+		
+		const bool Removing{ not entity->IsAlive() and entity->CanRemove() };
+		const bool CanUpdate{ 
+			entity != m_pScene->GetPlayer()
+			and not playerDiedPause
+			or entity == m_pScene->GetPlayer()
 		};
+
+		if (CanUpdate) {
+			if (entity != nullptr and not Removing) {
+				entity->Update(elapsedSec);
+			}
+			else if (entity != nullptr and Removing) {
+				//std::cout << entity->GetName() << " died !" << std::endl;
+				delete entity;
+				entityIndex--;
+			};
+		}
 	};
 }
 

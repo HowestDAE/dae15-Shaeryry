@@ -6,7 +6,11 @@
 #include "Scene.h"
 #include "Camera.h"
 #include "Player.h"
+
+// Enemies
 #include "WaddleDoo.h"
+#include "WaddleDee.h"
+#include "BrontoBurt.h"
 
 EnemySpawnerHandler::EnemySpawnerHandler(Scene* scene):
 	m_pScene{scene}
@@ -35,11 +39,16 @@ void EnemySpawnerHandler::Update(float elapsedSec)
 				// Check if spawner can spawn enemies !
 				if (canSpawnEnemies) {
 					const Vector2f spawnPosition{ currentSpawner->GetTransform()->GetPosition() };
-
 					switch (currentSpawner->GetSpawnerType())
 					{
 						case EnemyType::WaddleDoo:
 							currentSpawner->AddEnemy(new WaddleDoo(m_pScene->GetEntityManager(), spawnPosition));
+							break;
+						case EnemyType::WaddleDee:
+							currentSpawner->AddEnemy(new WaddleDee(m_pScene->GetEntityManager(), spawnPosition));
+							break;
+						case EnemyType::BrontoBurt:
+							currentSpawner->AddEnemy(new BrontoBurt(m_pScene->GetEntityManager(), spawnPosition));
 							break;
 						default:
 							break;
@@ -60,6 +69,7 @@ void EnemySpawnerHandler::Update(float elapsedSec)
 			if (enemyAtIndex->IsAlive()) {
 				enemyVector[enemyIndex]->GoToTarget(elapsedSec, m_pScene->GetPlayer());
 				enemyVector[enemyIndex]->AttackTarget(m_pScene->GetPlayer());
+				enemyVector[enemyIndex]->SpecialAttack(m_pScene->GetPlayer());
 			}
 		}
 

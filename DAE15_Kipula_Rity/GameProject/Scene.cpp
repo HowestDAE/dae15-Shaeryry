@@ -22,6 +22,7 @@ Scene::Scene(Game* game, SceneManager* manager) :
 	m_SceneTime{ 0 },
 	m_SceneInactiveTime{ 0 },
 	m_SceneTransitionTime{ SCENE_TRANSITION_TIME },
+	m_WorldKey{ "" },
 	m_Initialized{ false },
 	m_Paused{ false },
 	m_Destroying{ false },
@@ -72,6 +73,7 @@ void Scene::Initialize(const std::string& worldName)
 
 		m_Initialized = true;
 		m_SceneTime = 0;
+		m_WorldKey = worldName;
 	}
 }
 
@@ -83,7 +85,7 @@ void Scene::Update(float elapsedSec)
 			const Transform* playerTransform{ this->GetPlayer()->GetTransform() };
 			const Vector2f playerPosition{ playerTransform->GetPosition() };
 			const std::vector<CollisionBody*> platforms{ m_pWorld->GetPlatforms() };
-			//std::cout << playerPosition.y << std::endl;
+			//std::cout << "x : " << playerPosition.x << " y : " << playerPosition.y << std::endl;
 
 			for (size_t platformIndex{}; platformIndex < platforms.size(); platformIndex++) {
 				CollisionBody* platform{ platforms[platformIndex] };
@@ -112,24 +114,12 @@ void Scene::Draw() const
 	if (m_Initialized) {
 		glPushMatrix();
 		glTranslatef(0, GUI_HEIGHT, 0);
+
 		m_pCamera->DrawCamera();
 		m_pWorld->Draw();
 		m_pEntityManager->DrawEntities();
-
-		// Show collisions
-		/*for (size_t collisionIndex{}; collisionIndex < m_pCollisionHandler->GetBodies().size(); collisionIndex++) {
-			if (m_pCollisionHandler->GetBodies()[collisionIndex]->IsActive()) {
-				utils::SetColor(Color4f(0, 1, 0, 1));
-			}
-			else {
-				utils::SetColor(Color4f(1, 0, 0, 1));
-			}
-			utils::DrawPolygon(m_pCollisionHandler->GetBodies()[collisionIndex]->GetVertices(),5);
-		}*/
-
-		//
-
 		m_pCamera->Reset(); // reset camera matrix! 
+
 		glPopMatrix();
 
 		m_pGUI->Draw();

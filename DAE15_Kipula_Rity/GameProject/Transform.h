@@ -11,11 +11,14 @@ public:
 	void ApplyPhysics(float elapsedSec);
 
 	void SetGravity(float gravity) { m_Gravity = gravity; };
-	// Position
+
+	// Position & Rotation
 
 	void SetPosition(const Vector2f& newPosition) { m_Position = newPosition; };
 	Vector2f GetPosition() const { return m_Position; };
 	Vector2f GetCenterPosition() const;
+	
+
 	// Velocity 
 
 	void AddVelocity(const Vector2f& Velocity) { m_Velocity += Velocity; };
@@ -55,6 +58,5 @@ private:
 	float m_Acceleration;
 	float m_Deceleration;
 	float m_LookDirection;
-	//float m_Rotation;
 };
 

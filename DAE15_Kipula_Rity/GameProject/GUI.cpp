@@ -97,7 +97,7 @@ void GUI::Draw() const
 
 		// Hurt
 
-	if (m_pScene->GetPlayer()->GetHitClock() <= INVINCIBILITY_TIME*.5f) {
+	if (m_pScene->GetPlayer()->GetHitClock() <= INVINCIBILITY_TIME) {
 		currentPower = "Hurt";
 	}
 
