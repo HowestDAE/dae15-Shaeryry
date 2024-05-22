@@ -50,6 +50,7 @@ public:
 private:
 	void UpdateKeyboard(float elapsedSec);
 
+	PlayerData& m_PlayerData;
 	ProjectileManager* m_Shooter;
 	PowerTypes m_AbsoredPower;
 	std::string m_nextWorld;

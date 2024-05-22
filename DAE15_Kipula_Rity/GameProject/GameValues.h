@@ -17,6 +17,12 @@ static const float DEFAULT_ENTITY_HEIGHT{ 40 };
 static const float DEFAULT_ENTITY_DECELERATION{ 250 };
 
 static const float INVINCIBILITY_TIME{ 1 };
+
+struct PlayerData {
+	int lives;
+	int health;
+	int score;
+};
 // Scene
 
 static const float SCENE_TRANSITION_TIME{ .5f };
@@ -30,6 +36,9 @@ static const float FAKE_AIR_PRESSURE{ 1250 };
 static const float MINIMUM_IMPULSE_LENGTH{10};
 
 // Player values
+
+static const int KIRBY_MAX_HEALTH{ 6 };
+static const int KIRBY_MAX_LIVES{ 5 };
 
 static const float KIRBY_LEAVE_TIME{ (DEFAULT_ANIMATION_UPDATE * 2) };
 static const float KIRBY_MOVEMENT_SPEED{ 270 };
@@ -45,7 +54,7 @@ static const float KIRBY_SHOOTING_TIME{ KIRBY_SHOOT_GROUND_ANIMATION_UPDATE * 4 
 
 static const float KIRBY_ABSORB_RANGE{ 150 };
 static const float KIRBY_EAT_RANGE{ 15 };
-static const float KIRBY_ABSORB_POWER{ 15 };
+static const float KIRBY_ABSORB_POWER{ 15 }; 
 
 static const float KIRBY_DEFLATE_TIME{ DEFAULT_ANIMATION_UPDATE*2 };
 static const float KIRBY_BIG_RUN_UPDATE{ .15f };
@@ -61,6 +70,8 @@ static const float KIRBY_FLYING_END_ANIMATION_UPDATE{ DEFAULT_ANIMATION_UPDATE *
 
 static const float KIRBY_CLIMBING_WIDTH{ DEFAULT_ENTITY_WIDTH };
 static const float KIRBY_CLIMBING_HEIGHT{ 60 };
+static const float KIRBY_BIG_CLIMBING_HEIGHT{ 80 };
+
 
 static const float KIRBY_DEATH_PAUSE_TIME{ 1.5f };
 static const float KIRBY_DEATH_RESTART_TIME{ 5 };

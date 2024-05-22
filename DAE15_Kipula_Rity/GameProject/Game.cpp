@@ -20,6 +20,8 @@ Game::~Game( )
 void Game::Initialize( )
 {
 	// Load scenes hashmap so it's easy to load between the "worlds" !
+	ResetPlayerData();
+
 	m_Scenes["Vegetable Valley 1"] = WorldData{ "VegetableValley",3.f,3,WORLD_ANIMATION_UPDATE,
 		{
 			SpawnerData{ Vector2f(870,165),EnemyType::WaddleDoo,1},
@@ -33,13 +35,14 @@ void Game::Initialize( )
 
 	m_Scenes["Vegetable Valley 2"] = WorldData{ "VegetableValley_2",3.f,4,0.25f,
 		{ 
+			SpawnerData{ Vector2f(870,165),EnemyType::WaddleDoo,1},
 		},
 		{
 		}
 	};
 
 	m_SceneManager = new SceneManager(this);
-	m_SceneManager->LoadScene("Vegetable Valley 1");
+	m_SceneManager->LoadScene("Vegetable Valley 2");
 
 }
 
@@ -125,6 +128,13 @@ void Game::ProcessMouseUpEvent( const SDL_MouseButtonEvent& e )
 	//	std::cout << " middle button " << std::endl;
 	//	break;
 	//}
+}
+
+void Game::ResetPlayerData()
+{
+	m_SavedPlayerData.health = KIRBY_MAX_HEALTH;
+	m_SavedPlayerData.lives = KIRBY_MAX_LIVES;
+	m_SavedPlayerData.score = 0;
 }
 
 void Game::ClearBackground( ) const

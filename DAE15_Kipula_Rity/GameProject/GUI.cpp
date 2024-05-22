@@ -30,7 +30,8 @@ void GUI::Update(float elapsedSec)
 void GUI::Draw() const
 {
 	// Variables
-	const int amountHealth{ m_pScene->GetPlayer()->GetHealth() };
+	const Player* m_Player{ m_pScene->GetPlayer() };
+	const int amountHealth{ m_Player->GetHealth() };
 	const int currentFrame{ int(m_HudClock / 0.5f) };
 	const Rectf viewport{ m_pScene->GetGame()->GetViewPort() };
 	const std::string basePath{ "GUI/Base/" };
@@ -58,9 +59,11 @@ void GUI::Draw() const
 	const float SCORETAG_POSITION_X{ 15 };
 	const float SCORETAG_POSITION_Y{ 23 };
 
-
 	const float POWER_POSITION_X{ 144 };
 	const float POWER_POSITION_Y{ 16 };
+
+	const float LIVES_TEXT_POSITION_X{ 208 };
+	const float LIVES_TEXT_POSITION_Y{ 32 };
 
 	glPushMatrix();
 	glScalef( (viewport.width/ WIDTH), ( (GUI_HEIGHT + GUI_OFFSET) / HEIGHT), 0 );
@@ -88,18 +91,28 @@ void GUI::Draw() const
 	 
 	// Power 
 
-	const Power* playerPower{ m_pScene->GetPlayer()->GetPower() };
-	std::string currentPower{ "None" };
+	const Power* playerPower{ m_Player->GetPower() };
+	std::string currentPower{ "None" }; 
 	
 	if (playerPower != nullptr) {
 		currentPower = playerPower->GetPowerName();
 	};
 
-		// Hurt
+	// Hurt
 
-	if (m_pScene->GetPlayer()->GetHitClock() <= INVINCIBILITY_TIME) {
+	if (m_Player->GetHitClock() <= INVINCIBILITY_TIME) {
 		currentPower = "Hurt";
 	}
+
+	// Died
+
+	if (m_Player->GetHealth() <= 0) {
+		currentPower = "Miss";
+	}
+
+
+
+
 
 	const Texture* PowerIcon;
 	PowerIcon = m_pTextureManager->GetTexture(currentPower, powerIcons + currentPower + ".png");
@@ -109,6 +122,7 @@ void GUI::Draw() const
 
 	// Lives
 
+	const std::string kirbyLives{ std::to_string(m_pScene->GetGame()->GetPlayerData().lives) };
 	const Texture* kirbyIcon;
 	kirbyIcon = m_pTextureManager->GetTexture("KirbyIcon", elementsPath + "KirbyIcon.png");
 	
@@ -120,22 +134,38 @@ void GUI::Draw() const
 		Rectf(KIRBY_POSITION_X, KIRBY_POSITION_Y, frameWidth, kirbyIcon->GetHeight()),
 		Rectf(frameWidth * kirbyAnimationFrame, 0, frameWidth, kirbyIcon->GetHeight())
 	);
+	
+	utils::SetColor(BG_COLOR);
+	utils::FillRect(Rectf(LIVES_TEXT_POSITION_X, LIVES_TEXT_POSITION_Y, float(8 * 2), 8.f));
+
+	const Texture* livesText{ new Texture("0" + kirbyLives, fontPath + "Kirbys-Adventure.ttf",8,FONT_COLOR)};
+	livesText->Draw(
+		Rectf(LIVES_TEXT_POSITION_X, LIVES_TEXT_POSITION_Y, livesText->GetWidth(), livesText->GetHeight())
+	);
 
 	// Health 
 
 	utils::SetColor(BG_COLOR);
-	utils::FillRect(Rectf(HP_POSITION_X, HP_POSITION_Y, (8 * 6), 14));
+	utils::FillRect(Rectf(HP_POSITION_X, HP_POSITION_Y, float(8 * 6), 14.f));
 
-	for (int healthPointIndex{ 0 }; healthPointIndex < amountHealth; healthPointIndex++) {
+	for (int healthPointIndex{ 0 }; healthPointIndex < KIRBY_MAX_HEALTH; healthPointIndex++) {
 		const Texture* healthBarPoint;
-		healthBarPoint = m_pTextureManager->GetTexture("HP", elementsPath + "Health.png");
+		int healthFrames{ 2 };
 
-		const int healthFrames{ 2 };
+		if (healthPointIndex < amountHealth) {
+			healthBarPoint = m_pTextureManager->GetTexture("HP", elementsPath + "Health.png");
+		}
+		else {
+			healthBarPoint = m_pTextureManager->GetTexture("HP_Lost", elementsPath + "HealthLost.png");
+			healthFrames = 1;
+
+		}
+
 		const int kirbyAnimationFrame{ currentFrame % healthFrames };
 		const float frameWidth{ (healthBarPoint->GetWidth() / healthFrames) };
 
 		healthBarPoint->Draw(
-			Rectf(HP_POSITION_X + ((healthBarPoint->GetWidth() / 2) * healthPointIndex), HP_POSITION_Y, frameWidth, healthBarPoint->GetHeight()),
+			Rectf(HP_POSITION_X + ((healthBarPoint->GetWidth() / healthFrames) * healthPointIndex), HP_POSITION_Y, frameWidth, healthBarPoint->GetHeight()),
 			Rectf(frameWidth * kirbyAnimationFrame, 0, frameWidth, healthBarPoint->GetHeight())
 		);
 	}
@@ -143,7 +173,7 @@ void GUI::Draw() const
 	// Score text
 	std::string zeroes{ "" };
 	const int amountNumbers{ 7 };
-	const int scoreAmount{ 9999999 };
+	const int scoreAmount{ m_pScene->GetGame()->GetPlayerData().score };
 
 	for (size_t zeroIndex{}; zeroIndex < (amountNumbers - std::to_string(scoreAmount).size()); zeroIndex++) {
 		zeroes += "0";
@@ -151,13 +181,15 @@ void GUI::Draw() const
 	const Texture* scoreText{ new Texture(zeroes + std::to_string(scoreAmount), fontPath + "Kirbys-Adventure.ttf",8,FONT_COLOR) };
 
 	utils::SetColor(BG_COLOR);
-	utils::FillRect(Rectf(SCORE_POSITION_X, SCORE_POSITION_Y, (8 * amountNumbers), scoreText->GetHeight()));
+	utils::FillRect(Rectf(SCORE_POSITION_X, SCORE_POSITION_Y, float(8 * amountNumbers), livesText->GetHeight()));
 
 	utils::SetColor(FONT_COLOR);
 
 	scoreText->Draw(
-		Rectf(SCORE_POSITION_X,SCORE_POSITION_Y,scoreText->GetWidth(),scoreText->GetHeight())
+		Rectf(SCORE_POSITION_X,SCORE_POSITION_Y, scoreText->GetWidth(), scoreText->GetHeight())
 	);
+
+	delete livesText;
 	delete scoreText;
 	glPopMatrix();
 

@@ -63,7 +63,10 @@ void Scene::Initialize(const std::string& worldName)
 		m_pWorld->SetWorldScale(worldData.scale);
 		m_pWorld->CreateCollisions(m_pCollisionHandler);
 		 
+		// Player init
+		m_pGame->GetPlayerData().health = KIRBY_MAX_HEALTH;
 		m_pPlayer = new Player(m_pEntityManager, Vector2f{ 200.f,200.f }, "Kirby");
+		m_pPlayer->SetHealth(m_pGame->GetPlayerData().health);
 		// Change spawn point dependant on world data later??? Maybe throw in an extra parameter so I can choose where you land!!
 
 		for (size_t spawnerIndex{}; spawnerIndex < worldData.spawners.size(); spawnerIndex++) {

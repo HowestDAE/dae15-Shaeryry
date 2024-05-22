@@ -10,7 +10,7 @@ class EntityManager;
 class TextureManager;
 class EnemySpawnerHandler;
 class CollisionHandler;
-class SceneManager;
+class SceneManager; 
 class Game;
 class Player;
 class Scene final {

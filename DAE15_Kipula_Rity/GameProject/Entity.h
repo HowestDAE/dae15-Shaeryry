@@ -15,6 +15,12 @@ enum class EntityState {
 	SoftLeftSlopeIdle,
 	SoftRightSlopeIdle,
 	SharpRightSlopeIdle,
+
+	BigSharpLeftSlopeIdle,
+	BigSoftLeftSlopeIdle,
+	BigSoftRightSlopeIdle,
+	BigSharpRightSlopeIdle,
+
 	Run,
 	Jump,
 	FallingDown,

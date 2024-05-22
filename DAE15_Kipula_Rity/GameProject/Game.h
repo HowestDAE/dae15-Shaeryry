@@ -27,9 +27,12 @@ public:
 
 	// Custom Methods
 	std::map<std::string, WorldData> GetScenes() const { return m_Scenes; };
+	PlayerData& GetPlayerData() { return m_SavedPlayerData; };
+	void ResetPlayerData();
 private:
 	SceneManager* m_SceneManager;
 	std::map<std::string, WorldData> m_Scenes;
+	PlayerData m_SavedPlayerData;
 
 	// FUNCTIONS
 	void Initialize();

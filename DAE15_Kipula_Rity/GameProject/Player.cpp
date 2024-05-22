@@ -11,6 +11,7 @@
 #include "Scene.h"
 #include "SceneManager.h"
 #include "World.h"
+#include "Game.h"
 
 // Projectiles
 #include "Star.h"
@@ -40,13 +41,15 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	m_Flying{ false },
 	m_Sucking{ false },
 	m_SuckingTargets{ false },
-	m_Absorbed{ false },
+	m_Absorbed{ false },	
 	m_CanShoot{ false },
 	m_PressedSpace{ false },
+	m_CanUsePower{ true },
 	m_MoveInput{ false },
 	m_Crouched{ false },
 	m_CanCrouch{ true },
-	m_nextWorld{"None"},
+	m_nextWorld{ "None" },
+	m_PlayerData{ manager->GetScene()->GetGame()->GetPlayerData() },
 	m_Shooter{ new ProjectileManager(this,m_pManager) }
 { 
 	SetDeathDelay(INF);
@@ -62,6 +65,12 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	playerTracks[static_cast<int>(EntityState::SoftLeftSlopeIdle)] = AnimationData{ "Idle_Soft_Slope_Left",1,2,true };
 	playerTracks[static_cast<int>(EntityState::SharpRightSlopeIdle)] = AnimationData{ "Idle_Sharp_Slope_Right",1,2,true };
 	playerTracks[static_cast<int>(EntityState::SoftRightSlopeIdle)] = AnimationData{ "Idle_Soft_Slope_Right",1,2,true };
+
+	playerTracks[static_cast<int>(EntityState::BigSharpLeftSlopeIdle)] = AnimationData{ "Big_Idle_Sharp_Slope_Left",1,2,true };
+	playerTracks[static_cast<int>(EntityState::BigSoftLeftSlopeIdle)] = AnimationData{"Big_Idle_Soft_Slope_Left",1,2,true };
+	playerTracks[static_cast<int>(EntityState::BigSharpRightSlopeIdle)] = AnimationData{ "Big_Idle_Sharp_Slope_Right",1,2,true };
+	playerTracks[static_cast<int>(EntityState::BigSoftRightSlopeIdle)] = AnimationData{ "Big_Idle_Soft_Slope_Right",1,2,true };
+
 	playerTracks[static_cast<int>(EntityState::Run)] = AnimationData{ "Run",4,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::Jump)] = AnimationData{ "Jump",1,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::FallingDown)] = AnimationData{ "FallingDown",5,(DEFAULT_ANIMATION_UPDATE * .75f),false,2 };
@@ -85,8 +94,6 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 
 	playerTracks[static_cast<int>(EntityState::Crouched)] = AnimationData{ "Crouch",1,DEFAULT_ANIMATION_UPDATE,true };
 
-
-	 
 	this->SetAnimationData(playerTracks);
 }
 
@@ -244,7 +251,9 @@ void Player::Update(float elapsedSec)
 			}
 			else { 
 				if (IsRunning) { // Run
-					nextState = EntityState::BigRun;
+					if (not m_SlidingDownSlope) {
+						nextState = EntityState::BigRun;
+					}
 				}
 				else {
 					nextState = EntityState::BigIdle; // Default idle state !
@@ -258,27 +267,56 @@ void Player::Update(float elapsedSec)
 				abs(currentVelocity.x) <= 0
 			};
 			
-			if (IsIdle) { // Slope idles
+			if (IsIdle or (IsBig() and m_SlidingDownSlope)) { // Slope idles
 				if (goingUp) {
 					if (abs(m_LookVectorToGroundDOTproduct) < 0.8) {
-						nextState = EntityState::SharpLeftSlopeIdle;
+						if (not IsBig()) {
+							nextState = EntityState::SharpLeftSlopeIdle;
+						}
+						else {
+							nextState = EntityState::BigSharpLeftSlopeIdle;
+						}
 					}
 					if (abs(m_LookVectorToGroundDOTproduct) < 0.5) {
-						nextState = EntityState::SoftLeftSlopeIdle;
+						if (not IsBig()) {
+							nextState = EntityState::SoftLeftSlopeIdle;
+						}
+						else {
+							nextState = EntityState::BigSoftLeftSlopeIdle;
+						}
 					}
 				}
 				else if (goingDown) {	
 					if (abs(m_LookVectorToGroundDOTproduct) < 0.8) {
-						nextState = EntityState::SharpRightSlopeIdle;
-					} 
+						if (not IsBig()) {
+							nextState = EntityState::SharpRightSlopeIdle;
+						}
+						else {
+							nextState = EntityState::BigSharpRightSlopeIdle;
+						}
+					}
 					if (abs(m_LookVectorToGroundDOTproduct) < 0.5) {
-						nextState = EntityState::SoftRightSlopeIdle;
+						if (not IsBig()) {
+							nextState = EntityState::SoftRightSlopeIdle;
+						}
+						else {
+							nextState = EntityState::BigSoftRightSlopeIdle;
+						}
 					}
 				}
 			}
 
 			if (IsClimbing) {
-				nextState = EntityState::Climbing;
+				if (not IsBig()) {
+					nextState = EntityState::Climbing;
+				}
+				else {
+					nextState = EntityState::BigRun;
+
+					if (m_pCoreAnimation != nullptr) {
+						m_pCoreAnimation->SetUpdateTime(DEFAULT_ANIMATION_UPDATE * 2);
+					}
+				}
 			}
 
 
@@ -288,7 +326,7 @@ void Player::Update(float elapsedSec)
 			};
 
 			if (wasInAir) { // Checks if the current state is in the air when you're just grounded !
-				if (not IsFull()) {
+				if (not IsBig()) {
 					if (goingUp) {
 						if (abs(m_LookVectorToGroundDOTproduct) < 0.8) {
 							nextState = EntityState::SharpLeftLanded;
@@ -371,6 +409,10 @@ void Player::Update(float elapsedSec)
 		or currentState == EntityState::SoftLeftLanded
 		or currentState == EntityState::SoftRightLanded
 		or currentState == EntityState::SharpRightLanded
+		or currentState == EntityState::BigSharpLeftSlopeIdle
+		or currentState == EntityState::BigSoftLeftSlopeIdle
+		or currentState == EntityState::BigSoftRightSlopeIdle
+		or currentState == EntityState::BigSharpRightSlopeIdle
 	};
 
 	const bool sharpAction{
@@ -378,27 +420,47 @@ void Player::Update(float elapsedSec)
 		or currentState == EntityState::SharpRightSlopeIdle
 		or currentState == EntityState::SharpLeftLanded
 		or currentState == EntityState::SharpRightLanded
+		or currentState == EntityState::BigSharpLeftSlopeIdle
+		or currentState == EntityState::BigSharpRightSlopeIdle
 	};
 
 	if (m_pAnimator->GetPlayingAnimation() != nullptr) {
 		if (slopeAction) {
+			float kirbyWidth{ DEFAULT_ENTITY_WIDTH };
+			float kirbyHeight{ DEFAULT_ENTITY_HEIGHT };
+
+			float kirbySoftHeight{ DEFAULT_ENTITY_HEIGHT };
+			float kirbyClimbingHeight{ KIRBY_CLIMBING_HEIGHT };
+
+			float kirbySoftOffet{ 6.4f };
+
+			if (IsBig()) {
+				kirbyWidth = KIRBY_ENTITY_BIG_WIDTH;
+				kirbyHeight = KIRBY_ENTITY_BIG_HEIGHT;
+				kirbyClimbingHeight = KIRBY_BIG_CLIMBING_HEIGHT;
+				kirbySoftHeight = KIRBY_BIG_CLIMBING_HEIGHT;
+				kirbySoftOffet = (kirbyClimbingHeight - kirbyHeight);
+			}
+
+
+
 			if (sharpAction) {
-				this->GetTransform()->SetWidth(KIRBY_CLIMBING_WIDTH);
-				this->GetTransform()->SetHeight(KIRBY_CLIMBING_HEIGHT);
+				this->GetTransform()->SetWidth(kirbyWidth);
+				this->GetTransform()->SetHeight(kirbyClimbingHeight);
 
 				const Vector2f constantClimbingOffset{
 					0,
-					(DEFAULT_ENTITY_HEIGHT - KIRBY_CLIMBING_HEIGHT)
+					(kirbyHeight - kirbyClimbingHeight)
 				};
 				m_pAnimator->GetPlayingAnimation()->SetOffset(constantClimbingOffset);
 			}
 			else {
-				this->GetTransform()->SetWidth(DEFAULT_ENTITY_WIDTH);
-				this->GetTransform()->SetHeight(DEFAULT_ENTITY_HEIGHT);
+				this->GetTransform()->SetWidth(kirbyWidth);
+				this->GetTransform()->SetHeight(kirbySoftHeight);
 
 				const Vector2f constantClimbingOffset{
 					0,
-					-6.4f
+					-kirbySoftOffet
 				};
 				m_pAnimator->GetPlayingAnimation()->SetOffset(constantClimbingOffset);
 			}
@@ -578,7 +640,6 @@ void Player::Update(float elapsedSec)
 		ClampToScreen();
 	}
 
-	this->SetRotation(15);
 	m_SuckingTargets = false;
 }
 
@@ -688,9 +749,10 @@ void Player::Dying()
 	else if (m_IsDying and m_DeathClock >= KIRBY_DEATH_RESTART_TIME) {
 		m_pManager->GetScene()->Destroy();
 		m_pManager->GetScene()->GetSceneManager()->LoadScene(m_pManager->GetScene()->GetWorldKey());
+		m_PlayerData.lives -= 1;
 	}
 	else if (m_IsDying) {
-		this->SetRotation(15);
+		//this->SetRotation(15);
 	}
 }
 
@@ -946,6 +1008,8 @@ void Player::OnDamage()
 		hurtAnimation->SetUpdateTime(DEFAULT_ANIMATION_UPDATE * 2);
 		hurtAnimation->SetFlipped(true);
 	} 
+
+	m_PlayerData.health = this->GetHealth();
 }
 
 void Player::UpdateKeyboard(float elapsedSec)

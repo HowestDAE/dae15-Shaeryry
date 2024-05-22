@@ -26,7 +26,7 @@ World::World(const WorldData& worldData, TextureManager* textureManager) :
 	// COLLISION SETUP
 
 	const std::string collisionPath{ "Worlds/" + worldData.name + ".svg" };
-	const std::string pathformPath{ "Worlds/" + worldData.name + "_Platforms" + ".svg"};
+	const std::string pathformPath{ "Worlds/" + worldData.name + "_Platforms" + ".svg"};  
 
 	Matrix2x3 transform_matrix{
 		Matrix2x3::CreateTranslationMatrix(0,0) *
