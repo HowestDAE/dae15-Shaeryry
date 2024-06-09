@@ -190,8 +190,6 @@ Use this space to list resources you find helpful and would like to give credit 
 * https://www.spriters-resource.com/nes/kirbyadv/
 * https://www.dafont.com/kirbys-adventure.font
 * https://www.sounds-resource.com/nes/kirbysadventure/sound/19653/
-* [Example 1: cpp reference on std::vector](https://en.cppreference.com/w/cpp/container/vector)
-* ..
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
