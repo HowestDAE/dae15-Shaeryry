@@ -10,6 +10,8 @@ public:
 	explicit Camera(const Rectf& viewport);
 	Camera& operator=(const Camera& rhs) = delete;
 	Camera(const Camera& other) = delete;
+	Camera(Camera&& other) = delete;
+	Camera& operator=(Camera&& other) = delete;
 	~Camera();
 
 	void Reset();

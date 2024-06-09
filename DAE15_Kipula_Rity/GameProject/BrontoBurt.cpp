@@ -13,6 +13,7 @@ BrontoBurt::BrontoBurt(EntityManager* entityManager, const Vector2f& origin) :
 
 	SetPower(PowerTypes::None);
 	m_Speed = BRONTO_MOVEMENT_SPEED;
+	m_Score = 300;
 }
 
 void BrontoBurt::Update(float elapsedSec)

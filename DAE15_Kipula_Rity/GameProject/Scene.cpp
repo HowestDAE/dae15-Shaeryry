@@ -29,6 +29,7 @@ Scene::Scene(Game* game, SceneManager* manager) :
 	m_pWorld{nullptr},
 	m_pPlayer{nullptr}
 {
+	m_pSoundManager = new SoundManager();
 	m_pCamera = new Camera(game->GetViewPort());
 	m_pSpawnerManager = new EnemySpawnerHandler(this);
 	m_pTextureManager = new TextureManager();
@@ -36,7 +37,7 @@ Scene::Scene(Game* game, SceneManager* manager) :
 	m_pEntityManager = new EntityManager(this);
 	m_pGUI = new GUI(this);
 }
-
+ 
 Scene::Scene(Game* game, SceneManager* manager, float transitionTime): 
 	Scene(game,manager)
 { 
@@ -52,6 +53,7 @@ Scene::~Scene()
 	delete m_pCollisionHandler;
 	delete m_pWorld;
 	delete m_pGUI;
+	delete m_pSoundManager;
 }
 
 void Scene::Initialize(const std::string& worldName)
@@ -64,9 +66,10 @@ void Scene::Initialize(const std::string& worldName)
 		m_pWorld->CreateCollisions(m_pCollisionHandler);
 		 
 		// Player init
-		m_pGame->GetPlayerData().health = KIRBY_MAX_HEALTH;
+		//m_pGame->GetPlayerData().health = KIRBY_MAX_HEALTH;
 		m_pPlayer = new Player(m_pEntityManager, Vector2f{ 200.f,200.f }, "Kirby");
 		m_pPlayer->SetHealth(m_pGame->GetPlayerData().health);
+		m_pPlayer->SetPower(m_pGame->GetPlayerData().power);
 		// Change spawn point dependant on world data later??? Maybe throw in an extra parameter so I can choose where you land!!
 
 		for (size_t spawnerIndex{}; spawnerIndex < worldData.spawners.size(); spawnerIndex++) {
@@ -77,6 +80,12 @@ void Scene::Initialize(const std::string& worldName)
 		m_Initialized = true;
 		m_SceneTime = 0;
 		m_WorldKey = worldName;
+
+		// Music
+
+		if (not m_pSceneManager->GetMusic()->IsPlaying()) {
+			m_pSceneManager->PlayMusic(worldData.track);
+		}
 	}
 }
 
@@ -108,7 +117,8 @@ void Scene::Update(float elapsedSec)
 
 	if (m_Destroying) {
 		m_SceneInactiveTime += elapsedSec;
-	}
+	};
+
 	m_SceneTime += elapsedSec;
 }
 

@@ -69,7 +69,7 @@ void CollisionBody::ApplyDefaultCollisions()
 
 
 		if (upCollision.lambda != -1) {
-			positionPostCollision.y = (upCollision.intersectPoint.y-1); 
+			positionPostCollision.y = (upCollision.intersectPoint.y-5); 
 			velocityPostCollision.y = 0; 
 			m_IsGrounded = true;
 		}

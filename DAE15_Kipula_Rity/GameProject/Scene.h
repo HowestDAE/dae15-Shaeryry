@@ -10,21 +10,25 @@ class EntityManager;
 class TextureManager;
 class EnemySpawnerHandler;
 class CollisionHandler;
+class SoundManager;
 class SceneManager; 
 class Game;
 class Player;
-class Scene final {
+
+class Scene {
 public:
 	explicit Scene(Game* game,SceneManager* manager);
 	explicit Scene(Game* game, SceneManager* manager,float transitionTime);
 
 	Scene& operator=(const Scene& rhs) = delete;
 	Scene(const Scene& other) = delete;
-	~Scene();
+	Scene(Scene&& other) = delete;
+	Scene& operator=(Scene&& other) = delete;
+	virtual ~Scene();
 
-	void Initialize(const std::string& worldName);
-	void Update(float elapsedSec);
-	void Draw() const;
+	virtual void Initialize(const std::string& worldName);
+	virtual void Update(float elapsedSec);
+	virtual void Draw() const;
 	void SetPause(bool paused) { m_Paused = paused; };
 	void Destroy();
 		
@@ -42,7 +46,7 @@ public:
 	SceneManager* GetSceneManager() const { return m_pSceneManager; };
 	World* GetWorld() const { return m_pWorld; };
 	std::string GetWorldKey() const { return m_WorldKey; };
-private:
+protected:
 	std::string m_WorldKey;
 	float m_SceneTransitionTime;
 	float m_SceneTime;
@@ -62,5 +66,6 @@ private:
 	CollisionHandler* m_pCollisionHandler;
 	EnemySpawnerHandler* m_pSpawnerManager;
 	SceneManager* m_pSceneManager;
+	SoundManager* m_pSoundManager;
 };
 

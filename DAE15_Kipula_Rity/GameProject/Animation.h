@@ -28,6 +28,8 @@ public:
 	explicit Animation(AnimationController* animationController,const std::string& animationName, const int frames,const int animationPriorityIndex);
 	Animation& operator=(const Animation& rhs) = delete;
 	Animation(const Animation& other) = delete;
+	Animation(Animation&& other) = delete;
+	Animation& operator=(Animation&& other) = delete;
 	~Animation();
 
 	virtual void Update(float elapsedSec);

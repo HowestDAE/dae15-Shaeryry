@@ -11,6 +11,8 @@ public:
 	explicit Component();
 	Component& operator=(const Component& rhs) = delete;
 	Component(const Component& other) = delete;
+	Component(Component&& other) = delete;
+	Component& operator=(Component&& other) = delete;
 	~Component();
 
 	virtual void Update(float elapsedSec);

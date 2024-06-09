@@ -12,8 +12,9 @@ public:
 	SoundEffect& operator=( SoundEffect&& rhs) = delete;
 
 	bool IsLoaded( ) const;
-	bool Play( const int loops ) const;
+	bool Play( const int loops ) const; 
 	void SetVolume( const int value ); 
+	void SetVolume( const float value );
 	int GetVolume( ) const; 
 	static void StopAll( );
 	static void PauseAll( );

@@ -160,7 +160,7 @@ void Texture::CreateFromSurface( SDL_Surface* pSurface )
 		else
 		{
 			pixelFormat = GL_BGRA;
-		}
+		} 
 		break;
 	default:
 		std::cerr << "Texture::CreateFromSurface, unknow pixel format, BytesPerPixel: " << pSurface->format->BytesPerPixel << "\nUse 32 bit or 24 bit images.\n";

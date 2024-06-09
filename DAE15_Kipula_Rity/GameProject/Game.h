@@ -15,7 +15,7 @@ public:
 	// http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-override
 	~Game();
 	
-	void Update( float elapsedSec ) override;
+	void Update( float elapsedSec ) override; 
 	void Draw( ) const override;
 
 	// Event handling
@@ -29,10 +29,12 @@ public:
 	std::map<std::string, WorldData> GetScenes() const { return m_Scenes; };
 	PlayerData& GetPlayerData() { return m_SavedPlayerData; };
 	void ResetPlayerData();
+	void Reset();
 private:
 	SceneManager* m_SceneManager;
 	std::map<std::string, WorldData> m_Scenes;
 	PlayerData m_SavedPlayerData;
+	GameState m_GameState;
 
 	// FUNCTIONS
 	void Initialize();

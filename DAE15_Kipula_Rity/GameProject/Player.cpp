@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Player.h" 
+#include "SoundEffect.h"
 #include "ProjectileManager.h"
 #include "EntityManager.h"
 #include "Entity.h"
@@ -12,6 +13,8 @@
 #include "SceneManager.h"
 #include "World.h"
 #include "Game.h"
+#include "SoundManager.h"
+#include "EndScreen.h"
 
 // Projectiles
 #include "Star.h"
@@ -29,6 +32,7 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	m_LeavingClock{ 0 },
 	m_LookVectorToGroundDOTproduct{ 0 },
 	m_GroundDOTproduct{ 0 },
+	m_AirDistance{ 0 },
 	m_FlyingEndClock{ KIRBY_FLYING_END_ANIMATION_UPDATE },
 	m_ShootingClock{ KIRBY_SHOOTING_TIME },
 	m_DeflateClock{ KIRBY_DEFLATE_TIME },
@@ -78,7 +82,7 @@ Player::Player(EntityManager* manager, const Vector2f& origin, const std::string
 	playerTracks[static_cast<int>(EntityState::Freefall)] = AnimationData{ "Freefall",1,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::Sliding)] = AnimationData{ "Sliding",1,DEFAULT_ANIMATION_UPDATE,true };
 	playerTracks[static_cast<int>(EntityState::Climbing)] = AnimationData{ "Climbing",4,(DEFAULT_ANIMATION_UPDATE * 1.25f),true };
-
+	 
 	playerTracks[static_cast<int>(EntityState::Landed)] = AnimationData{ "Landed",1,DEFAULT_ANIMATION_UPDATE,false,2 };
 	playerTracks[static_cast<int>(EntityState::SharpLeftLanded)] = AnimationData{ "Sharp_Left_Landing",1,DEFAULT_ANIMATION_UPDATE,false,2 };
 	playerTracks[static_cast<int>(EntityState::SoftLeftLanded)] = AnimationData{ "Soft_Left_Landing",1,DEFAULT_ANIMATION_UPDATE,false,2 };
@@ -171,7 +175,9 @@ void Player::Update(float elapsedSec)
 
 	// Physics && Movement
 
-	this->GetTransform()->ApplyPhysics(elapsedSec);
+	if (not IsDeathPause()) {
+		this->GetTransform()->ApplyPhysics(elapsedSec);
+	}
 
 	// Default Update
 
@@ -248,7 +254,7 @@ void Player::Update(float elapsedSec)
 				else {
 					nextState = EntityState::Idle; // Default idle state !
 				}
-			}
+			} 
 			else { 
 				if (IsRunning) { // Run
 					if (not m_SlidingDownSlope) {
@@ -319,13 +325,12 @@ void Player::Update(float elapsedSec)
 				}
 			}
 
-
 			// Landing
 			const bool wasInAir{
 				InAir()
 			};
 
-			if (wasInAir) { // Checks if the current state is in the air when you're just grounded !
+			if (wasInAir /*and abs(m_AirDistance)>.25f*/) { // Checks if the current state is in the air when you're just grounded !
 				if (not IsBig()) {
 					if (goingUp) {
 						if (abs(m_LookVectorToGroundDOTproduct) < 0.8) {
@@ -351,6 +356,7 @@ void Player::Update(float elapsedSec)
 					nextState = EntityState::BigLanded;
 				}
 			}
+			m_AirDistance = 0;
 		}
 		else { //  Air Logic
 			// Falling
@@ -361,6 +367,7 @@ void Player::Update(float elapsedSec)
 				else {
 					nextState = EntityState::BigFreefall;
 				}
+				//m_AirDistance += playerTransform->GetCurrentVelocity().y * elapsedSec;
 			}
 			// Jumping
 			if (m_Jumping) {
@@ -473,7 +480,7 @@ void Player::Update(float elapsedSec)
 	}
 	
 	// Climbing stuff
-	if (currentState == EntityState::Climbing) {
+	if (currentState == EntityState::Climbing) { 
 		if (m_pAnimator->GetPlayingAnimation()!=nullptr) {
 			this->GetTransform()->SetWidth(KIRBY_CLIMBING_WIDTH);
 			this->GetTransform()->SetHeight(KIRBY_CLIMBING_HEIGHT);
@@ -505,6 +512,7 @@ void Player::Update(float elapsedSec)
 	};
 
 	if (HasLanded) {
+		this->GetSoundManager()->GetSound("Landed")->Play(0);
 		m_JumpClock = 0;
 		m_Jumping = false;
 		if (not IsFull()) {
@@ -624,10 +632,17 @@ void Player::Update(float elapsedSec)
 			m_LeavingClock += elapsedSec;
 		}
 		if (HasLeft()) {
-			//m_pAnimator->PlayAnimation("Left", 1, 3)->Loop(true);
-			
+			this->GetSoundManager()->GetSound("WorldEnter")->Play(0);
 			m_pManager->GetScene()->Destroy();
-			m_pManager->GetScene()->GetSceneManager()->LoadScene(m_nextWorld);
+			//m_pAnimator->PlayAnimation("Left", 1, 3)->Loop(true);
+			if (m_nextWorld == "EndGame") {
+				EndScreen* endScreen{ new EndScreen(m_pManager->GetScene()->GetGame(),m_pManager->GetScene()->GetSceneManager())};
+				endScreen->Initialize("Endgame");
+				m_pManager->GetScene()->GetSceneManager()->LoadScene(endScreen);
+ 			}
+			else {
+				m_pManager->GetScene()->GetSceneManager()->LoadScene(m_nextWorld);
+			};
 		};
 	};
 
@@ -646,7 +661,13 @@ void Player::Update(float elapsedSec)
 void Player::Draw() const
 {
 	m_Shooter->Draw();
-	Entity::Draw();
+	Entity::Draw(); 
+}
+
+void Player::SetPower(const PowerTypes power)
+{
+	Entity::SetPower(power);
+	m_PlayerData.power = power;
 }
 
 bool Player::CanControl() const
@@ -690,12 +711,12 @@ bool Player::IsDeflating() const
 
 bool Player::IsBig() const
 {
-	return 
-		IsSucking()
+	return
+		(IsSucking()
 		or IsDeflating()
 		or IsFull()
 		or IsShooting()
-		or IsFlying(); // Check if you're shooting
+		or IsFlying()) and not m_IsDying;
 }
 
 bool Player::IsShooting() const
@@ -736,22 +757,36 @@ void Player::Dying()
 
 	SetVisible(true);
 	if (not m_IsDying and not IsDeathPause()) {
-			this->GetCollisionBody()->SetActive(false);
-			const Vector2f randomForce{
-				0,
-				KIRBY_MAXIMUM_DEATH_FORCE,
-			};
+		this->GetCollisionBody()->SetActive(false);
+		const Vector2f randomForce{
+			0,
+			KIRBY_MAXIMUM_DEATH_FORCE,
+		};
 
-			playerTransform->ApplyImpulse(randomForce);
+		playerTransform->ApplyImpulse(randomForce);
 
-			m_IsDying = true;
-	}
-	else if (m_IsDying and m_DeathClock >= KIRBY_DEATH_RESTART_TIME) {
+		m_IsDying = true;
+		
+		if (m_pCoreAnimation != nullptr) {
+			m_pCoreAnimation->DeleteAnimation();
+		}
+
+		Animation* deathAnimation;
+		deathAnimation = m_pAnimator->PlayAnimation("Death", 1, 3);
+		deathAnimation->Loop(true);
+	} else if (m_IsDying and m_DeathClock >= KIRBY_DEATH_RESTART_TIME) {
 		m_pManager->GetScene()->Destroy();
-		m_pManager->GetScene()->GetSceneManager()->LoadScene(m_pManager->GetScene()->GetWorldKey());
 		m_PlayerData.lives -= 1;
-	}
-	else if (m_IsDying) {
+
+		if (m_PlayerData.lives > 0) {
+			m_PlayerData.health = KIRBY_MAX_HEALTH;
+			m_pManager->GetScene()->GetSceneManager()->LoadScene(m_pManager->GetScene()->GetWorldKey());
+		}
+		else {
+			m_pManager->GetScene()->GetGame()->Reset();
+		}
+
+	} else if (m_IsDying) {
 		//this->SetRotation(15);
 	}
 }
@@ -782,7 +817,7 @@ void Player::OnCrouch()
 
 		if (m_Absorbed) { 
 			this->SetPower(m_AbsoredPower);
-			
+
 			m_pAnimator->PlayAnimation("Absorb", 3, 3)->SetUpdateTime( KIRBY_DEFLATE_TIME/3 );
 			m_DeflateClock = 0;
 			m_Crouched = false; 
@@ -827,6 +862,12 @@ void Player::ClampToScreen()
 	}
 
 	playerTransform->SetPosition(newPosition);
+
+	if (IsAlive()) {
+		if (currentPosition.y < minY) {
+			this->TakeDamage(100);
+		}
+	}
 }
 
 void Player::Jump()
@@ -835,6 +876,7 @@ void Player::Jump()
 		m_JumpClock = 0;
 		m_Jumping = true;
 		GetTransform()->SetVelocity(Vector2f{ GetTransform()->GetVelocity().x ,0 });
+		this->GetSoundManager()->GetSound("Jump")->Play(0);
 	}
 }
 
@@ -854,6 +896,7 @@ void Player::SuckStart()
 	if (CanControl() and not IsFlying() and not IsCrouched() and not HasPower()) {
 		if (not m_Sucking and not IsFull() and not IsShooting()) {
 			m_pAnimator->PlayAnimation("SuckStart", 2, 3)->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
+			this->GetSoundManager()->GetSound("Suck")->Play(0); 
 			m_Sucking = true;
 		}
 	}
@@ -893,6 +936,7 @@ void Player::Suck()
 						//entityAtIndex->SetHealth(0);
 						ShakeComponent(Vector2f(10, 10), 0.8f);
 						SuckEnd();
+						this->GetSoundManager()->GetSound("Eaten")->Play(0);
 					}
 
 					m_SuckingTargets = true;
@@ -912,6 +956,7 @@ void Player::SuckEnd()
 		}
 		m_Sucking = false;
 		m_CanShoot = false;
+		this->GetSoundManager()->GetSound("Suck")->StopAll();
 	}
 }
 
@@ -923,6 +968,7 @@ void Player::Shoot()
 		const Vector2f origin{ playerTransform->GetPosition() + Vector2f(playerTransform->GetWidth()/2,DEFAULT_ENTITY_HEIGHT/2) };
 		const Vector2f target{ origin + Vector2f(STAR_RANGE * playerTransform->GetLookDirection(),0) };
 		m_pAnimator->PlayAnimation("GroundShoot", 4, 3)->SetUpdateTime(KIRBY_SHOOT_GROUND_ANIMATION_UPDATE);
+		this->GetSoundManager()->GetSound("Projectile_B")->Play(0);
 
 		m_Shooter->AddProjectile(new Star(origin, target, STAR_DURATION));
 		m_ShootingClock = 0;
@@ -933,9 +979,10 @@ void Player::Fly()
 {
 	if (not IsFlying() and not IsBig() and not IsOnDoor() and not IsCrouched()) {
 		m_pAnimator->PlayAnimation("Fly_Start", 4, 2)->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
+		this->GetSoundManager()->GetSound("FlyStart")->Play(0);
 		m_Flying = true;
 	}
-}
+} 
 
 void Player::FlyEnd() 
 {
@@ -947,6 +994,8 @@ void Player::FlyEnd()
 		const Vector2f origin{ playerTransform->GetPosition() + Vector2f(playerTransform->GetWidth() / 2,DEFAULT_ENTITY_HEIGHT / 2) };
 		const Vector2f target{ origin + Vector2f(CLOUD_RANGE * playerTransform->GetLookDirection(),0) };
 		m_Shooter->AddProjectile(new Cloud(origin, target, CLOUD_DURATION));
+
+		this->GetSoundManager()->GetSound("Projectile_A")->Play(0);
 
 		m_FlyingEndClock = 0;
 	}
@@ -989,27 +1038,40 @@ void Player::OnDamage()
 		this->GetTransform()->SetFlipped(false);
 	}
 
+	this->GetSoundManager()->GetSound("Suck")->StopAll();
+	this->GetSoundManager()->GetSound("Hurt")->Play(0);
 	this->m_pManager->GetScene()->GetCamera()->ShakeComponent(Vector2f(12, 12), .5f);
+
 	Animation* hurtAnimation;
+
+
+	if (deathHit) {
+		if (not IsBig()) {
+			Animation* deathAnimation;
+			deathAnimation = m_pAnimator->PlayAnimation("Death", 1, 0);
+			deathAnimation->Loop(true);
+		}
+
+		this->GetTransform()->SetVelocity(Vector2f());
+		this->GetSoundManager()->GetSound("Death")->Play(0);
+		m_pManager->GetScene()->GetSceneManager()->StopMusic();
+	}
+
 	if (not IsBig()) {
 		if (not deathHit) {
 			hurtAnimation = m_pAnimator->PlayAnimation("Hurt", 2, 3);
 			hurtAnimation->SetUpdateTime(DEFAULT_ANIMATION_UPDATE);
 			hurtAnimation->SetFlipped(true);
 		}
-		else {
-			Animation* deathAnimation;
-			deathAnimation = m_pAnimator->PlayAnimation("Death", 1, 3);
-			deathAnimation->Loop(true);
-		}
 	}
 	else {
 		hurtAnimation = m_pAnimator->PlayAnimation("Big_Hurt", 1, 3);
 		hurtAnimation->SetUpdateTime(DEFAULT_ANIMATION_UPDATE * 2);
 		hurtAnimation->SetFlipped(true);
-	} 
+	};
 
 	m_PlayerData.health = this->GetHealth();
+
 }
 
 void Player::UpdateKeyboard(float elapsedSec)

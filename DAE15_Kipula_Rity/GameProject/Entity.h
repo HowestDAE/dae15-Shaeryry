@@ -4,6 +4,7 @@
 #include "Component.h"
 #include "Animation.h"
 #include "Power.h" 
+#include "SoundManager.h"
 #include <iostream>
 #include <map>
 #include <vector>
@@ -54,6 +55,8 @@ public:
 	);
 	Entity& operator=(const Entity& rhs) = delete;
 	Entity(const Entity& other) = delete;
+	Entity(Entity&& other) = delete;
+	Entity& operator=(Entity&& other) = delete;
 	virtual ~Entity();
 
 	virtual void Update(float elapsedSec);
@@ -71,7 +74,7 @@ public:
 	void SetState(EntityState newState);
 	void SetInvincible(bool status) { m_Invincible = status; }
 	void SetAnimationData(const std::map<int, AnimationData>& entityAnimations) { m_AnimationsData = entityAnimations; };
-	void SetPower(const PowerTypes power);
+	virtual void SetPower(const PowerTypes power);
 	void SetVisible(bool newState) { m_Visible = newState; };
 	void SetDeathDelay(float deathTime) { m_DeathDelay = deathTime; };
 
@@ -80,6 +83,7 @@ public:
 	Power* GetPower() const { return m_pPower; };
 	int GetHealth() const { return m_Health; };
 	EntityManager* GetManager() const { return m_pManager; };
+	SoundManager* GetSoundManager() const { return m_pSoundManager; };
 	float GetHitClock() const { return m_TimeElapsedLastHit; };
 	float GetDeathDelay() const { return m_DeathDelay; };
 	// STATE METHODS
@@ -92,6 +96,7 @@ public:
 protected:
 	// manager
 	EntityManager* m_pManager;   
+	SoundManager* m_pSoundManager; 
 	// states
 
 	bool m_InAir;

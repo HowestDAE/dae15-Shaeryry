@@ -5,6 +5,8 @@
 #include "Enemy.h"
 #include "Transform.h"
 #include "AnimationController.h"
+#include "GameOver.h"
+#include "EndScreen.h"
 
 Game::Game( const Window& window ) 
 	:BaseGame{ window }
@@ -20,31 +22,39 @@ Game::~Game( )
 void Game::Initialize( )
 {
 	// Load scenes hashmap so it's easy to load between the "worlds" !
-	ResetPlayerData();
 
 	m_Scenes["Vegetable Valley 1"] = WorldData{ "VegetableValley",3.f,3,WORLD_ANIMATION_UPDATE,
 		{
 			SpawnerData{ Vector2f(870,165),EnemyType::WaddleDoo,1},
 			SpawnerData{ Vector2f(1428,118),EnemyType::WaddleDee,1},
+			SpawnerData{ Vector2f(1085,200),EnemyType::BrontoBurt,1},
 			SpawnerData{ Vector2f(1958,200),EnemyType::BrontoBurt,1},
+			SpawnerData{ Vector2f(2761,165),EnemyType::HotHead,1},
 		},
 		{
 			Door{  Rectf(2904,170,150/3,200/3),"Vegetable Valley 2" }
-		}
+		},
+		"Vegetable Valley"
 	};
 
 	m_Scenes["Vegetable Valley 2"] = WorldData{ "VegetableValley_2",3.f,4,0.25f,
 		{ 
-			SpawnerData{ Vector2f(870,165),EnemyType::WaddleDoo,1},
-		},
+			SpawnerData{ Vector2f(600,165),EnemyType::WaddleDee,1},
+			SpawnerData{ Vector2f(1125,187),EnemyType::Sparky,1},
+			SpawnerData{ Vector2f(1470,140),EnemyType::WaddleDee,1},
+			SpawnerData{ Vector2f(2570,175),EnemyType::Sparky,1},
+		}, 
 		{
-		}
+			Door{ Rectf(2904,170,150 / 3,200 / 3),"EndGame" } 
+		},
+		"Vegetable Valley"
 	};
 
+	ResetPlayerData();
 	m_SceneManager = new SceneManager(this);
-	m_SceneManager->LoadScene("Vegetable Valley 2");
+	m_SceneManager->LoadScene("Vegetable Valley 1");
 
-}
+} 
 
 void Game::Cleanup( )
 {
@@ -68,7 +78,7 @@ void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 		m_SceneManager->GetCurrentScene()->GetPlayer()->OnKeyDownEvent(e);
 	}
 }
-
+ 
 void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
 {
 	if (m_SceneManager->GetCurrentScene()->GetPlayer() != nullptr) {
@@ -135,6 +145,14 @@ void Game::ResetPlayerData()
 	m_SavedPlayerData.health = KIRBY_MAX_HEALTH;
 	m_SavedPlayerData.lives = KIRBY_MAX_LIVES;
 	m_SavedPlayerData.score = 0;
+	m_SavedPlayerData.power = PowerTypes::None;
+}
+
+void Game::Reset()
+{
+	GameOver* gameOverScreen{ new GameOver(this,m_SceneManager) };
+	gameOverScreen->Initialize("GAMEOVER");
+	m_SceneManager->LoadScene(gameOverScreen/*"Vegetable Valley 1"*/);
 }
 
 void Game::ClearBackground( ) const

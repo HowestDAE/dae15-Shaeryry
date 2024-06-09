@@ -12,6 +12,8 @@ public:
 	explicit CollisionHandler();
 	CollisionHandler& operator=(const CollisionHandler& rhs) = delete;
 	CollisionHandler(const CollisionHandler& other) = delete;
+	CollisionHandler(CollisionHandler&& other) = delete;
+	CollisionHandler& operator=(CollisionHandler&& other) = delete;
 	~CollisionHandler();
 
 	//void Update(float elapsedSec);

@@ -12,7 +12,8 @@ WaddleDoo::WaddleDoo(EntityManager* entityManager, const Vector2f& origin) :
 	this->SetAnimationData(waddleDooTracks); 
 	 
 	m_Speed = WADDLEDOO_MOVEMENT_SPEED;
-	SetPower( PowerTypes::Beam );
+	m_Score = 300;
+	SetPower( PowerTypes::Beam);
 	this->GetTransform()->SetGravity(WADDLEDOO_GRAVITY);
 } 
 

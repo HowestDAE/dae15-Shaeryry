@@ -1,9 +1,5 @@
 #pragma once
-
-enum class PowerTypes {
-	None,
-	Beam
-};
+#include "pch.h"
 
 class Entity;
 class Power
@@ -13,6 +9,8 @@ public:
 	explicit Power(Entity* entity); 
 	Power& operator=(const Power& rhs) = delete;
 	Power(const Power& other) = delete;
+	Power(Power&& other) = delete;
+	Power& operator=(Power&& other) = delete;
 	virtual ~Power();
 
 	virtual void Update(float elapsedSec);

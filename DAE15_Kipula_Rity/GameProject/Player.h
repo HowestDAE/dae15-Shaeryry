@@ -8,12 +8,16 @@ class Player final : public Entity
 {
 public:
 	explicit Player(EntityManager* manager, const Vector2f& origin, const std::string& entityName);
+	Player(const Player& other) = delete;
+	Player& operator=(const Player& other) = delete;
+	Player(Player&& other) = delete;
+	Player& operator=(Player&& other) = delete;
 	~Player();
 	void OnKeyDownEvent(const SDL_KeyboardEvent& e);
 	void OnKeyUpEvent(const SDL_KeyboardEvent& e);
 	virtual void Update(float elapsedSec) override;
 	virtual void Draw() const override;
-	
+	virtual void SetPower(const PowerTypes power) override;
 	//States
 	bool CanControl() const;
 	bool HasPower() const;
@@ -89,5 +93,6 @@ private:
 	float m_DeflateClock;
 	float m_JumpClock;
 	float m_LeavingClock;
+	float m_AirDistance;
 };
 

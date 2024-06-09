@@ -108,10 +108,7 @@ void GUI::Draw() const
 
 	if (m_Player->GetHealth() <= 0) {
 		currentPower = "Miss";
-	}
-
-
-
+	};
 
 
 	const Texture* PowerIcon;
@@ -138,7 +135,7 @@ void GUI::Draw() const
 	utils::SetColor(BG_COLOR);
 	utils::FillRect(Rectf(LIVES_TEXT_POSITION_X, LIVES_TEXT_POSITION_Y, float(8 * 2), 8.f));
 
-	const Texture* livesText{ new Texture("0" + kirbyLives, fontPath + "Kirbys-Adventure.ttf",8,FONT_COLOR)};
+	const Texture* livesText{ new Texture("0" + kirbyLives, fontPath + "Kirbys-Adventure.ttf",8,FONT_COLOR) };
 	livesText->Draw(
 		Rectf(LIVES_TEXT_POSITION_X, LIVES_TEXT_POSITION_Y, livesText->GetWidth(), livesText->GetHeight())
 	);

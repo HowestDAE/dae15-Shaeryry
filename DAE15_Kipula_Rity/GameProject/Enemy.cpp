@@ -3,6 +3,9 @@
 #include "EntityManager.h"
 #include "Transform.h"
 #include "CollisionBody.h"
+#include "Scene.h"
+#include "Game.h"
+#include "SoundEffect.h"
 
 Enemy::Enemy(EntityManager* entityManager, const Vector2f& origin, const std::string& entityName)
 	:
@@ -11,6 +14,7 @@ Enemy::Enemy(EntityManager* entityManager, const Vector2f& origin, const std::st
 	m_SavedDirection{ false },
 	m_Clock{ 0 },
 	m_Speed{ 0 },
+	m_Score{ 0 },
 	m_SpecialCooldown{ DEFAULT_ENEMY_ABILITY_COOLDOWN },
 	m_SpecialClock{ m_SpecialCooldown }
 {
@@ -64,9 +68,16 @@ void Enemy::AttackTarget(Entity* target)
 
 void Enemy::SpecialAttack(Entity* target)
 {
-	if (CanUseSpecial()) {
+	if (CanUseSpecial()) { 
 		m_SpecialClock = 0;
 	};
+}
+
+void Enemy::OnDied()
+{
+	m_pManager->GetScene()->GetGame()->GetPlayerData().score += m_Score;
+	this->GetSoundManager()->GetSound("EnemyDeath")->Play(0);
+	Entity::OnDied();
 }
 
 void Enemy::SetTargetDirection(Entity* target)

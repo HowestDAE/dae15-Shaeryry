@@ -7,6 +7,10 @@ class GUI final
 {
 public:
 	explicit GUI(Scene* scene);
+	GUI(const GUI& other) = delete;
+	GUI& operator=(const GUI& other) = delete;
+	GUI(GUI&& other) = delete;
+	GUI& operator=(GUI&& other) = delete;
 	~GUI();
 	void Update(float elapsedSec);
 	void Draw() const;

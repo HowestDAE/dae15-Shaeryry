@@ -12,6 +12,8 @@ public:
 	explicit CollisionBody(Component* Instance);
 	CollisionBody& operator=(const CollisionBody& rhs) = delete;
 	CollisionBody(const CollisionBody& other) = delete;
+	CollisionBody(CollisionBody&& other) = delete;
+	CollisionBody& operator=(CollisionBody&& other) = delete;
 	~CollisionBody();
 
 	void DrawCollider() const;

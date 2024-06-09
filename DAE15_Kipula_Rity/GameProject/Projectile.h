@@ -11,6 +11,8 @@ public:
 	explicit Projectile(const std::string& projectileName,float duration,const Vector2f& from, const Vector2f& to);
 	Projectile& operator=(const Projectile& rhs) = delete;
 	Projectile(const Projectile& other) = delete;
+	Projectile(Projectile&& other) = delete;
+	Projectile& operator=(Projectile&& other) = delete;
 	~Projectile();
 
 	void SetSpeed(float speed) { m_Speed = speed; };

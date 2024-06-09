@@ -5,7 +5,9 @@
 enum class EnemyType {
 	WaddleDoo,
 	WaddleDee,
-	BrontoBurt
+	BrontoBurt,
+	HotHead,
+	Sparky
 };
 
 class Enemy : public Entity
@@ -21,6 +23,7 @@ public:
 	virtual void GoToTarget(float elapsedSec,Entity* target);
 	virtual void AttackTarget(Entity* target);	
 	virtual void SpecialAttack(Entity* target);
+	virtual void OnDied() override;
 
 	void SetEnemyVisibleState(bool newState) { m_IsVisible = newState; };
 	bool IsEnemyVisible() const { return m_IsVisible; }; 
@@ -34,6 +37,7 @@ protected:
 	float m_Speed; 
 	float m_SpecialClock;
 	float m_Clock;
+	int m_Score;
 private:
 	bool m_IsVisible;
 	bool m_SavedDirection;

@@ -27,6 +27,7 @@ struct WorldData {
 	float updateFrames;
 	std::vector<SpawnerData> spawners;
 	std::vector<Door>doors;
+	std::string track;
 };
 
 class Camera;
@@ -36,6 +37,8 @@ public:
 	explicit World(const WorldData& worldData,TextureManager* textureManager);
 	World& operator=(const World& rhs) = delete;
 	World(const World& other) = delete;
+	World(World&& other) = delete;
+	World& operator=(World&& other) = delete;
 
 	~World();	
 	void Draw() const;

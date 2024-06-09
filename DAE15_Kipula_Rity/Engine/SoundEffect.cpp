@@ -46,6 +46,11 @@ void SoundEffect::SetVolume( const int value )
 	}
 }
 
+void SoundEffect::SetVolume(const float value)
+{
+	SetVolume( int(128 * value) );
+}
+
 int SoundEffect::GetVolume( ) const
 {
 	if ( m_pMixChunk != nullptr )

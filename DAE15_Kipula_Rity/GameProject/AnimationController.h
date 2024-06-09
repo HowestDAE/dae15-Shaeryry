@@ -13,6 +13,8 @@ public:
 	explicit AnimationController(Component* parent);
 	AnimationController& operator=(const AnimationController& rhs) = delete;
 	AnimationController(const AnimationController& other) = delete;
+	AnimationController(AnimationController&& other) = delete;
+	AnimationController& operator=(AnimationController&& other) = delete;
 	~AnimationController();
 
 	void DrawAnimations() const;

@@ -11,6 +11,8 @@
 #include "WaddleDoo.h"
 #include "WaddleDee.h"
 #include "BrontoBurt.h"
+#include "HotHead.h"
+#include "Sparky.h"
 
 EnemySpawnerHandler::EnemySpawnerHandler(Scene* scene):
 	m_pScene{scene}
@@ -49,6 +51,12 @@ void EnemySpawnerHandler::Update(float elapsedSec)
 							break;
 						case EnemyType::BrontoBurt:
 							currentSpawner->AddEnemy(new BrontoBurt(m_pScene->GetEntityManager(), spawnPosition));
+							break;
+						case EnemyType::HotHead:
+							currentSpawner->AddEnemy(new HotHead(m_pScene->GetEntityManager(), spawnPosition));
+							break;
+						case EnemyType::Sparky:
+							currentSpawner->AddEnemy(new Sparky(m_pScene->GetEntityManager(), spawnPosition));
 							break;
 						default:
 							break;

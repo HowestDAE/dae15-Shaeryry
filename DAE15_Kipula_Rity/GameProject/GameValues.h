@@ -18,10 +18,22 @@ static const float DEFAULT_ENTITY_DECELERATION{ 250 };
 
 static const float INVINCIBILITY_TIME{ 1 };
 
+enum class PowerTypes {
+	None,
+	Beam
+};
+
+enum class GameState {
+	Playing,
+	GameOver,
+	Cleared,
+};
+
 struct PlayerData {
 	int lives;
 	int health;
 	int score;
+	PowerTypes power;
 };
 // Scene
 
@@ -101,7 +113,20 @@ static const float BRONTO_PERIOD{ 1.25f };
 static const float BRONTO_MOVEMENT_SPEED{ 150 };
 static const float BRONTO_ANIMATION_UPDATE{ 0.325f };
 
+// Hot Head values
+
+static const float HOT_HEAD_MOVEMENT_SPEED{ 100 };
+static const float HOT_HEAD_ANIMATION_UPDATE{ 0.325f };
+
+// Sparky values
+
+static const float SPARKY_MOVEMENT_SPEED{ 180 };
+static const float SPARKY_JUMP_HEIGHT{ 600 };
+static const float SPARKY_ANIMATION_UPDATE{ 0.325f };
+
+
 // Projectiles
+
 static const float PROJECTILE_DEFAULT_WIDTH{ 30 };
 static const float PROJECTILE_DEFAULT_HEIGHT{ 30 };
 

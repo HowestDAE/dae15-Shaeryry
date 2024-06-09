@@ -1,16 +1,22 @@
 #include "pch.h"
 #include <utils.h>
 #include "SceneManager.h"
+#include "SoundStream.h"
 #include "Scene.h"
 #include "Game.h"
 
 SceneManager::SceneManager(Game* game) :
-	m_pGame{game}
+	m_pGame{ game },
+	m_pMusic{ nullptr }
 {
 }
 
 SceneManager::~SceneManager()
 {
+	if (m_pMusic != nullptr) {
+		delete m_pMusic;
+		m_pMusic = nullptr;
+	}
 	for (size_t sceneIndex{}; sceneIndex < m_Scenes.size(); sceneIndex++) {
 		delete m_Scenes[sceneIndex];
 		m_Scenes[sceneIndex] = nullptr;
@@ -72,6 +78,31 @@ Scene* SceneManager::GetPreviousScene() const
 	}
 
 	return nullptr;
+}
+
+void SceneManager::PlayMusic(const std::string& track)
+{
+	StopMusic();
+
+	m_pMusic = new SoundStream("Songs/" + track + ".mp3");
+	m_pMusic->Play(true);
+	m_pMusic->SetVolume(int(128 * .2f));
+}
+
+void SceneManager::PauseMusic()
+{
+	if (m_pMusic != nullptr) {
+		m_pMusic->Pause();
+	}
+}
+
+void SceneManager::StopMusic()
+{
+	if (m_pMusic != nullptr) {
+		m_pMusic->Stop();
+		delete m_pMusic;
+		m_pMusic = nullptr;
+	}
 }
 
 void SceneManager::CleanScenes()

@@ -28,6 +28,7 @@ Entity::Entity(EntityManager* manager, const Vector2f& origin, const std::string
 	m_Health{ 1 }
 {
 	m_pAnimator = new AnimationController(this);
+	m_pSoundManager = new SoundManager();
 
 	this->SetName(entityName);
 	this->GetTransform()->SetPosition(origin);
@@ -39,6 +40,7 @@ Entity::~Entity() {
 	// Remove entity from the manager !	
 	delete m_pPower;
 	delete m_pAnimator;
+	delete m_pSoundManager;
 	m_pManager->RemoveEntity(this);
 }
 
@@ -46,6 +48,7 @@ void Entity::Draw() const
 {		
 	if (m_Visible) {
 		Component::ApplyComponentEffects();
+		
 		if (m_pPower != nullptr) {
 			m_pPower->Draw();
 		};

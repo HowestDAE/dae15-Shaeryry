@@ -10,6 +10,8 @@ public:
 	explicit EnemySpawnerHandler(Scene* scene);
 	EnemySpawnerHandler& operator=(const EnemySpawnerHandler& rhs) = delete;
 	EnemySpawnerHandler(const EnemySpawnerHandler& other) = delete;
+	EnemySpawnerHandler(EnemySpawnerHandler&& other) = delete;
+	EnemySpawnerHandler& operator=(EnemySpawnerHandler&& other) = delete;
 	~EnemySpawnerHandler();
 
 	void Update(float elapsedSec);

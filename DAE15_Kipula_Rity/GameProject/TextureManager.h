@@ -8,6 +8,8 @@ public:
 	explicit TextureManager();
 	TextureManager& operator=(const TextureManager& rhs) = delete;
 	TextureManager(const TextureManager& other) = delete;
+	TextureManager(TextureManager&& other) = delete;
+	TextureManager& operator=(TextureManager&& other) = delete;
 	~TextureManager();
 
 	Texture* GetTexture(const std::string& key,const std::string& texturePath);

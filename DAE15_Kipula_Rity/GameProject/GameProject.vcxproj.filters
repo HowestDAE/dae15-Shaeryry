@@ -28,6 +28,9 @@
     <Filter Include="Header Files\Managers">
       <UniqueIdentifier>{26585a52-e269-48d1-bca3-d6baeb81cb2b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Scenes">
+      <UniqueIdentifier>{801a8ec1-f4ee-4093-ab95-3cdf30838298}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -108,9 +111,6 @@
     <ClCompile Include="Cloud.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Door.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -121,6 +121,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BrontoBurt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameOver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EndScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HotHead.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sparky.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -150,9 +165,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CollisionBody.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EnemySpawner.h">
@@ -203,9 +215,6 @@
     <ClInclude Include="Cloud.h">
       <Filter>Header Files\Projectiles</Filter>
     </ClInclude>
-    <ClInclude Include="Door.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -216,6 +225,24 @@
       <Filter>Header Files\Enemies</Filter>
     </ClInclude>
     <ClInclude Include="BrontoBurt.h">
+      <Filter>Header Files\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="GameOver.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="EndScreen.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="HotHead.h">
+      <Filter>Header Files\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="Sparky.h">
       <Filter>Header Files\Enemies</Filter>
     </ClInclude>
   </ItemGroup>

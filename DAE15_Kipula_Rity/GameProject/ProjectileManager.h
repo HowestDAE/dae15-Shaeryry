@@ -12,6 +12,8 @@ public:
 	explicit ProjectileManager(Entity* owner,EntityManager* entityManager);
 	ProjectileManager& operator=(const ProjectileManager& rhs) = delete;
 	ProjectileManager(const ProjectileManager& other) = delete;
+	ProjectileManager(ProjectileManager&& other) = delete;
+	ProjectileManager& operator=(ProjectileManager&& other) = delete;
 	~ProjectileManager();
 
 	void Update(float elapsedSec);

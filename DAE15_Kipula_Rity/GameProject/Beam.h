@@ -13,6 +13,8 @@ public:
 	explicit Beam(Entity* entity); 
 	Beam& operator=(const Beam& rhs) = delete;
 	Beam(const Beam& other) = delete;
+	Beam(Beam&& other) = delete;
+	Beam& operator=(Beam&& other) = delete;
 	~Beam();
 	virtual void Update(float elapsedSec) override; 
 	virtual void Draw() const override;

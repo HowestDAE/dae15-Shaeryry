@@ -10,4 +10,5 @@ WaddleDee::WaddleDee(EntityManager* entityManager, const Vector2f& origin) :
 
 	SetPower(PowerTypes::None);
 	m_Speed = WADDLEDEE_MOVEMENT_SPEED;
+	m_Score = 200;
 }

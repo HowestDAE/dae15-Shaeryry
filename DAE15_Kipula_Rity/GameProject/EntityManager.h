@@ -12,6 +12,8 @@ public:
 	explicit EntityManager(Scene* scene);
 	EntityManager& operator=(const Entity& rhs) = delete;
 	EntityManager(const Entity& other) = delete;
+	EntityManager(EntityManager&& other) = delete;
+	EntityManager& operator=(EntityManager&& other) = delete;
 	~EntityManager();
 
 	void DrawEntities() const;

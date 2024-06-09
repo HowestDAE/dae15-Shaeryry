@@ -90,13 +90,13 @@ void World::Draw() const
 	};
 
 	for (size_t indexPlatform{}; indexPlatform < m_Platforms.size(); indexPlatform++) {
-		utils::DrawPolygon(m_Platforms[indexPlatform], true, 5.f);
-	};*/
+		utils::DrawPolygon(m_Platforms[indexPlatform], true, 5.f); 
+	};
 
 	for (size_t doorIndex{}; doorIndex < m_Doors.size(); doorIndex++) {
 		utils::SetColor(Color4f(1, 1, 1, 1));
 		utils::FillRect(m_Doors[doorIndex].area);
-	}
+	}*/
 }
 
 void World::Update(float elapsedSec)
