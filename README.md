@@ -47,6 +47,7 @@
 ## About The Project
 
 TODO: add screenshot 
+<img src="Screenshot.png" alt="Kirby's Adventure Screenshot">
 
 Here's why:
 TODO: describe why you chose this game 
@@ -61,15 +62,20 @@ TODO: describe why you chose this game
 This section gives a clear and detailed overview of which parts of the original game I planned to make.
 
 ### The minimum I will most certainly develop:
-* Most of, if not everything in, the first part of "Vegetable Valley"
+* Kirby's basic controls
+* A power system that can easily accomodate new powers
+* A level/scene system that can easily be adjusted and allow for easy level addition
+* 
 
 ### What I will probably make as well:
-* .. 
-* .. 
+* 2 levels to make sure that the transitions between scenes work
+* An end screen and game over screen accurate to the game.
 
 ### What I plan to create if I have enough time left:
-* .. 
-* .. 
+* Particle System
+* More advanced controls such as Running and Controls
+* Hub World
+* Final part of Vegetable which includes
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -77,7 +83,8 @@ This section gives a clear and detailed overview of which parts of the original 
 <!-- GETTING STARTED -->
 ## Getting Started
 Detailed instructions on how to run your game project are in this section.
-
+- Set the game project as the start up project before launching.
+  
 ### Prerequisites
 
 This is an example of how to list things you need to use the software and how to install them.
@@ -90,8 +97,6 @@ Explain which project (version) must be run.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- HOW TO PLAY -->
 ## How to play
 
@@ -102,6 +107,8 @@ Additional screenshots and demos work well in this space.
 ### Controls
 * Arrow Keys - Movement
 * Space - Jumping
+* Z - Ability key
+* UP Arrow key - Enter flying state
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -111,9 +118,10 @@ Additional screenshots and demos work well in this space.
 
 ### Object composition 
 If you applied object composition (optional); explain where and how.
+A bit of object composition is used in this project. I believe I've used all the object composition techniques we were thought this semester a bit everywhere in thie project. A good few examples would be...
 
-- AnimationController :
-*It <b>HAS</b> and owns a bunch of Animation objects.
+- AnimationController : *It <b>HAS</b> and owns a bunch of Animation objects. It is solely responsible to handle these objects.
+- All my manager classes : A lot of, if not all of them, control and own the objects they are supposed to manage and are therefore responsible for their lifetime
 
 ### Inheritance 
 Explain where you applied inheritance (mandatory).
@@ -129,9 +137,18 @@ Explain where you applied inheritance (mandatory).
 - Entity Class : This class encapsulates anything that is supposed to be considered alive in the game (Kirby, enemies...) Therefore it makes sense for the following classes to enherit from it.
     * Player
     * Enemy
-
+- Scene Class : This is a class that along with its manager is responsible to handle everything in the game. Each scene can then be smoothly transitioned into one another.
+    * End Screen : This is a special type of scene that loads only when you complete the game !
+    * Game Over : This is a scene that loads when you run out of lives. This scene will send you back to the start of the game after a few seconds.
+- Power Class : This is the template used for every power in the game. Any entity in the game has the ability to use these powers. This makes it so enemies can use the powers they give to the player.
+    * Beam Power
 - Enemy Class : This class groups up all enemies in the game. This serves as a base for every enemy and allows some enemies to share some stuff. Currently the enemies in the game are..
     * Waddle Doo
+    * Waddle Dee
+    * Sparky
+    * Hot Head
+    * Bronto Burt
+
 
 ### ..
 
@@ -151,8 +168,8 @@ Explain where you applied inheritance (mandatory).
 - [x] week 04 topics applied
 - [x] week 05 topics applied
 - [x] week 06 topics applied
-- [ ] week 07 topics applied
-- [ ] week 08 topics applied
+- [x] week 07 topics applied
+- [x] week 08 topics applied
 - [ ] week 09 topics applied (optional)
 - [ ] week 10 topics applied (optional)
 
@@ -172,7 +189,9 @@ Project Link: [https://github.com/HowestDAE/dae15-Shaeryry](https://github.com/H
 ## Acknowledgments
 
 Use this space to list resources you find helpful and would like to give credit to. 
-
+* https://www.spriters-resource.com/nes/kirbyadv/
+* https://www.dafont.com/kirbys-adventure.font
+* https://www.sounds-resource.com/nes/kirbysadventure/sound/19653/
 * [Example 1: cpp reference on std::vector](https://en.cppreference.com/w/cpp/container/vector)
 * ..
 
