@@ -48,9 +48,7 @@
 
 <img src="Screenshot.png" alt="Kirby's Adventure Screenshot">
 
-Here's why:
-    * I love Kirby :D. It is a franchise I've been following for quite a while and am a bit familiar with. 
-    * It seemed like the game would be challenging to make. I believe that this game could challenge my capabilities as a Programmer and force me to think outside of the box to solve the problems I might encounter.
+Here's why: I love Kirby :D. It is a franchise I've been following for quite a while and am a bit familiar with. It also seemed like the game would be challenging to make, I believe that this game could challenge my capabilities as a programmer and force me to think outside of the box to solve the problems I might encounter.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
