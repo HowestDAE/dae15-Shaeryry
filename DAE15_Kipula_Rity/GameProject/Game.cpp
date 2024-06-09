@@ -36,12 +36,12 @@ void Game::Initialize( )
 		},
 		"Vegetable Valley"
 	};
-
+	 
 	m_Scenes["Vegetable Valley 2"] = WorldData{ "VegetableValley_2",3.f,4,0.25f,
 		{ 
-			SpawnerData{ Vector2f(600,165),EnemyType::WaddleDee,1},
+			SpawnerData{ Vector2f(600,165),EnemyType::WaddleDee,1}, 
 			SpawnerData{ Vector2f(1125,187),EnemyType::Sparky,1},
-			SpawnerData{ Vector2f(1470,140),EnemyType::WaddleDee,1},
+			SpawnerData{ Vector2f(1470,140),EnemyType::WaddleDee,1}, 
 			SpawnerData{ Vector2f(2570,175),EnemyType::Sparky,1},
 		}, 
 		{
