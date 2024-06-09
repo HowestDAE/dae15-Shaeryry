@@ -46,13 +46,9 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-TODO: add screenshot 
 <img src="Screenshot.png" alt="Kirby's Adventure Screenshot">
 
-Here's why:
-TODO: describe why you chose this game 
-    * I love Kirby :D
-    * It seemed like the game would be challenging to make.
+Here's why: I love Kirby :D. It is a franchise I've been following for quite a while and am a bit familiar with. It also seemed like the game would be challenging to make, I believe that this game could challenge my capabilities as a programmer and force me to think outside of the box to solve the problems I might encounter.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -192,8 +188,6 @@ Use this space to list resources you find helpful and would like to give credit 
 * https://www.spriters-resource.com/nes/kirbyadv/
 * https://www.dafont.com/kirbys-adventure.font
 * https://www.sounds-resource.com/nes/kirbysadventure/sound/19653/
-* [Example 1: cpp reference on std::vector](https://en.cppreference.com/w/cpp/container/vector)
-* ..
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
