@@ -46,8 +46,6 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-TODO: add screenshot 
-
 <img src="Screenshot.png" alt="Kirby's Adventure Screenshot">
 
 Here's why:
